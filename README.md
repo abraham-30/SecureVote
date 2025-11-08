@@ -1,2 +1,2 @@
 # SecureVote
-An e-voting application that utilize AI Technologies to secure its voting system
+An AI Powered e-voting application that leverages AI Technologies such as Face Recognition to secure its voting system
