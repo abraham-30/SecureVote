@@ -1,5 +1,4 @@
 import { Text, View } from "react-native";
-import './css/global.css';
 
 export default function Index() {
   return (
@@ -10,7 +9,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Mari kita skripsian ges</Text>
+      <Text className="text-3xl text-red-900 bg-green-300">Mari kita skripsian ges</Text>
     </View>
   );
 }
