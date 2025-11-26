@@ -1,10 +1,26 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
+import { useEffect } from "react";
 import './css/global.css';
 
+function RouteGuard({children}:{children: React.ReactNode}){
+  const router = useRouter();
+  const isAuth = false; // only for testing
+  
+  useEffect(()=>{
+    if(!isAuth){
+      router.replace("/auth");
+    }
+  })
+
+  return <>{children}</>
+}
+
 export default function RootLayout() {
-  return <Stack>
-    <Stack.Screen
-      name="index"
-    />
-  </Stack>;
+  return (
+    // <RouteGuard> -> activate ini kalau mau lihat login screen/register screen
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+      </Stack>
+    // </RouteGuard>
+  );
 }
