@@ -1,11 +1,11 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { Tabs } from "expo-router";
-import '../css/global.css';
+import '../../assets/styles/global.css';
 
 export default function TabsLayout() {
   return (
     <Tabs screenOptions={{
-      tabBarActiveTintColor:'orange',
+      tabBarActiveTintColor: 'coral',
     }}>
       <Tabs.Screen name="index" options={{
         title: "Home",

@@ -1,6 +1,6 @@
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
-import './css/global.css';
+import '../assets/styles/global.css';
 
 function RouteGuard({children}:{children: React.ReactNode}){
   const router = useRouter();
