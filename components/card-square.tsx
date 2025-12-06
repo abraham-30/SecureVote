@@ -1,10 +1,10 @@
 import { Image, Text, View } from "react-native";
-import CustomTimer from "./timer";
+import Timer from "./timer";
 
 export default function CardSquare(){
     return(
         <View className="flex flex-col bg-gray-200 rounded p-5 gap-2">
-            <CustomTimer></CustomTimer>
+            <Timer></Timer>
             <View className="w-full h-48">
                 <Image className="w-full h-full object-cover" source={require("../assets/images/icon.png")}></Image>
             </View>

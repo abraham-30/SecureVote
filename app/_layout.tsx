@@ -1,26 +1,23 @@
-import { Stack, useRouter } from "expo-router";
-import { useEffect } from "react";
+import { Stack } from "expo-router";
 import '../assets/styles/global.css';
 
-function RouteGuard({children}:{children: React.ReactNode}){
-  const router = useRouter();
-  const isAuth = false; // only for testing
-  
-  useEffect(()=>{
-    if(!isAuth){
-      router.replace("/auth");
-    }
-  })
-
-  return <>{children}</>
-}
+const isLoggedIn = false;
+const isOnboarding = false;
 
 export default function RootLayout() {
   return (
-    // <RouteGuard> -> activate ini kalau mau lihat login screen/register screen
       <Stack>
-        <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+        <Stack.Protected guard={isLoggedIn}>
+          <Stack.Screen name="(drawer)" options={{headerShown:false}}/>
+        </Stack.Protected>
+        <Stack.Protected guard={!isLoggedIn}>
+          <Stack.Screen name="login" options={{headerShown:false}}/>
+          <Stack.Screen name="register" options={{headerTransparent:true, headerTitle:"Back"}}/>
+          <Stack.Protected guard={!isOnboarding}>
+            <Stack.Screen name="onboarding" options={{headerShown:false}}/>
+          </Stack.Protected>
+        </Stack.Protected>
       </Stack>
-    // </RouteGuard>
   );
 }
+
