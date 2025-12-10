@@ -1,11 +1,10 @@
 import { Link } from "expo-router";
 import { Button, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen(){
     return (
-        <SafeAreaView>
-            <View className="bg-white p-8 rounded-lg shadow-md">
+        <View className="flex-1 justify-center">
+            <View className="p-10">
                 <View className="flex items-center">
                     <Text className="font-bold text-3xl">E-Vote</Text>
                 </View>
@@ -30,12 +29,12 @@ export default function RegisterScreen(){
                         <Text>(kasi keterangan disini kalau butuh password mengandung regex)</Text>
                     </View>
                     <View className="mt-7">
-                        <Link asChild push href={"/onboarding/onboarding-a"}>
+                        <Link asChild push href={"/onboarding/email-verification"}>
                             <Button title="Next"/>
                         </Link>
                     </View>
                 </View>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }

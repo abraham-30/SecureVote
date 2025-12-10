@@ -1,20 +1,21 @@
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import { router } from "expo-router";
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { Link } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
-import { TouchableOpacity } from "react-native";
+import { View } from 'react-native';
 import '../../assets/styles/global.css';
 
 export default function Layout() {
+
   return (
-      <Drawer>
-        <Drawer.Screen name="(tabs)" options={{
-          title: "E-Vote",
-          headerRight: () => (
-          <TouchableOpacity onPress={() => router.push("/notification")}>
-            <FontAwesome5 name="bell" size={24} color="black" />
-          </TouchableOpacity>
-        )
-        }}/>
+      <Drawer screenOptions={{
+        headerRight: () => 
+          <View className='pr-3'>
+            <Link href={{pathname: '/notification'}}>
+              <MaterialCommunityIcons name="bell" size={24} color="black" />
+            </Link>
+          </View>
+      }}>
+        <Drawer.Screen name="(tabs)" options={{title: "Home", headerTitle: ""}}/>
         <Drawer.Screen name="settings" options={{title:"Settings"}}/>
       </Drawer>
   );

@@ -1,11 +1,12 @@
 import { Link } from "expo-router";
 import { Button, Text, TextInput, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "./utils/authStore";
 
 export default function LoginScreen(){
+    const { logIn } = useAuthStore();
     return (
-        <SafeAreaView>
-            <View className="bg-white p-8 rounded-lg shadow-md">
+        <View className="flex-1 justify-center">
+            <View className="p-10">
                 <View className="flex items-center">
                     <Text className="font-bold text-3xl">E-Vote</Text>
                 </View>
@@ -27,7 +28,7 @@ export default function LoginScreen(){
                         <TextInput className="border rounded-lg my-3" keyboardType="visible-password"></TextInput>
                     </View>
                     <View className="mt-7">
-                        <Button title="Login"/>
+                        <Button title="Login" onPress={logIn}/>
                     </View>
                 </View>
                 <View className="flex items-center">
@@ -37,6 +38,6 @@ export default function LoginScreen(){
                     </Link>
                 </View>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
