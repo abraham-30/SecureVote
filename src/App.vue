@@ -1,25 +1,36 @@
 <script setup>
-  // import CustomFooter from '@/components/CustomFooter.vue';
-  // import CustomNavbar from '@/components/CustomNavbar.vue';
+  import CustomFooter from '@/components/CustomFooter.vue';
+  import CustomNavbar from '@/components/CustomNavbar.vue';
   import { ref } from 'vue';
 
-  const emoji = ref('👋')
+  const Time = ref('07:00 PM GMT+7')
+  const Location = ref('Jakarta, Indonesia')
+  const UserName = ref('John Doe')
 
 </script>
 
 <template>
   <!-- <CustomNavbar/> -->
-  <main class="flex items-center justify-center h-screen w-screen">
-    <div class="flex flex-row items-center gap-2 text-6xl">
-      <header>
-        {{ emoji }}
-      </header>
-      <span>
-        Hello World!
-      </span>
-    </div>
+  <main class="flex flex-col gap-10">
+    <section>
+      <div class="flex flex-col gap-2">
+        <div class="flex flex-col">
+          <span class="text-xl">{{ Time }}</span>
+          <span class="text-xl">{{ Location }}</span>
+        </div>
+        <div>
+          <span class="text-4xl">Welcome, {{ UserName }}!</span>
+        </div>
+      </div>
+    </section>
+    <section>
+      My Organization
+    </section>
+    <section>
+      Managed Organization
+    </section>
   </main>
-  <!-- <CustomFooter/> -->
+  <CustomFooter/>
 </template>
 
 <style scoped></style>
