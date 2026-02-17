@@ -1,22 +1,19 @@
 <script setup>
-    import imageUrl from '@/assets/icon-neutralgrey200.png'
+    import iconUrl from '@/assets/icon-neutralgrey200.png'
 </script>
 
 <template>
-    <footer class="border-t-1 text-neutral-300 mb-4 p-4">
-        <div class="flex flex-row items-center justify-between">
-            <div class="">
-                <div class="h-3.5">
-                    <img :src="imageUrl" alt="" class="h-full">
-                </div>
+    <footer>
+        <v-divider class="border-opacity-100"></v-divider>
+        <div class="d-flex flex-row justify-space-between align-center mt-4 mb-4">
+            <div>
+                <img :src="iconUrl" alt="" style="height: 14px;">
+                <span>
+                    | © 2026 Abraham and Fredy. All right reserved. 
+                </span>
             </div>
-            <div class="w-full px-2 text-sm font-semibold">
-                <span>  | © 2026 Abraham and Fredy. All right reserved. </span>
-            </div>
-            <div class="">
-                <a href=""></a>
-                <a href=""></a>
-                <a href=""></a>
+            <div>
+                Socials
             </div>
         </div>
     </footer>

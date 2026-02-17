@@ -1,17 +1,21 @@
 <script setup>
+  import { RouterView } from 'vue-router';
   import CustomFooter from '@/components/Footer.vue';
   import CustomNavbar from '@/components/Navbar.vue';
-  import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <CustomNavbar class="fixed"/>
-  <main class="flex flex-col min-h-screen bg-gradient-to-b from-[#000c29] via-neutral-800 via-16% to-black to-72%">
-    <RouterView/>
-    <CustomFooter/>
-  </main>
+  <v-app>
+    <div class="min-h-screen bg-black">
+      <CustomNavbar></CustomNavbar>
+      <div class="container ma-auto">
+        <RouterView class="min-h-screen"/>
+        <CustomFooter></CustomFooter>
+      </div>
+    </div>
+  </v-app>
 </template>
 
-<style scoped>
+<style src="/src/assets/index.css" scoped>
 
 </style>
