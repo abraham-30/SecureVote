@@ -9,6 +9,7 @@
     <div class="min-h-screen bg-black">
       <CustomNavbar></CustomNavbar>
       <div class="container ma-auto">
+        <div class="py-14"></div>
         <RouterView class="min-h-screen"/>
         <CustomFooter></CustomFooter>
       </div>

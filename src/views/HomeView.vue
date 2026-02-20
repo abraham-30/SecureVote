@@ -1,8 +1,5 @@
 <script setup>
   import { ref } from 'vue';
-
-  // import imgUrl from '@/assets/Wikimedia-logo.png'
-
   const Time = ref('07:00 PM GMT+7')
   const Location = ref('Jakarta, Indonesia')
   const UserName = ref('John Doe')
@@ -46,7 +43,7 @@
               <v-card-title class="text-h5 font-weight-bold">
                 Organization Name
               </v-card-title>
-              <v-card-text>
+              <v-card-text class="text-grey-lighten-1">
                 Lorem ipsum dolor sit amet.
               </v-card-text>
             </v-card>
@@ -79,7 +76,7 @@
                 <v-card-title class="text-h5 font-weight-bold">
                   Organization Name
                 </v-card-title>
-                <v-card-text>
+                <v-card-text class="text-grey-lighten-1">
                   Lorem ipsum dolor sit amet.
                 </v-card-text>
               </v-card>
