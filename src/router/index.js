@@ -15,6 +15,11 @@ import ApprovalView from "@/views/ApprovalView.vue"
 import MyTeamView from "@/views/MyTeamView.vue"
 import MemberDetailsView from "@/views/MemberDetailsView.vue"
 
+//  Admin Pages
+import AssignMemberView from "@/views/AssignMemberView.vue"
+import ManageMemberView from "@/views/ManageMemberView.vue"
+import InviteUserView from "@/views/InviteUserView.vue"
+
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes:[
@@ -65,6 +70,22 @@ const router = createRouter({
             path:'/MemberDetails',
             name:'memberDetails',
             component: MemberDetailsView
+        },
+        // Admin Pages
+        {
+            path:'/AssignMember',
+            name: 'assignMember',
+            component: AssignMemberView
+        },
+        {
+            path: '/ManageMember',
+            name: 'manageMember',
+            component: ManageMemberView
+        },
+        {
+            path: '/InviteUser',
+            name: 'inviteUser',
+            component: InviteUserView
         }
     ]
 })
