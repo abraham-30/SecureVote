@@ -22,7 +22,7 @@
             density="comfortable"
             variant="outlined"
             ></v-text-field>
-            <v-btn>Invite</v-btn>
+            <v-btn>Send Invitation →</v-btn>
         </div>
     </div>
 </template>
