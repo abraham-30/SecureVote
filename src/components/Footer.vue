@@ -12,8 +12,18 @@
                     | © 2026 Abraham and Fredy. All right reserved. 
                 </span>
             </div>
-            <div>
-                Socials
+            <div class="d-flex flex-row ga-2">
+                <!-- ubah url instagram aowkoawkawokawok -->
+                <a href="https://www.instagram.com/prabowo/" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
+                    <v-icon 
+                    icon="mdi-instagram" 
+                    ></v-icon>
+                </a>
+                <a href="https://www.instagram.com/gibran_rakabuming/" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
+                    <v-icon 
+                    icon="mdi-instagram" 
+                    ></v-icon>
+                </a>
             </div>
         </div>
     </footer>

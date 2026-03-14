@@ -7,10 +7,24 @@
         <div class="d-flex flex-column">
             <div style="height: 40px;">
                 <!-- still hardcoded image -->
-                <img src="../assets/Wikimedia-logo.png" alt="" class="h-100">
+                <img src="@/assets/Wikimedia-logo.png" alt="" class="h-100">
             </div>
             <span class="text-h5 font-weight-bold">Organization Name</span>
             <span class="text-grey-lighten-1">John Doe</span>
+        </div>
+        <div class="d-flex flex-column align-center">
+            <div class="d-flex flex-row ga-1">
+                 <v-icon 
+                icon="mdi-white-balance-sunny" 
+                class="text-grey-darken-2"
+                ></v-icon>
+                <v-icon 
+                icon="mdi-weather-night" 
+                ></v-icon>
+            </div>
+            <h1>07:00 PM</h1>
+            <span class="text-grey-lighten-1">Jakarta, Indonesia (GMT+7)</span>
+            <span class="text-grey-lighten-1">December 19th, 2025</span>
         </div>
         <div class="d-flex flex-column">
             <div class="d-flex flex-row w-100 ga-4">
@@ -43,9 +57,22 @@
                 <span class="text-h6 font-weight-bold">Manage Your Administration</span>
                 <v-divider class="border-opacity-100"></v-divider>      
             </div>
-            <div>
-                <v-btn prepend-icon="$vuetify" stacked class="bg-blur text-white">
+            <div class="d-flex flex-row ga-4">
+                <v-btn stacked variant="outlined" class="bg-blur text-white">
+                    <v-icon 
+                    size="x-large"
+                    icon="mdi-clock-outline" 
+                    class="text-yellow-darken-1"
+                    ></v-icon>
                     Override
+                </v-btn>
+                <v-btn stacked variant="outlined" class="bg-blur text-white">
+                    <v-icon 
+                    size="x-large"
+                    icon="mdi-door-closed" 
+                    class="text-green-darken-1"
+                    ></v-icon>
+                    Leave
                 </v-btn>
             </div>
         </div>

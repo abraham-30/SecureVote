@@ -8,9 +8,11 @@
     <div class="d-flex flex-column ga-8">
         <div class="d-flex flex-row justify-space-between align-center">
             <div class="d-flex flex-column">
-                <div style="height: 40px;">
-                    <img src="../assets/Wikimedia-logo.png" alt="" class="h-100">
-                </div>
+                <v-icon 
+                size="60"
+                icon="mdi-clock-outline" 
+                class="text-yellow-darken-1"
+                ></v-icon>
                 <span class="text-h5 font-weight-bold">Override Requests</span>
                 <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
@@ -47,7 +49,13 @@
                             </template>
                             <template v-slot:append>
                             <v-card-actions>
-                                <v-btn class="text-error" variant="text">Cancel</v-btn>
+                                <v-btn class="text-error" stacked variant="text">
+                                    <v-icon 
+                                    size="x-large"
+                                    icon="mdi-close" 
+                                    ></v-icon>
+                                    Cancel
+                                </v-btn>
                             </v-card-actions>
                             </template>
                         </v-card>
