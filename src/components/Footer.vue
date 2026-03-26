@@ -8,9 +8,9 @@
         <div class="d-flex flex-row justify-space-between align-center mt-4 mb-4">
             <div>
                 <img :src="iconUrl" alt="" style="height: 14px;">
-                <span>
+                <!-- <span>
                     | © 2026 Abraham and Fredy. All right reserved. 
-                </span>
+                </span> -->
             </div>
             <div class="d-flex flex-row ga-2">
                 <!-- ubah url instagram aowkoawkawokawok -->

@@ -18,7 +18,7 @@
                         Hadirkan pengalaman absensi yang lebih cerdas, praktis, dan efisien bersama Tenda.
                     </p>
                 </div>
-                <v-btn>
+                <v-btn to="/login">
                     Sign In →
                 </v-btn>
             </div>

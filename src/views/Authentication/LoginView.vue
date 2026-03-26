@@ -23,7 +23,7 @@
                         label="Password"
                         class="w-100"
                     ></v-text-field>
-                    <v-btn class="w-50">
+                    <v-btn to="/" class="w-50">
                         Sign In →
                     </v-btn>
                 </v-form>

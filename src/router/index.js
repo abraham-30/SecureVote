@@ -18,7 +18,7 @@ import OverrideView from "@/views/user/OverrideView.vue"
 import CreateOverride from "@/views/user/CreateOverride.vue"
 
 // Supervisor Pages
-import ApprovalView from "@/views/supervisor/ApprovalView.vue"
+import MyTeamRequestView from "@/views/supervisor/MyTeamRequestView.vue"
 import MyTeamView from "@/views/supervisor/MyTeamView.vue"
 import MemberDetailsView from "@/views/supervisor/MemberDetailsView.vue"
 
@@ -28,6 +28,11 @@ import ManageMemberView from "@/views/admin/ManageMemberView.vue"
 import InviteUserView from "@/views/admin/InviteUserView.vue"
 import LoginView from "@/views/Authentication/LoginView.vue"
 import RegisterView from "@/views/Authentication/RegisterView.vue"
+import InvalidPageView from "@/views/main/InvalidPageView.vue"
+
+// Components
+import TopNavbar from "@/components/TopNavbar.vue"
+import Footer from "@/components/Footer.vue"
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,12 +73,20 @@ const router = createRouter({
         {
             path:'/',
             name:'home',
-            component:HomeView
+            components:{
+                default: HomeView,
+                navbar: TopNavbar,
+                footer: Footer
+            }
         },
         {
             path:'/Invitations',
             name:'invitations',
-            component:InvitationListView
+            components:{
+                default: InvitationListView,
+                navbar: TopNavbar,
+                footer: Footer
+            }
         },
         {
             path:'/RegisterOrganization',
@@ -84,12 +97,23 @@ const router = createRouter({
         {
             path:'/Clock',
             name:'clock',
-            component: ClockView
+            components:{
+                default: ClockView,
+                footer: Footer
+            },
+            props:{
+                navbar:{
+                    sidebarActive: false
+                }
+            }
         },
         {
             path:'/Override',
             name:'override',
-            component: OverrideView
+            components:{
+                default: OverrideView,
+                footer: Footer
+            } 
         },
         {
             path:'/CreateOverride',
@@ -98,19 +122,28 @@ const router = createRouter({
         },
         // Supervisor Pages
         {
-            path:'/Approvals',
-            name:"approvals",
-            component: ApprovalView
+            path:'/MyTeamRequest',
+            name:"myteamrequest",
+            components: {
+                default: MyTeamRequestView,
+                footer: Footer
+            }
         },
         {
             path:'/MyTeam',
             name:"myTeam",
-            component: MyTeamView
+            components:{
+                default: MyTeamView,
+                footer: Footer
+            }
         },
         {
             path:'/MemberDetails',
             name:'memberDetails',
-            component: MemberDetailsView
+            components: {
+                default: MemberDetailsView,
+                footer: Footer
+            } 
         },
         // Admin Pages
         {
@@ -127,6 +160,12 @@ const router = createRouter({
             path: '/InviteUser',
             name: 'inviteUser',
             component: InviteUserView
+        },
+
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'InvalidPage',
+            component: InvalidPageView
         }
     ]
 })

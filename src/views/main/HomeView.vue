@@ -1,20 +1,21 @@
 <script setup>
-  import { ref } from 'vue';
-  const Time = ref('07:00 PM GMT+7')
-  const Location = ref('Jakarta, Indonesia')
-  const UserName = ref('John Doe')
+
 </script>
 
 <template>
-  <div>
-      <div class="d-flex flex-column ga-8">
+  <div class="py-14">
+      <div class="d-flex flex-column ga-8 py-8">
         <div>
           <div class="d-flex flex-column">
-            <span>{{ Time }} </span>
-            <span class="text-grey-lighten-1">{{ Location }}</span>
-          </div>
-          <div>
-            <span class="text-h4 font-weight-bold">Welcome, {{ UserName }}!</span>
+            <span>07:00 PM GMT+7                       
+              <v-icon 
+              size="small"
+              icon="mdi-weather-night" 
+              class="ml-1"
+              ></v-icon>
+            </span> 
+            <span class="text-grey-lighten-1">Jakarta, Indonesia</span>
+            <span class="mt-2 text-h4 font-weight-bold">Welcome, John Doe!</span>
           </div>
         </div>
         <div class="d-flex flex-column ga-4">
@@ -23,7 +24,7 @@
             <v-divider class="border-opacity-100"></v-divider>      
           </div>
           <div>
-            <v-btn>
+            <v-btn to="/invitations">
               Invitation →
             </v-btn>
           </div>
@@ -31,6 +32,7 @@
             <v-card 
             class="bg-blur border-sm border-primary border-opacity-75 text-white"
             link
+            to="/clock"
             >
               <template v-slot:prepend>
                 <v-avatar size="48">
@@ -56,7 +58,7 @@
             <v-divider class="border-opacity-100"></v-divider>      
           </div>
           <div>
-            <v-btn>
+            <v-btn to="/RegisterOrganization">
               Register Organization +
             </v-btn>
           </div>
