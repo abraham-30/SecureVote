@@ -41,17 +41,26 @@ const router = createRouter({
         {
             path:'/tenda',
             name:'tenda',
-            component: LandingView
+            components:{
+                default: LandingView,
+                footer: Footer
+            }
         },
         {
             path: '/login',
             name: 'login',
-            component: LoginView
+            components:{
+                default: LoginView,
+                footer: Footer
+            }
         },
         {
             path: '/register',
             name: 'register',
-            component: RegisterView
+            components:{
+                default: RegisterView,
+                footer: Footer
+            }
         },
         // Onboarding Pages -> don't forget to change the url
         {
@@ -118,7 +127,10 @@ const router = createRouter({
         {
             path:'/CreateOverride',
             name:'createoverride',
-            component: CreateOverride
+            components:{
+                default: CreateOverride,
+                footer: Footer
+            }
         },
         // Supervisor Pages
         {

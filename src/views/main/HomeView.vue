@@ -1,13 +1,12 @@
 <script setup>
-
 </script>
 
 <template>
-  <div class="py-14">
-      <div class="d-flex flex-column ga-8 py-8">
+  <div class="min-h-screen py-14">
+      <div class="d-flex flex-column ga-8 py-14">
         <div>
           <div class="d-flex flex-column">
-            <span>07:00 PM GMT+7                       
+            <span class="font-weight-bold">07:00 PM GMT+7                       
               <v-icon 
               size="small"
               icon="mdi-weather-night" 
@@ -15,74 +14,83 @@
               ></v-icon>
             </span> 
             <span class="text-grey-lighten-1">Jakarta, Indonesia</span>
-            <span class="mt-2 text-h4 font-weight-bold">Welcome, John Doe!</span>
+            <span class="mt-2 text-headline-large font-weight-bold">Welcome, John Doe!</span>
           </div>
         </div>
         <div class="d-flex flex-column ga-4">
-          <div>
-            <span class="text-h6 font-weight-bold">My Organizations</span>
-            <v-divider class="border-opacity-100"></v-divider>      
+          <div class="d-flex flex-column ga-1">
+            <span class="text-title-medium font-weight-bold">My Organizations</span>
+            <v-divider class="border-opacity-50"></v-divider>      
           </div>
           <div>
-            <v-btn to="/invitations">
-              Invitation →
+            <v-btn 
+            text="Invitations →"
+            to="/invitations"
+            class="bg-white">
             </v-btn>
           </div>
           <div class="d-flex flex-column ga-4">
             <v-card 
-            class="bg-blur border-sm border-primary border-opacity-75 text-white"
+            class="bg-blur border-sm border-opacity-75 pa-2 text-white"
             link
             to="/clock"
             >
               <template v-slot:prepend>
-                <v-avatar size="48">
-                  <v-img
-                    alt="John"
-                    src="https://cdn.vuetifyjs.com/images/john.png"
-                  ></v-img>
-                </v-avatar>
-              </template>
-              <v-card-title class="text-h5 font-weight-bold">
-                Organization Name
-              </v-card-title>
-              <v-card-text class="text-grey-lighten-1">
-                Lorem ipsum dolor sit amet.
-              </v-card-text>
-            </v-card>
-            <v-pagination :length="5"></v-pagination>
-          </div>
-        </div>
-        <div class="d-flex flex-column ga-4">
-          <div>
-            <span class="text-h6 font-weight-bold">Managed Organizations</span>
-            <v-divider class="border-opacity-100"></v-divider>      
-          </div>
-          <div>
-            <v-btn to="/RegisterOrganization">
-              Register Organization +
-            </v-btn>
-          </div>
-          <div class="d-flex flex-column ga-4">
-             <v-card 
-              class="bg-blur border-sm border-primary border-opacity-75 text-white"
-              link
-              >
-                <template v-slot:prepend>
-                  <v-avatar size="48">
+                <div class="d-flex flex-column ga-1">
+                  <v-avatar size="40">
                     <v-img
                       alt="John"
                       src="https://cdn.vuetifyjs.com/images/john.png"
                     ></v-img>
                   </v-avatar>
-                </template>
-                <v-card-title class="text-h5 font-weight-bold">
-                  Organization Name
-                </v-card-title>
-                <v-card-text class="text-grey-lighten-1">
-                  Lorem ipsum dolor sit amet.
-                </v-card-text>
-              </v-card>
-              <v-pagination :length="5"></v-pagination>
+                  <span class="text-title-large font-weight-bold">
+                    Organization Name
+                  </span>
+                  <span class="text-grey-lighten-1 text-body-small">
+                    Lorem ipsum dolor sit amet.
+                  </span>
+                </div>
+              </template>
+            </v-card>
+            <v-pagination :length="5"></v-pagination>
+          </div>
+        </div>
+        <div class="d-flex flex-column ga-4">
+          <div class="d-flex flex-column ga-1">
+            <span class="text-title-medium font-weight-bold">Managed Organizations</span>
+            <v-divider class="border-opacity-50"></v-divider>      
+          </div>
+          <div>
+            <v-btn 
+            text="Register Organization +"
+            to="/RegisterOrganization"
+            class="bg-white">
+            </v-btn>
+          </div>
+          <div class="d-flex flex-column ga-4">
+            <v-card 
+            class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+            link
+            to="/clock"
+            >
+              <template v-slot:prepend>
+                <div class="d-flex flex-column ga-1">
+                  <v-avatar size="40">
+                    <v-img
+                      alt="John"
+                      src="https://cdn.vuetifyjs.com/images/john.png"
+                    ></v-img>
+                  </v-avatar>
+                  <span class="text-title-large font-weight-bold">
+                    Organization Name
+                  </span>
+                  <span class="text-grey-lighten-1 text-body-small">
+                    Lorem ipsum dolor sit amet.
+                  </span>
+                </div>
+              </template>
+            </v-card>
+            <v-pagination :length="5"></v-pagination>
           </div>
         </div>
       </div>

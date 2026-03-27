@@ -23,14 +23,16 @@
                         label="Password"
                         class="w-100"
                     ></v-text-field>
-                    <v-btn to="/" class="w-50">
+                    <v-btn 
+                    class="w-50 bg-white"
+                    to="/" >
                         Sign In →
                     </v-btn>
                 </v-form>
             </div>
             <div class="d-flex flex-row ga-2">
                 <span>New to TENDA?</span>
-                <a href="">Register here</a>
+                <a href="/register">Register here</a>
             </div>
         </div>
     </div>

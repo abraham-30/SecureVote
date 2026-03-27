@@ -11,14 +11,16 @@
                     <img :src="iconUrl" alt="" style="height: 14px;">
                 </div>
                 <div class="d-flex flex-column ga-4">
-                    <h1>
+                    <span class="text-headline-large font-weight-bold">
                         Absensi Digital, Kerja Lebih Cerdas.
-                    </h1>
-                    <p class="text-grey-lighten-1">
+                    </span>
+                    <span class="text-title-large text-grey-lighten-1">
                         Hadirkan pengalaman absensi yang lebih cerdas, praktis, dan efisien bersama Tenda.
-                    </p>
+                    </span>
                 </div>
-                <v-btn to="/login">
+                <v-btn 
+                class="bg-white"
+                to="/login">
                     Sign In →
                 </v-btn>
             </div>
@@ -29,7 +31,6 @@
                         <v-icon 
                         size="small"
                         icon="mdi-white-balance-sunny" 
-                        class="ml-1"
                         ></v-icon>
                     </span>
                     <span class="text-grey-lighten-1">
@@ -37,7 +38,7 @@
                     </span>
                 </div>
                 <div class="mt-4">
-                    <img :src="dummyImgUrl" alt="" class="h-100 w-100 border-lg border-surface-bright rounded-lg">
+                    <img :src="dummyImgUrl" alt="" class="h-100 w-100 border-sm rounded-lg">
                 </div>
             </div>
         </div>

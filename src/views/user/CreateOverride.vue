@@ -7,7 +7,7 @@
                 ← Back
             </v-btn>
             <div class="d-flex flex-column">
-                <span class="text-title-large font-weight-bold">Create Request</span>
+                <span class="text-headline-medium font-weight-bold">Create Request</span>
                 <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
             <div>
@@ -31,7 +31,10 @@
                         label="Note"
                         variant="outlined"
                     ></v-textarea>
-                    <v-btn type="submit" block>Submit Request</v-btn>
+                    <v-btn 
+                    type="submit" 
+                    class="bg-white"
+                    >Submit Request</v-btn>
                 </v-form>
             </div>
         </div>

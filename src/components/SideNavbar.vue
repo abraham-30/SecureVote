@@ -38,7 +38,10 @@
                     </div>
                 </div>
                 <div class="w-100">
-                    <v-btn block class="bg-white">
+                    <v-btn 
+                    block 
+                    class="bg-white"
+                    to="/">
                         Sign Out
                     </v-btn>
                 </div>

@@ -27,7 +27,9 @@
                         label="Email"
                         class="w-100"
                     ></v-text-field>
-                    <v-btn class="w-50" to="/facecheck1">
+                    <v-btn 
+                    class="w-50 bg-white" 
+                    to="/facecheck1">
                         Continue →
                     </v-btn>
                 </v-form>

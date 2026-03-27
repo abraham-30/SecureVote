@@ -45,20 +45,16 @@ function activateSidebar(){
             </div>
             <div class="d-flex flex-column ga-4">
                 <v-card 
-                class="bg-blur pa-2 border-sm border-opacity-75 text-white"
-                link
-                to="/MemberDetails" 
+                class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+                to="/MemberDetails"
                 >
-                    <div class="d-flex flex-column">
-                        <v-card-title class="text-title-large font-weight-bold">
-                        John Doe
-                        </v-card-title>
-                        <v-card-text class="text-grey-lighten-1">
-                            <span>caption 1</span>
-                            <br>
-                            <span>caption 2</span>
-                        </v-card-text>
+                <template v-slot:prepend>
+                    <div class="d-flex flex-column ga-1">
+                    <span class="text-title-large font-weight-bold">John Doe</span>
+                    <span class="text-body-small text-grey-lighten-1">subtitle 1</span>
+                    <span class="text-body-small text-grey-lighten-1">subtitle 2</span>
                     </div>
+                </template>
                 </v-card>
                 <v-pagination :length="5"></v-pagination>
             </div>

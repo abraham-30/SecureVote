@@ -72,14 +72,14 @@ function activateSidebar(){
                     </v-card>
                 </div>
             </div>
-            <div>
-                <span class="text-h6 font-weight-bold">This Month Attendance Report</span>
-                <v-divider class="border-opacity-100"></v-divider>      
+            <div class="d-flex flex-column ga-1">
+                <span class="text-title-medium font-weight-bold">This Month Attendance Report</span>
+                <v-divider class="border-opacity-50"></v-divider>      
             </div>
             <div class="d-flex flex-column ga-4">
-                <div>
-                    <span class="text-h6 font-weight-bold">Manage Your Administration</span>
-                    <v-divider class="border-opacity-100"></v-divider>      
+                <div class="d-flex flex-column ga-1">
+                    <span class="text-title-medium font-weight-bold">Manage Your Administration</span>
+                    <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <div class="d-flex flex-row ga-4 w-100">
                     <div class="w-100" 
@@ -91,8 +91,9 @@ function activateSidebar(){
                     >
                         <v-btn stacked variant="outlined" to="/override" class="bg-blur text-white w-100 h-100">
                             <v-icon 
+                            size="72"
                             icon="mdi-clock-outline" 
-                            class="text-yellow-darken-1 text-display-large"
+                            class="text-yellow-darken-1"
                             ></v-icon>
                             Override
                         </v-btn>
@@ -106,8 +107,9 @@ function activateSidebar(){
                     >
                         <v-btn stacked variant="outlined" to="/leave" class="bg-blur text-white w-100 h-100">
                             <v-icon 
+                            size="72"
                             icon="mdi-door-closed" 
-                            class="text-green-darken-1 text-display-large"
+                            class="text-green-darken-1"
                             ></v-icon>
                             Leave
                         </v-btn>

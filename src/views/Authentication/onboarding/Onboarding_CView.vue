@@ -8,10 +8,10 @@
             <v-icon 
             color="success"
             icon="mdi-check-circle" 
-            size="x-large"></v-icon>
-            <h1>Complete!</h1>
-            <p class="text-grey-lighten-1">Lorem Ipsum dolor Sit Amet.</p>
-            <v-btn>Enter TENDA →</v-btn>
+            size="100"></v-icon>
+            <span class="text-headline-large font-weight-bold">Complete!</span>
+            <span class="text-grey-lighten-1">Lorem Ipsum dolor Sit Amet.</span>
+            <v-btn class="bg-white">Enter TENDA →</v-btn>
         </div>
     </div>
 </template>
