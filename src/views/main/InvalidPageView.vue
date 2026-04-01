@@ -4,28 +4,23 @@
 
 <template>
 <div>
-    <div class="min-h-screen d-flex flex-column ga-8 justify-center align-center">
-        <div class="d-flex flex-column ga-3 align-center">
-            <v-icon 
-              size="x-large"
-              icon="mdi-emoticon-sad" 
-              class="text-light-blue-accent-3"
-            ></v-icon>
-            <h3>
-                404 - Not Found
-            </h3>
-            <div class="text-center">
-                <h1>
-                    PAGE NOT FOUND
-                </h1>
+<div class="min-h-screen d-flex flex-column ga-10 justify-center">
+        <div class="d-flex flex-column w-100">
+            <div>                
+                <v-icon 
+                  size="75"
+                  icon="mdi-robot-confused-outline" 
+                ></v-icon>
+            </div>
+            <div class="d-flex flex-column my-4">
+                <span class="text-title-large font-weight-bold">
+                        404. Oh no it's an error.
+                </span>
                 <span class="text-grey-lighten-1">
-                    You search has ventured beyond the known universe
+                    The Requested URL was not found. That's all we know.
                 </span>
             </div>
         </div>
-        <v-btn to="/">
-            Back to Home
-        </v-btn>
     </div>
 </div>
 </template>

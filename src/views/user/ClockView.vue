@@ -76,6 +76,11 @@ function activateSidebar(){
                 <span class="text-title-medium font-weight-bold">This Month Attendance Report</span>
                 <v-divider class="border-opacity-50"></v-divider>      
             </div>
+            <div>
+                <v-calendar>
+                    
+                </v-calendar>
+            </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Manage Your Administration</span>
