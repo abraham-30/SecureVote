@@ -1,43 +1,75 @@
 <script setup>
     import iconUrl from '@/assets/icon-neutralgrey200.png'
+    import { ref } from 'vue'
+
+    const email = ref()
+    const password = ref()
+
+    const emailRules = [
+        v => !!v | "Email is required",
+        v => /.+@.+\..+/.test(v) || 'Email must be valid',
+    ]
+
+    const passwordRules = [
+        v => !!v | "Password is required",
+        v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(v) || "Password must has min. 8 chars, 1 uppercase, 1 lowercase, and 1 number",
+    ]
+
+    const handleSubmit = () => {
+
+    }
 </script>
 
 <template>
-    <div>
-        <div class="d-flex flex-column min-h-screen justify-center align-center ga-8">
-            <div class="d-flex flex-column ga-2">
-                <div class="w-100 d-flex flex-column align-center">
-                    <img :src="iconUrl" alt="" style="height: 16px;">
-                </div>
-                <span class="text-grey-lighten-1">
-                    Please enter your credential.
-                </span>
+    <v-form 
+        class="d-flex flex-column min-h-screen justify-center align-center ga-8"
+        @submit.prevent="handleSubmit()"
+    >
+        <v-sheet class="d-flex flex-column ga-2">
+            <div class="w-100 d-flex flex-column align-center">
+                <img :src="iconUrl" alt="" style="height: 16px;">
             </div>
-            <div class="w-66">
-                <v-form class="d-flex flex-column align-center ga-4">
-                    <v-text-field variant="outlined"
-                        label="Username"
-                        class="w-100"
-                    ></v-text-field>
-                    <v-text-field variant="outlined"
-                        label="Password"
-                        class="w-100"
-                    ></v-text-field>
-                    <v-btn 
+            <span class="text-grey-lighten-1">
+                Please enter your credential.
+            </span>
+        </v-sheet>
+        <v-sheet class="w-66">
+            <v-sheet class="d-flex flex-column align-center ga-4">
+                <v-text-field 
+                    v-model="email"
+                    :rules="emailRules"
+                    type="email"
+                    variant="outlined"
+                    label="Email"
+                    class="w-100"
+                ></v-text-field>
+                <v-text-field 
+                    v-model="password"
+                    :rules = "passwordRules"
+                    type="password"
+                    variant="outlined"
+                    label="Password"
+                    class="w-100"
+                >
+                    <template #message>
+                        {{ message }}
+                    </template>
+                </v-text-field>
+                <v-btn 
                     class="w-50 bg-white"
-                    to="/" >
-                        Sign In →
-                    </v-btn>
-                </v-form>
-            </div>
-            <div class="d-flex flex-row ga-2">
-                <span>New to TENDA?</span>
-                <a href="/register">Register here</a>
-            </div>
-        </div>
-    </div>
+                    type="submit"
+                >
+                    Sign In →
+                </v-btn>
+            </v-sheet>
+        </v-sheet>
+        <v-sheet class="d-flex flex-row ga-2">
+            <span>New to TENDA?</span>
+            <a href="/register">Register here</a>
+        </v-sheet>
+    </v-form>
 </template>
 
-<style src="@/assets/index.css" scoped>
+<style lang="scss" scoped>
 
 </style>

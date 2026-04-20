@@ -4,16 +4,16 @@
 
 <template>
   <v-app>
-    <div class="min-h-screen bg-black">
+    <div class="bg-black">
       <RouterView name="navbar"/>
-      <div class="container ma-auto">
-        <RouterView class="min-h-screen"/>
+      <div class="w-75 mx-auto d-flex flex-column">
+        <RouterView />
         <RouterView name="footer"/>
       </div>
     </div>
   </v-app>
 </template>
 
-<style src="/src/assets/index.css" scoped>
+<style lang="scss" scoped>
 
 </style>

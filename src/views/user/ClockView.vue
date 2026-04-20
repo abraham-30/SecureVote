@@ -125,6 +125,6 @@ function activateSidebar(){
     </div>
 </template>
 
-<style src="/src/assets/index.css" scoped>
+<style lang="scss" scoped>
 
 </style>

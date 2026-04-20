@@ -63,6 +63,6 @@
     </div>
 </template>
 
-<style src="@/assets/index.css" scoped>
+<style lang="scss" scoped>
 
 </style>

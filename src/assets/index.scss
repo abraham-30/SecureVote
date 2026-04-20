@@ -1,0 +1,40 @@
+@import 'primeicons/primeicons.css';
+
+
+// Screen size
+// Extra small (phones)
+$xs-max: 599px;
+
+// Small (small tablets)
+$sm-min: 600px;
+$sm-max: 839px;
+
+// Medium (large tablets / small laptops)
+$md-min: 840px;
+$md-max: 1144px;
+
+// Large (laptops / desktops)
+$lg-min: 1145px;
+$lg-max: 1544px;
+
+// Extra large (HD / 1440p)
+$xl-min: 1545px;
+$xl-max: 2137px;
+
+// Extra extra large (4K / ultra-wide) 
+$xxl-min: 2138px;
+
+
+.bg-blur {
+    // background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(2px);
+}
+
+.container{
+  max-width: 850px;
+}
+
+.min-h-screen{
+    min-height: 100vh;
+}

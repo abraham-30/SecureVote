@@ -1,0 +1,6 @@
+// Override vuetify styles
+@use 'vuetify/settings' with (
+    // variables go here
+    $sheet-background: rgb(0, 0, 0),
+
+);
