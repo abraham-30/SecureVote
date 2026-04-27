@@ -6,7 +6,7 @@
   <v-app>
     <div class="bg-black">
       <RouterView name="navbar"/>
-      <div class="w-75 mx-auto d-flex flex-column">
+      <div class="w-50 mx-auto d-flex flex-column">
         <RouterView />
         <RouterView name="footer"/>
       </div>

@@ -23,9 +23,10 @@ import MyTeamView from "@/views/supervisor/MyTeamView.vue"
 import MemberDetailsView from "@/views/supervisor/MemberDetailsView.vue"
 
 //  Admin Pages
-import AssignMemberView from "@/views/admin/AssignMemberView.vue"
-import ManageMemberView from "@/views/admin/ManageMemberView.vue"
-import InviteUserView from "@/views/admin/InviteUserView.vue"
+import OrgProfileView from "@/views/admin/OrganizationProfileView.vue"
+import OrgSettingsView from "@/views/admin/OrganizationSettingsView.vue"
+
+// Other Pages
 import LoginView from "@/views/Authentication/LoginView.vue"
 import RegisterView from "@/views/Authentication/RegisterView.vue"
 import InvalidPageView from "@/views/main/InvalidPageView.vue"
@@ -159,21 +160,22 @@ const router = createRouter({
         },
         // Admin Pages
         {
-            path:'/AssignMember',
-            name: 'assignMember',
-            component: AssignMemberView
+            path: '/OrganizationProfile',
+            name: 'organizationProfile',
+            components: {
+                default: OrgProfileView,
+                footer: Footer
+            }
         },
         {
-            path: '/ManageMember',
-            name: 'manageMember',
-            component: ManageMemberView
+            path: '/OrganizationSettings',
+            name: 'organizationSettings',
+            components: {
+                default: OrgSettingsView,
+                footer: Footer
+            }
         },
-        {
-            path: '/InviteUser',
-            name: 'inviteUser',
-            component: InviteUserView
-        },
-
+        // Other
         {
             path: '/:pathMatch(.*)*',
             name: 'InvalidPage',
