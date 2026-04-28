@@ -14,7 +14,7 @@
               ></v-icon>
             </span> 
             <span class="text-grey-lighten-1">Jakarta, Indonesia</span>
-            <span class="mt-2 text-headline-large font-weight-bold">Welcome, John Doe!</span>
+            <span class="mt-2 text-headline-large font-weight-bold">Welcome, !</span>
           </div>
         </div>
         <div class="d-flex flex-column ga-4">

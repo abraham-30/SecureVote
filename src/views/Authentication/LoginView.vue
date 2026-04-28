@@ -1,22 +1,31 @@
 <script setup>
     import iconUrl from '@/assets/icon-neutralgrey200.png'
     import { ref } from 'vue'
+    import { login } from '@/services/auth.js'
+    import router from '@/router'
 
     const email = ref()
     const password = ref()
 
     const emailRules = [
-        v => !!v | "Email is required",
+        v => !!v || "Email is required",
         v => /.+@.+\..+/.test(v) || 'Email must be valid',
     ]
 
     const passwordRules = [
-        v => !!v | "Password is required",
+    v => !!v || "Password is required",
         v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(v) || "Password must has min. 8 chars, 1 uppercase, 1 lowercase, and 1 number",
     ]
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        try {
+            const response = await login(email.value, password.value)
 
+            if (response.status == 200)
+                router.push({name: "home"})
+        } catch (error) {
+            console.log(error)
+        }
     }
 </script>
 
@@ -51,9 +60,6 @@
                     label="Password"
                     class="w-100"
                 >
-                    <template #message>
-                        {{ message }}
-                    </template>
                 </v-text-field>
                 <v-btn 
                     class="w-50 bg-white"

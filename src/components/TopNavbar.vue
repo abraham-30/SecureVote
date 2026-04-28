@@ -1,5 +1,18 @@
 <script setup>
     import iconUrl from '@/assets/icon-neutralgrey200.png'
+    import { logout } from '@/services/auth'
+    import router from '@/router/index.js'
+
+    const handleLogout = async() => {
+        try {
+            const response = await logout()
+
+            if (response.status == 200) 
+                router.push({name: "tenda"})
+        } catch(error) {
+            console.log(error)
+        }
+    }
 </script>
 
 <template>
@@ -11,7 +24,7 @@
             <span>Hi, John Doe</span>
             <v-btn
             class="bg-white"
-            to="/tenda">
+            @click="handleLogout()">
               Sign Out
             </v-btn>
         </div>
