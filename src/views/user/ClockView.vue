@@ -37,10 +37,6 @@ onMounted(async () => {
                 ></v-btn>
             </div>
             <div class="d-flex flex-column">
-                <div style="height: 40px;">
-                    <!-- hardcoded image -->
-                    <img src="@/assets/Wikimedia-logo.png" alt="" class="h-100">
-                </div>
                 <span class="text-headline-medium font-weight-bold">Organization Name</span>
                 <span class="text-grey-lighten-1">John Doe</span>
             </div>

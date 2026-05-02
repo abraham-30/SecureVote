@@ -24,7 +24,9 @@ import MemberDetailsView from "@/views/supervisor/MemberDetailsView.vue"
 
 //  Admin Pages
 import OrgProfileView from "@/views/admin/OrganizationProfileView.vue"
+import OrgMembersView from "@/views/admin/OrganizationMembersView.vue"
 import OrgSettingsView from "@/views/admin/OrganizationSettingsView.vue"
+import InviteUsersView from "@/views/admin/InviteUsersView.vue"
 
 // Other Pages
 import LoginView from "@/views/Authentication/LoginView.vue"
@@ -102,7 +104,11 @@ const router = createRouter({
         {
             path:'/RegisterOrganization',
             name:'registerorganization',
-            component: RegisterOrganizationView
+            components:{
+                default: RegisterOrganizationView,
+                navbar: TopNavbar,
+                footer: Footer
+            } 
         },
         // User Pages
         {
@@ -185,10 +191,26 @@ const router = createRouter({
             }
         },
         {
+            path: '/OrganizationMembers',
+            name: 'organizationMembers',
+            components: {
+                default: OrgMembersView,
+                footer: Footer
+            }
+        },
+        {
             path: '/OrganizationSettings',
             name: 'organizationSettings',
             components: {
                 default: OrgSettingsView,
+                footer: Footer
+            }
+        },
+        {
+            path: '/InviteUser',
+            name: 'inviteUser',
+            components: {
+                default: InviteUsersView,
                 footer: Footer
             }
         },

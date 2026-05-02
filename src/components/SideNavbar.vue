@@ -29,10 +29,6 @@
         <template v-slot:append>
             <div class="d-flex flex-row ga-8 align-end">
                 <div class="d-flex flex-column ga-2 w-100">
-                    <div style="height: 32px;">
-                    <!-- hardcoded image -->
-                    <img src="@/assets/Wikimedia-logo.png" alt="" class="h-100">
-                    </div>
                     <div style="height: 16px;">
                         <img src="@/assets/icon-neutralgrey200.png" alt="" class="h-100">
                     </div>

@@ -7,7 +7,7 @@
         <v-divider></v-divider>
         <div class="pt-2">
             <v-list-item link title="Profile" to="/organizationprofile"></v-list-item>
-            <v-list-item link title="Members" to=""></v-list-item>
+            <v-list-item link title="Members" to="/organizationMembers"></v-list-item>
             <v-list-item link title="Settings" to="/organizationsettings"></v-list-item>
         </div>
         <template v-slot:append>
