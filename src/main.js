@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 
 // Vuetify
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import '@mdi/font/css/materialdesignicons.css'
@@ -26,11 +27,11 @@ import '@fontsource/roboto/900-italic.css'
 
 import '@/assets/index.scss'
 
-const vuetify = createVuetify()
-
 const pinia = createPinia()
+const vuetify = createVuetify()
 const app = createApp(App)
 
+pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 app.use(vuetify)

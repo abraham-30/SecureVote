@@ -34,6 +34,7 @@ import InvalidPageView from "@/views/main/InvalidPageView.vue"
 // Components
 import TopNavbar from "@/components/TopNavbar.vue"
 import Footer from "@/components/Footer.vue"
+import LeaveView from "@/views/user/LeaveView.vue"
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -105,7 +106,7 @@ const router = createRouter({
         },
         // User Pages
         {
-            path:'/Clock',
+            path:'/Clock/:id',
             name:'clock',
             components:{
                 default: ClockView,
@@ -128,6 +129,22 @@ const router = createRouter({
         {
             path:'/CreateOverride',
             name:'createoverride',
+            components:{
+                default: CreateOverride,
+                footer: Footer
+            }
+        },
+        {
+            path:'/Leave',
+            name:'leave',
+            components:{
+                default: LeaveView,
+                footer: Footer
+            } 
+        },
+        {
+            path:'/CreateLeave',
+            name:'createleave',
             components:{
                 default: CreateOverride,
                 footer: Footer

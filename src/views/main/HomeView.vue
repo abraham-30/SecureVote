@@ -1,65 +1,95 @@
 <script setup>
+import { useUserStore } from '@/stores/UserStore.js'
+import { useUserGroupStore } from '@/stores/UserGroupStore.js'
+import { useGroupStore } from '@/stores/GroupStore'
+import { storeToRefs } from 'pinia'
+import { userGroupList, userGroupListAdmin } from '@/services/UserGroupServices.js'
+import { ref, onMounted, watch } from 'vue'
+
+const userStore = useUserStore()
+const userGroupStore = useUserGroupStore()
+const groupStore = useGroupStore()
+const { id } = storeToRefs(userStore)
+const { userGroup, userGroupAdmin } = storeToRefs(userGroupStore)
+
+const size = 5
+const pageMyOrg = ref(1)
+const pageManagedOrg = ref(1)
+const isLoadingMyOrg = ref(true)
+const isLoadingManagedOrg = ref(true)
+
+onMounted(async () => {
+  userGroupList(id.value, size, pageMyOrg.value)
+  await userGroupListAdmin(id.value, size, pageMyOrg.value)
+  isLoadingMyOrg.value = false
+  isLoadingManagedOrg.value = false
+  groupStore.setGroupNull
+})
+
+watch(pageMyOrg, async() => {
+  await userGroupList(id.value, size, pageMyOrg.value)
+  isLoadingMyOrg.value = false
+})
+
+watch(pageManagedOrg, async() => {
+  await userGroupListAdmin(id.value, size, pageMyOrg.value)
+  isLoadingManagedOrg.value = false
+})
 </script>
 
 <template>
   <div class="min-h-screen py-14">
       <div class="d-flex flex-column ga-8 py-14">
-        <div>
-          <div class="d-flex flex-column">
-            <span class="font-weight-bold">07:00 PM GMT+7                       
-              <v-icon 
-              size="small"
-              icon="mdi-weather-night" 
-              class="ml-1"
-              ></v-icon>
-            </span> 
-            <span class="text-grey-lighten-1">Jakarta, Indonesia</span>
-            <span class="mt-2 text-headline-large font-weight-bold">Welcome, !</span>
-          </div>
-        </div>
         <div class="d-flex flex-column ga-4">
           <div class="d-flex flex-column ga-1">
             <span class="text-title-medium font-weight-bold">My Organizations</span>
             <v-divider class="border-opacity-50"></v-divider>      
           </div>
+
           <div>
             <v-btn 
-            text="Invitations →"
-            to="/invitations"
-            class="bg-white">
+              text="Invitations →"
+              to="/invitations"
+              class="bg-white">
             </v-btn>
           </div>
+
           <div class="d-flex flex-column ga-4">
-            <v-card 
-            class="bg-blur border-sm border-opacity-75 pa-2 text-white"
-            link
-            to="/clock"
-            >
-              <template v-slot:prepend>
-                <div class="d-flex flex-column ga-1">
-                  <v-avatar size="40">
-                    <v-img
-                      alt="John"
-                      src="https://cdn.vuetifyjs.com/images/john.png"
-                    ></v-img>
-                  </v-avatar>
-                  <span class="text-title-large font-weight-bold">
-                    Organization Name
-                  </span>
-                  <span class="text-grey-lighten-1 text-body-small">
-                    Lorem ipsum dolor sit amet.
-                  </span>
-                </div>
-              </template>
-            </v-card>
-            <v-pagination :length="5"></v-pagination>
+            <template v-if="isLoadingMyOrg">
+              <v-skeleton-loader :loading="isLoadingMyOrg" type="article" v-for="i in size">
+              </v-skeleton-loader>
+            </template>
+            
+            <template v-else>
+              <v-card
+                class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+                link
+                :to="`/clock/${item?.group?.id}`"
+                v-for="item in userGroup?.results"
+                >
+                <template v-slot:prepend>
+                  <div class="d-flex flex-column ga-1">
+                    <span class="text-title-large font-weight-bold">
+                      {{ item?.group?.name }}
+                    </span>
+                    <span class="text-grey-lighten-1 text-body-small">
+                      {{ item?.group?.description }}
+                    </span>
+                  </div>
+                </template>
+              </v-card>
+            </template>
+
+            <v-pagination v-model=pageMyOrg :disabled="isLoadingMyOrg" :length="userGroup?.total_pages" @update:model-value="() => isLoadingMyOrg=!isLoadingMyOrg"></v-pagination>
           </div>
         </div>
+
         <div class="d-flex flex-column ga-4">
           <div class="d-flex flex-column ga-1">
             <span class="text-title-medium font-weight-bold">Managed Organizations</span>
             <v-divider class="border-opacity-50"></v-divider>      
           </div>
+
           <div>
             <v-btn 
             text="Register Organization +"
@@ -67,30 +97,33 @@
             class="bg-white">
             </v-btn>
           </div>
+          
           <div class="d-flex flex-column ga-4">
-            <v-card 
-            class="bg-blur border-sm border-opacity-75 pa-2 text-white"
-            link
-            to="/clock"
-            >
-              <template v-slot:prepend>
-                <div class="d-flex flex-column ga-1">
-                  <v-avatar size="40">
-                    <v-img
-                      alt="John"
-                      src="https://cdn.vuetifyjs.com/images/john.png"
-                    ></v-img>
-                  </v-avatar>
-                  <span class="text-title-large font-weight-bold">
-                    Organization Name
-                  </span>
-                  <span class="text-grey-lighten-1 text-body-small">
-                    Lorem ipsum dolor sit amet.
-                  </span>
-                </div>
-              </template>
-            </v-card>
-            <v-pagination :length="5"></v-pagination>
+            <template v-if="isLoadingManagedOrg">
+              <v-skeleton-loader :loading="isLoadingManagedOrg" type="article" v-for="i in size"></v-skeleton-loader>
+            </template>
+
+            <template v-else>
+              <v-card 
+              class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+              link
+              :to="`/clock/${item?.group?.id}`"
+              v-for="item in userGroupAdmin.results"
+              >
+                <template v-slot:prepend>
+                  <div class="d-flex flex-column ga-1">
+                    <span class="text-title-large font-weight-bold">
+                      {{ item?.group?.name }}
+                    </span>
+                    <span class="text-grey-lighten-1 text-body-small">
+                      {{ item?.group?.description }}
+                    </span>
+                  </div>
+                </template>
+              </v-card>
+            </template>
+
+            <v-pagination v-model=pageManagedOrg :disabled="isLoadingManagedOrg" :length="userGroupAdmin?.total_pages" @update:model-value="() => isLoadingManagedOrg=!isLoadingManagedOrg"></v-pagination>
           </div>
         </div>
       </div>

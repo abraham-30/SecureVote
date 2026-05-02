@@ -8,21 +8,21 @@
     const password = ref()
 
     const emailRules = [
-        v => !!v || "Email is required",
+        v => !!v || 'Email is required',
         v => /.+@.+\..+/.test(v) || 'Email must be valid',
     ]
 
     const passwordRules = [
-    v => !!v || "Password is required",
-        v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(v) || "Password must has min. 8 chars, 1 uppercase, 1 lowercase, and 1 number",
+    v => !!v || 'Password is required',
+        v => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(v) || 'Password must has min. 8 chars, 1 uppercase, 1 lowercase, and 1 number',
     ]
 
     const handleSubmit = async () => {
         try {
             const response = await login(email.value, password.value)
-
+            
             if (response.status == 200)
-                router.push({name: "home"})
+                router.push({name: 'home'})
         } catch (error) {
             console.log(error)
         }

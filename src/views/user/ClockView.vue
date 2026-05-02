@@ -1,12 +1,24 @@
 <script setup>
-import { ref } from 'vue'
+import { useGroupStore } from '@/stores/GroupStore';
+import { groupDetails } from '@/services/GroupServices';
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router';
 import SideNavbar from '@/components/SideNavbar.vue';
+import { storeToRefs } from 'pinia';
 
-const isSidebarOpen = ref(true);
+const groupStore = useGroupStore()
+const { group } = storeToRefs()
+const route = useRoute()
+
+const isSidebarOpen = ref(true)
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
+
+onMounted(async () => {
+    await groupDetails(route.params.id)
+})
 </script>
 
 <template>
