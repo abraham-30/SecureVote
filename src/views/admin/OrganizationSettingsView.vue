@@ -61,9 +61,9 @@
                                 <v-row>
                                     <v-col
                                     v-for="item in daysItems"
-                                    :key="item.raw.itemName">
+                                    :key="item.itemName">
                                         <v-checkbox 
-                                        :label="item-raw-itemName"
+                                        :label="item.itemName"
                                         hide-details="auto"
                                         ></v-checkbox>
                                     </v-col>
@@ -132,7 +132,7 @@
                             <v-card-title class="font-weight-bold text-headline-medium">
                                 Add Category
                             </v-card-title>
-                            <v-card-subtitle>
+                            <v-card-subtitle class="text-grey-lighten-1">
                                 Lorem ipsum dolor sit amet
                                 <v-divider class="border-opacity-50 mt-1"></v-divider>      
                             </v-card-subtitle>
@@ -171,7 +171,7 @@
                             <v-card-title class="font-weight-bold text-headline-medium">
                                 Edit Category
                             </v-card-title>
-                            <v-card-subtitle>
+                            <v-card-subtitle class="text-grey-lighten-1">
                                 Lorem ipsum dolor sit amet
                                 <v-divider class="border-opacity-50 mt-1"></v-divider>      
                             </v-card-subtitle>

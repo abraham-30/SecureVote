@@ -20,29 +20,26 @@
                     variant="outlined"
                     class="w-100"
                     ></v-select>
-                    <v-text-field 
-                    v-model="date"
-                    label="Date"
-                    type="date"
+                    <v-select
+                    label="Leave Type"
                     persistent-placeholder
                     hide-details="auto"
+                    :items="['Sawit 1', 'Sawit 2']"
                     variant="outlined"
                     class="w-100"
-                    ></v-text-field>
+                    ></v-select>
                     <div class="d-flex flex-row ga-4 w-100">
                         <v-text-field 
-                        v-model="clockIn"
-                        label="Clock In"
-                        type="time"
-                        placeholder="--:--"
+                        v-model="startDate"
+                        label="Start Date"
+                        type="date"
                         persistent-placeholder
                         hide-details="auto"
                         variant="outlined"></v-text-field>
                         <v-text-field 
-                        v-model="clockOut"
-                        label="Clock Out"
-                        type="time"
-                        placeholder="--:--"
+                        v-model="endDate"
+                        label="End Date"
+                        type="date"
                         persistent-placeholder
                         hide-details="auto"
                         variant="outlined"></v-text-field>
