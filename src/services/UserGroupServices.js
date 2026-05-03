@@ -1,4 +1,5 @@
 import api from '@/services/BaseUrl.js'
+import { useUserStore } from '@/stores/UserStore'
 import { useUserGroupStore } from '@/stores/UserGroupStore.js'
 import { storeToRefs } from 'pinia'
 
@@ -15,7 +16,9 @@ const userGroupList = async (id, size, page) => {
         }
     )
 
-    userGroupStore.setUserGroup(response.data)
+    // userGroupStore.setUserGroup(response.data)
+
+    return response
 }
 
 const userGroupListAdmin = async (id, size, page) => {
@@ -30,39 +33,45 @@ const userGroupListAdmin = async (id, size, page) => {
         }
     )
     
-    userGroupStore.setUserGroupAdmin(response.data)
+    // userGroupStore.setUserGroupAdmin(response.data)
+
+    return response
 }
 
 const userGroupListMember = async (id, size, page) => {
-    console.log(size)
-    console.log(page)
-    
     const userGroupStore = useUserGroupStore()
+    const userStore = useUserStore()
+    const { role } = storeToRefs(userStore)
+
     const response = await api.get(
         `/user-groups-members/${id}/`,
         {
             params: {
                 size: size,
                 page: page,
-                group_id: id,
+                role: role.value,
             },
         }
     )
     
-    userGroupStore.setUserGroupMember(response.data)
+    // userGroupStore.setUserGroupMember(response.data)
+
+    return response
 }
 
 const userGroupDetails = async (id) => {
     const userGroupStore = useUserGroupStore()
-    const { selectedUserGroup } = storeToRefs(userGroupStore)
 
     const response = await api.get(
         `/user-groups-details/${id}/`,
     )
     
-    delete response.data.user
+    delete response.data.user.password
+    delete response.data.user.face_vector
 
-    userGroupStore.setSelectedUserGroup(response.data)
+    // userGroupStore.setSelectedUserGroup(response.data)
+
+    return response
 }
 
 export { userGroupList, userGroupListAdmin, userGroupListMember, userGroupDetails }

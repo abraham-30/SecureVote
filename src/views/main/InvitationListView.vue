@@ -9,7 +9,7 @@ import { formatDate } from '@/utils/date'
 const userStore = useUserStore()
 const { id } = storeToRefs(userStore)
 const invitationStore = useInvitationStore()
-const { invitation } = storeToRefs(invitationStore)
+const invitation = ref()
 
 const size = 5
 const page = ref(1)
@@ -17,12 +17,18 @@ const isLoading = ref(true)
 
 onMounted(async () => {
   await invitationListInvitee(id.value, size, page.value)
-  isLoading.value = false
+  .then((response) => {
+    invitation.value = response.data
+    isLoading.value = false
+  })
 })
 
 watch(page, async() => {
   await invitationListInvitee(id.value, size, page.value)
-  isLoading.value = false
+  .then((response) => {
+    invitation.value = response.data
+    isLoading.value = false
+  })
 })
 </script>
 
@@ -38,7 +44,7 @@ watch(page, async() => {
       </div>
       <div class="d-flex flex-column ga-4">
         <template v-if="isLoading">
-          <v-skeleton-loader :loading="isLoading" type="article" v-for="i in size"></v-skeleton-loader>
+          <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
         </template>
 
         <template v-else>

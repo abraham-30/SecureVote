@@ -13,7 +13,8 @@ const overrideStore = useOverrideStore()
 const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
-const { overrideRequest } = storeToRefs(overrideStore)
+const overrideRequest = ref()
+
 const page = ref(1)
 const size = 5
 const tabValue = ["requested", "approved", "rejected", "cancelled"]
@@ -28,18 +29,28 @@ function activateSidebar(){
 
 onMounted(async () => {
     await overrideRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    isLoading.value = false
+    .then((response) => {
+        overrideRequest.value = response.data
+        isLoading.value = false
+    })
 })
 
 watch(tab, async () => {
     page.value = 1
+
     await overrideRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    isLoading.value = false
+    .then((response) => {
+        overrideRequest.value = response.data
+        isLoading.value = false
+    })
 })
 
 watch(page, async () => {
     await overrideRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    isLoading.value = false
+    .then((response) => {
+        overrideRequest.value = response.data
+        isLoading.value = false
+    })
 })
 
 </script>
@@ -85,7 +96,7 @@ watch(page, async () => {
                             <v-sheet class="pt-8" color="transparent">
                                 <div class="d-flex flex-column ga-4">
                                     <template v-if="isLoading">
-                                        <v-skeleton-loader :loading="isLoading" type="article" class="pt-8" v-for="item in size"></v-skeleton-loader>
+                                        <v-skeleton-loader type="article" class="pt-8" v-for="item in size"></v-skeleton-loader>
                                     </template>
 
                                     <template v-else>

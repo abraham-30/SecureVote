@@ -1,9 +1,13 @@
 import api from "./BaseUrl";
 import { useOverrideStore } from "@/stores/OverrideStore";
+import { useUserStore } from "@/stores/UserStore";
+import { storeToRefs } from "pinia";
+import qs from 'qs'
 
 
 const overrideRequestsForUser = async (user_id, group_id, status, size, page) => {
     const overrideStore = useOverrideStore()
+
     const response = await api.get(
         `override-requests/${user_id}/${group_id}/${status}/`,
         {
@@ -14,7 +18,54 @@ const overrideRequestsForUser = async (user_id, group_id, status, size, page) =>
         },
     )
 
-    overrideStore.setOverrideRequest(response.data)
+    // overrideStore.setOverrideRequest(response.data)
+
+    return response
 } 
 
-export { overrideRequestsForUser }
+const combinedRequestsSupervisor = async (user_id, group_id, status,size, page) => {
+    const overrideStore = useOverrideStore()
+    const userStore = useUserStore()
+    const { role } = storeToRefs(userStore)
+
+    const response = await api.get(
+        `combined-requests-supervisor/${user_id}/${group_id}/`,
+        {
+            params: {
+                size: size,
+                page: page,
+                role: role.value,
+                status: status,
+            },
+        },
+    )
+
+    // overrideStore.setCombinedRequestsForSupervisor(response.data)
+
+    return response
+} 
+
+const combinedRequestsUser = async (user_id, group_id, status,size, page) => {
+    const overrideStore = useOverrideStore()
+    const userStore = useUserStore()
+    const { role } = storeToRefs(userStore)
+
+    const response = await api.get(
+        `combined-requests-user/${user_id}/${group_id}/`,
+        {
+            params: {
+                size: size,
+                page: page,
+                role: role.value,
+                status: status,
+            },
+            paramsSerializer: params => {
+                return qs.stringify(params, { arrayFormat: 'repeat' })
+            }
+        },
+    )
+
+    return response
+} 
+
+export { overrideRequestsForUser, combinedRequestsSupervisor, combinedRequestsUser }

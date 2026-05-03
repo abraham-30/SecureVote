@@ -1,5 +1,59 @@
 <script setup>
+import { useUserGroupStore } from '@/stores/UserGroupStore';
+import { userGroupDetails } from '@/services/UserGroupServices';
+import { useOverrideStore } from '@/stores/OverrideStore';
+import { combinedRequestsUser } from '@/services/OverrideServices';
+import { useUserLogStore } from '@/stores/UserLogStore';
+import { userLogsList } from '@/services/UserLogServices';
+import { storeToRefs } from 'pinia';
+import { onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router';
+import { formatDate } from '@/utils/date';
 
+const route = useRoute()
+const overrideStore = useOverrideStore()
+const userGroupStore = useUserGroupStore()
+const userLogStore = useUserLogStore()
+
+const isLoadingUser = ref(true)
+const isLoadingAttendanceReport = ref(true)
+const isLoadingRequestWaiting = ref(true)
+const isLoadingRequestHistory = ref(true)
+const pageAttendanceReport = ref(1)
+const pageRequestWaiting = ref(1)
+const pageRequestHistory = ref(1)
+const selectedUserGroup = ref()
+const attendanceReport = ref()
+const requestWaiting = ref()
+const requestHistory = ref()
+const size = 5
+const isSidebarOpen = ref(true);
+
+onMounted(async () => {
+    await userGroupDetails(route.params.id)
+    .then((response) => {
+        selectedUserGroup.value = response.data
+        isLoadingUser.value = false
+    })
+
+    userLogsList(selectedUserGroup.value?.user?.id, selectedUserGroup.value?.group?.id, size, pageAttendanceReport.value)
+    .then(response => {
+        attendanceReport.value = response.data
+        isLoadingAttendanceReport.value = false
+    })
+    
+    combinedRequestsUser(selectedUserGroup.value?.user?.id, selectedUserGroup.value?.group?.id, "requested", size, pageRequestWaiting.value)
+    .then(response => {
+        requestWaiting.value = response.data
+        isLoadingRequestWaiting.value = false
+    })
+
+    combinedRequestsUser(selectedUserGroup.value?.user?.id, selectedUserGroup.value?.group?.id, ["approved", "rejected", "cancelled"], size, pageRequestHistory.value)
+    .then(response => {
+        requestHistory.value = response.data
+        isLoadingRequestHistory.value = false
+    })
+})
 </script>
 
 <template>
@@ -17,12 +71,17 @@
                         icon="mdi-account " 
                         class="text-blue-darken-2"
                     ></v-icon>
-                    <span class="text-headline-medium font-weight-bold">John Doe</span>
-                    <div class="text-grey-lighten-1">
-                        <span>Subtitle 1</span>
-                        <br>
-                        <span>Subtitle 2</span>
-                    </div>
+
+                    <template v-if="isLoadingUser">
+                        <v-skeleton-loader type="list-item-two-line"></v-skeleton-loader>
+                    </template>
+                    
+                    <template v-else>
+                        <span class="text-headline-medium font-weight-bold">{{ selectedUserGroup?.user?.name }}</span>
+                        <div class="text-grey-lighten-1">
+                            <span>{{ selectedUserGroup?.user?.email }}</span>
+                        </div>
+                    </template>
                 </div>
                 <div class="d-flex flex-column">
                     <v-btn class="bg-white">
@@ -40,7 +99,14 @@
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <div class="d-flex flex-column ga-4">
-                    <v-dialog max-width="750">
+                    <template v-if="isLoadingRequestWaiting">
+                        <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
+                    </template>
+                    
+                    <template v-else>
+                        <v-dialog
+                        max-width="750"
+                        v-for="item in requestWaiting?.results">
                         <template v-slot:activator="{props:activatorProps}">
                             <v-card 
                             link
@@ -49,8 +115,9 @@
                             >
                             <template v-slot:prepend>
                                 <div class="d-flex flex-column ga-1">
-                                <span class="text-title-large font-weight-bold">Request Title</span>
-                                <span class="text-body-small text-grey-lighten-1">Request created at December 25th, 2025</span>
+                                <span class="text-title-large font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
+                                <span class="text-title-large font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
+                                <span class="text-body-small text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                 </div>
                             </template>
                             </v-card>
@@ -69,29 +136,80 @@
                                     size="32"
                                     icon="mdi-note-alert-outline"
                                     ></v-icon>
-                                    <span class="font-weight-bold">Request Title</span>
-                                    <span class="text-body-small font-weight-regular text-grey-lighten-1">Requested by John Doe at 25 December 2025</span>
+                                    <span class="font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
+                                    <span class="font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
+                                    <span class="text-body-small font-weight-regular text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                 </v-card-title>
                                 <v-card-text
                                 class="d-flex flex-column ga-8">
-                                    <div class="d-flex flex-column ga-2">
-                                        <span class="text-title-medium font-weight-bold">Registered Time</span>
-                                        <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
-                                            <span>
-                                                -- : --
+                                    <template v-if="item?.type == 'leave'">
+                                        <div class="d-flex flex-column ga-2">
+                                            <span class="text-title-medium font-weight-bold">
+                                                Leave Type
                                             </span>
-                                            <span>
-                                                -- : --
-                                            </span>
+                                            <div class="pa-4 border-sm border-opacity-50 rounded-lg">
+                                                <span class="py-2 text-body-medium">
+                                                    {{ item?.attendance_type?.name }}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+
+                                        <div class="d-flex flex-column ga-2">
+                                            <div class="d-flex flex-row justify-space-evenly">
+                                                <span>
+                                                    <span class="text-title-medium font-weight-bold">Start Date</span>
+                                                </span>
+
+                                                <span>
+                                                    <span class="text-title-medium font-weight-bold">End Date</span>
+                                                </span>
+                                            </div>
+
+                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
+                                                <span>
+                                                    {{ formatDate(item?.start_date_time, "DD-MM-YYYY") }}
+                                                </span>
+
+                                                <span>
+                                                    {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <template v-else-if="item?.type == 'override'">
+                                        <div class="d-flex flex-column ga-2">
+                                            <span class="text-title-medium font-weight-bold">Registered Time</span>
+                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
+                                                <span>
+                                                    {{ formatDate(item?.start_date_time, "HH : mm") }}
+                                                </span>
+                                                <span>
+                                                    {{ formatDate(item?.end_date_time, "HH : mm") }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-column ga-2">
+                                                            <span class="text-title-medium font-weight-bold">Registered Time</span>
+                                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
+                                                                <span>
+                                                                    {{ formatDate(item?.start_date_time, "HH : mm") }}
+                                                                </span>
+                                                                <span>
+                                                                    {{ formatDate(item?.end_date_time, "HH : mm") }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                    </template>
+                                    
                                     <div class="d-flex flex-column ga-2">
                                         <span class="text-title-medium font-weight-bold">
-                                            Description
+                                            Reason
                                         </span>
                                         <div class="pa-4 border-sm border-opacity-50 rounded-lg">
                                             <span class="py-2 text-body-medium">
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras viverra efficitur magna eu dignissim. Morbi efficitur metus efficitur libero dapibus pulvinar. Phasellus at urna tortor. Sed vel fringilla dui, eu condimentum nunc. Proin ultrices interdum neque, sit amet pellentesque odio ultricies id. Sed nec justo eget felis lacinia commodo. Curabitur sit amet ante vestibulum, consectetur nisl nec, porta leo. Mauris gravida lobortis tincidunt. Maecenas at eros neque. Morbi rhoncus justo id purus fermentum efficitur. Ut congue eros lacus, non interdum arcu vehicula nec. Sed faucibus diam vitae dui lacinia imperdiet. 
+                                                {{ item?.reason }}
                                             </span>
                                         </div>
                                     </div>
@@ -114,32 +232,27 @@
                                 </v-card-actions>
                             </v-card>
                         </template>
-                    </v-dialog>
-                    <v-pagination :length="5"></v-pagination>
+                        </v-dialog>
+                    </template>
+
+                    <v-pagination v-model="pageRequestWaiting" :disabled="isLoadingRequestWaiting" :length="requestWaiting?.total_pages" @update:model-value="() => isLoadingRequestWaiting = isLoadingRequestWaiting"></v-pagination>
                 </div>
-                </div>
+            </div>
+
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Request History</span>
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
-                <div class="d-flex flex-row ga-2">
-                    <div class="w-33">
-                        <v-select
-                        clearable
-                        chips
-                        label="Approval Type"
-                        :items="['Sawit1', 'Sawit2', 'Sawit3']"
-                        multiple
-                        variant="outlined"
-                        density="comfortable"
-                        class="w-100"
-                        ></v-select>
-                    </div>
-                    <v-btn class="bg-white">Search</v-btn>
-                </div>
                 <div class="d-flex flex-column ga-4">
-                    <v-dialog max-width="750">
+                    <template v-if="isLoadingRequestHistory">
+                        <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
+                    </template>
+                    
+                    <template v-else>
+                        <v-dialog
+                        max-width="750"
+                        v-for="item in requestHistory?.results">
                         <template v-slot:activator="{props:activatorProps}">
                             <v-card 
                             link
@@ -147,15 +260,10 @@
                             v-bind="activatorProps"
                             >
                             <template v-slot:prepend>
-                                <div class="d-flex flex-column ga-1 align-start">
-                                    <v-chip
-                                    class="mb-1"
-                                    color="green"
-                                    >
-                                    Approved
-                                    </v-chip>
-                                    <span class="text-title-large font-weight-bold">Request Title</span>
-                                    <span class="text-body-small text-grey-lighten-1">Request created at December 25th, 2025</span>
+                                <div class="d-flex flex-column ga-1">
+                                <span class="text-title-large font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
+                                <span class="text-title-large font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
+                                <span class="text-body-small text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                 </div>
                             </template>
                             </v-card>
@@ -174,42 +282,106 @@
                                     size="32"
                                     icon="mdi-note-alert-outline"
                                     ></v-icon>
-                                    <span class="font-weight-bold">Request Title</span>
-                                    <span class="text-body-small font-weight-regular text-grey-lighten-1">Requested by John Doe at 25 December 2025</span>
-                                    <v-chip
-                                    color="green"
-                                    >
-                                    Approved
-                                    </v-chip>
+                                    <span class="font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
+                                    <span class="font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
+                                    <span class="text-body-small font-weight-regular text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                 </v-card-title>
                                 <v-card-text
                                 class="d-flex flex-column ga-8">
-                                    <div class="d-flex flex-column ga-2">
-                                        <span class="text-title-medium font-weight-bold">Registered Time</span>
-                                        <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
-                                            <span>
-                                                -- : --
+                                    <template v-if="item?.type == 'leave'">
+                                        <div class="d-flex flex-column ga-2">
+                                            <span class="text-title-medium font-weight-bold">
+                                                Leave Type
                                             </span>
-                                            <span>
-                                                -- : --
-                                            </span>
+                                            <div class="pa-4 border-sm border-opacity-50 rounded-lg">
+                                                <span class="py-2 text-body-medium">
+                                                    {{ item?.attendance_type?.name }}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+
+                                        <div class="d-flex flex-column ga-2">
+                                            <div class="d-flex flex-row justify-space-evenly">
+                                                <span>
+                                                    <span class="text-title-medium font-weight-bold">Start Date</span>
+                                                </span>
+
+                                                <span>
+                                                    <span class="text-title-medium font-weight-bold">End Date</span>
+                                                </span>
+                                            </div>
+
+                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
+                                                <span>
+                                                    {{ formatDate(item?.start_date_time, "DD-MM-YYYY") }}
+                                                </span>
+
+                                                <span>
+                                                    {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <template v-else-if="item?.type == 'override'">
+                                        <div class="d-flex flex-column ga-2">
+                                            <span class="text-title-medium font-weight-bold">Registered Time</span>
+                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
+                                                <span>
+                                                    {{ formatDate(item?.start_date_time, "HH : mm") }}
+                                                </span>
+                                                <span>
+                                                    {{ formatDate(item?.end_date_time, "HH : mm") }}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-column ga-2">
+                                                            <span class="text-title-medium font-weight-bold">Registered Time</span>
+                                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
+                                                                <span>
+                                                                    {{ formatDate(item?.start_date_time, "HH : mm") }}
+                                                                </span>
+                                                                <span>
+                                                                    {{ formatDate(item?.end_date_time, "HH : mm") }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                    </template>
+                                    
                                     <div class="d-flex flex-column ga-2">
                                         <span class="text-title-medium font-weight-bold">
-                                            Description
+                                            Reason
                                         </span>
                                         <div class="pa-4 border-sm border-opacity-50 rounded-lg">
                                             <span class="py-2 text-body-medium">
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras viverra efficitur magna eu dignissim. Morbi efficitur metus efficitur libero dapibus pulvinar. Phasellus at urna tortor. Sed vel fringilla dui, eu condimentum nunc. Proin ultrices interdum neque, sit amet pellentesque odio ultricies id. Sed nec justo eget felis lacinia commodo. Curabitur sit amet ante vestibulum, consectetur nisl nec, porta leo. Mauris gravida lobortis tincidunt. Maecenas at eros neque. Morbi rhoncus justo id purus fermentum efficitur. Ut congue eros lacus, non interdum arcu vehicula nec. Sed faucibus diam vitae dui lacinia imperdiet. 
+                                                {{ item?.reason }}
                                             </span>
                                         </div>
                                     </div>
                                 </v-card-text>
+                                <v-card-actions class="d-flex flex-row justify-center">
+                                    <v-btn class="text-success" stacked variant="text">
+                                        <v-icon 
+                                        size="x-large"
+                                        icon="mdi-check" 
+                                        ></v-icon>
+                                        Approve
+                                    </v-btn>
+                                    <v-btn class="text-error" stacked variant="text">
+                                        <v-icon 
+                                        size="x-large"
+                                        icon="mdi-close" 
+                                        ></v-icon>
+                                        Reject
+                                    </v-btn>
+                                </v-card-actions>
                             </v-card>
                         </template>
-                    </v-dialog>
-                    <v-pagination :length="5"></v-pagination>
+                        </v-dialog>
+                    </template>
+
+                    <v-pagination v-model="pageRequestHistory" :disabled="isLoadingRequestHistory" :length="requestHistory?.total_pages" @update:model-value="() => isLoadingRequestHistory = isLoadingRequestHistory"></v-pagination>
                 </div>
             </div>
         </div>

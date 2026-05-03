@@ -14,7 +14,7 @@ const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const userGroupStore = useUserGroupStore()
-const { selectedUserGroup } = storeToRefs(userGroupStore)
+const selectedUserGroup = ref()
 const route = useRoute()
 
 const isSidebarOpen = ref(true)
@@ -25,9 +25,12 @@ function activateSidebar(){
 
 onMounted(async () => {
     await userGroupDetails(route.params.id)
-
-    userStore.setRole(selectedUserGroup.value?.role?.name)
-    await groupDetails(selectedUserGroup.value?.group?.id)
+    .then((response) => {
+        selectedUserGroup.value = response.data
+        
+        userStore.setRole(selectedUserGroup.value?.role?.name)
+        groupStore.setGroup(selectedUserGroup.value?.group)
+    })
 })
 </script>
 

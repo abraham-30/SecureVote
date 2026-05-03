@@ -8,6 +8,8 @@ const groupDetails = async (id) => {
     )
 
     groupStore.setGroup(response.data)
+
+    return response
 }
 
 export { groupDetails }

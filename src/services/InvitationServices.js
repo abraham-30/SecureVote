@@ -15,7 +15,9 @@ const invitationListInvitee = async (id, size, page) => {
         }
     )
 
-    invitationStore.setInvitation(response.data)
+    // invitationStore.setInvitation(response.data)
+
+    return response
 }
 
 export { invitationListInvitee }

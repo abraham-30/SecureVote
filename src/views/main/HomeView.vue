@@ -10,7 +10,8 @@ const userStore = useUserStore()
 const userGroupStore = useUserGroupStore()
 const groupStore = useGroupStore()
 const { id } = storeToRefs(userStore)
-const { userGroups, userGroupAdmin } = storeToRefs(userGroupStore)
+const userGroups = ref()
+const userGroupAdmin = ref()
 
 const size = 5
 const pageMyOrg = ref(1)
@@ -20,22 +21,32 @@ const isLoadingManagedOrg = ref(true)
 
 onMounted(async () => {
   userGroupList(id.value, size, pageMyOrg.value)
-  await userGroupListAdmin(id.value, size, pageMyOrg.value)
-  
-  isLoadingMyOrg.value = false
-  isLoadingManagedOrg.value = false
-  groupStore.setGroup(null)
-  userStore.setRole(null)
+  .then((response) => {
+    userGroups.value = response.data
+    isLoadingMyOrg.value = false
+  })
+
+  userGroupListAdmin(id.value, size, pageManagedOrg.value)
+  .then((response) => {
+    userGroupAdmin.value = response.data
+    isLoadingManagedOrg.value = false
+  })
 })
 
 watch(pageMyOrg, async() => {
   await userGroupList(id.value, size, pageMyOrg.value)
-  isLoadingMyOrg.value = false
+  .then((response) => {
+    userGroups.value = response.data
+    isLoadingMyOrg.value = false
+  })
 })
 
 watch(pageManagedOrg, async() => {
-  await userGroupListAdmin(id.value, size, pageMyOrg.value)
-  isLoadingManagedOrg.value = false
+  await userGroupListAdmin(id.value, size, pageManagedOrg.value)
+  .then((response) => {
+    userGroupAdmin.value = response.data
+    isLoadingManagedOrg.value = false
+  })
 })
 </script>
 
@@ -58,7 +69,7 @@ watch(pageManagedOrg, async() => {
 
           <div class="d-flex flex-column ga-4">
             <template v-if="isLoadingMyOrg">
-              <v-skeleton-loader :loading="isLoadingMyOrg" type="article" v-for="i in size">
+              <v-skeleton-loader type="article" v-for="i in size">
               </v-skeleton-loader>
             </template>
             
@@ -102,7 +113,7 @@ watch(pageManagedOrg, async() => {
           
           <div class="d-flex flex-column ga-4">
             <template v-if="isLoadingManagedOrg">
-              <v-skeleton-loader :loading="isLoadingManagedOrg" type="article" v-for="i in size"></v-skeleton-loader>
+              <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
             </template>
 
             <template v-else>

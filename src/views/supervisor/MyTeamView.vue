@@ -8,8 +8,8 @@ import SideNavbar from '@/components/SideNavbar.vue';
 
 const userGroupStore = useUserGroupStore()
 const groupStore = useGroupStore()
-const { userGroupMember } = storeToRefs(userGroupStore)
 const { group } = storeToRefs(groupStore)
+const userGroupMember = ref()
 const isLoading = ref(true)
 const page = ref(1)
 const size = 5
@@ -21,12 +21,18 @@ function activateSidebar(){
 
 onMounted(async () => {
     await userGroupListMember(group.value?.id, size, page.value)
-    isLoading.value = false
+    .then((response) => {
+        userGroupMember.value = response.data
+        isLoading.value = false
+    })
 })
 
 watch (page, async() => {
     await userGroupListMember(group.value?.id, size, page.value)
-    isLoading.value = false
+    .then((response) => {
+        userGroupMember.value = response.data
+        isLoading.value = false
+    })
 })
 </script>
 
@@ -65,13 +71,13 @@ watch (page, async() => {
             </div>
             <div class="d-flex flex-column ga-4">
                 <template v-if="isLoading">
-                    <v-skeleton-loader :loading="isLoading" type="article" v-for="i in size"></v-skeleton-loader>
+                    <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
                 </template>
 
                 <template v-else>
                     <v-card 
                     class="bg-blur border-sm border-opacity-75 pa-2 text-white"
-                    :to="`/MemberDetails/${item?.user?.id}`"
+                    :to="`/MemberDetails/${item?.id}`"
                     v-for="item in userGroupMember.results"
                     >
                     <template v-slot:prepend>

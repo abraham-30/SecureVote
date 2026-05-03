@@ -13,7 +13,8 @@ const leaveStore = useLeaveStore()
 const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
-const { leaveRequest } = storeToRefs(leaveStore)
+const leaveRequest  = ref()
+
 const page = ref(1)
 const size = 5
 const tabValue = ["requested", "approved", "rejected", "cancelled"]
@@ -28,20 +29,28 @@ function activateSidebar(){
 
 onMounted(async () => {
     await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    isLoading.value = false
-
-    console.log(leaveRequest)
+    .then((response) => {
+        leaveRequest.value = response.data
+        isLoading.value = false
+    })
 })
 
 watch(tab, async () => {
     page.value = 1
+
     await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    isLoading.value = false
+    .then((response) => {
+        leaveRequest.value = response.data
+        isLoading.value = false
+    })
 })
 
 watch(page, async () => {
     await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    isLoading.value = false
+    .then((response) => {
+        leaveRequest.value = response.data
+        isLoading.value = false
+    })
 })
 
 </script>
@@ -87,7 +96,7 @@ watch(page, async () => {
                             <v-sheet class="pt-8" color="transparent">
                                 <div class="d-flex flex-column ga-4">
                                     <template v-if="isLoading">
-                                        <v-skeleton-loader :loading="isLoading" type="article" class="pt-8" v-for="item in size"></v-skeleton-loader>
+                                        <v-skeleton-loader type="article" class="pt-8" v-for="item in size"></v-skeleton-loader>
                                     </template>
 
                                     <template v-else>
@@ -103,7 +112,7 @@ watch(page, async () => {
                                                 >
                                                 <template v-slot:prepend>
                                                     <div class="d-flex flex-column ga-1">
-                                                    <span class="text-title-large font-weight-bold">{{ item?.attendance_type.name }}</span>
+                                                    <span class="text-title-large font-weight-bold">Leave Request</span>
                                                     <span class="text-body-small text-grey-lighten-1">{{ item?.reason }}</span>
                                                     </div>
                                                 </template>
@@ -175,7 +184,7 @@ watch(page, async () => {
 
                                                         <div class="d-flex flex-column ga-2">
                                                             <span class="text-title-medium font-weight-bold">
-                                                                Description
+                                                                Reason
                                                             </span>
                                                             <div class="pa-4 border-sm border-opacity-50 rounded-lg">
                                                                 <span class="py-2 text-body-medium">
