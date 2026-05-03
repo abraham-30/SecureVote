@@ -15,6 +15,9 @@ const page = ref(1)
 const size = 5
 const isSidebarOpen = ref(true);
 
+const popupLeave = ref(false);
+const popupOverride = ref(false);
+
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
@@ -52,6 +55,7 @@ watch (page, async() => {
                     class="text-blue-darken-2"
                 ></v-icon>
                 <span class="text-headline-medium font-weight-bold">My Team Requests</span>
+                <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
             <div class="d-flex flex-column ga-4">
                 <template v-if="isLoading">
@@ -59,82 +63,121 @@ watch (page, async() => {
                 </template>
 
                 <template v-else>
-                    <v-dialog
-                    max-width="750" v-for="item in userGroupMember">
-                        <template v-slot:activator="{props:activatorProps}">
-                            <v-card 
-                            link
-                            class="bg-blur border-sm border-opacity-75 pa-2 text-white"
-                            v-bind="activatorProps"
-                            >
-                            <template v-slot:prepend>
-                                <div class="d-flex flex-column ga-1">
-                                <span class="text-title-large font-weight-bold">Request Title</span>
-                                <span class="text-body-small text-grey-lighten-1">Request from Jane Doe at December 25th, 2025</span>
+                    <!-- popup leave -->
+                    <v-dialog 
+                    v-model="popupLeave"
+                    max-width="750">
+                        <v-card class="pa-4">
+                            <v-card-actions>
+                                <v-btn
+                                variant="text"
+                                icon="mdi-close"
+                                @click="popupLeave = false"></v-btn>
+                            </v-card-actions>
+                            <v-card-title class="font-weight-bold text-headline-medium">
+                                Leave Request
+                                <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                            </v-card-title>
+                            <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Requester</span>
+                                    <span class="text-grey-lighten-1">John Doe <br>(johndoe@example.org)</span>
                                 </div>
-                            </template>
-                            </v-card>
-                        </template>
-                        <template v-slot:default="{isActive}">
-                            <v-card class="pa-4">
-                                <v-card-actions>
-                                    <v-btn
-                                    icon="mdi-close"
-                                    @click="isActive.value = false">
-                                    </v-btn>
-                                </v-card-actions>
-                                <v-card-title
-                                class="d-flex flex-column align-center ga-2">
-                                    <v-icon 
-                                    size="32"
-                                    icon="mdi-note-alert-outline"
-                                    ></v-icon>
-                                    <span class="font-weight-bold">Request Title</span>
-                                    <span class="text-body-small font-weight-regular text-grey-lighten-1">Requested by John Doe at 25 December 2025</span>
-                                </v-card-title>
-                                <v-card-text
-                                class="d-flex flex-column ga-8">
-                                    <div class="d-flex flex-column ga-2">
-                                        <span class="text-title-medium font-weight-bold">Registered Time</span>
-                                        <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
-                                            <span>
-                                                -- : --
-                                            </span>
-                                            <span>
-                                                -- : --
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex flex-column ga-2">
-                                        <span class="text-title-medium font-weight-bold">
-                                            Description
-                                        </span>
-                                        <div class="pa-4 border-sm border-opacity-50 rounded-lg">
-                                            <span class="py-2 text-body-medium">
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras viverra efficitur magna eu dignissim. Morbi efficitur metus efficitur libero dapibus pulvinar. Phasellus at urna tortor. Sed vel fringilla dui, eu condimentum nunc. Proin ultrices interdum neque, sit amet pellentesque odio ultricies id. Sed nec justo eget felis lacinia commodo. Curabitur sit amet ante vestibulum, consectetur nisl nec, porta leo. Mauris gravida lobortis tincidunt. Maecenas at eros neque. Morbi rhoncus justo id purus fermentum efficitur. Ut congue eros lacus, non interdum arcu vehicula nec. Sed faucibus diam vitae dui lacinia imperdiet. 
-                                            </span>
-                                        </div>
-                                    </div>
-                                </v-card-text>
-                                <v-card-actions class="d-flex flex-row justify-center">
-                                    <v-btn class="text-success" stacked variant="text">
-                                        <v-icon 
-                                        size="x-large"
-                                        icon="mdi-check" 
-                                        ></v-icon>
-                                        Approve
-                                    </v-btn>
-                                    <v-btn class="text-error" stacked variant="text">
-                                        <v-icon 
-                                        size="x-large"
-                                        icon="mdi-close" 
-                                        ></v-icon>
-                                        Reject
-                                    </v-btn>
-                                </v-card-actions>
-                            </v-card>
-                        </template>
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Date</span>
+                                    <span class="text-grey-lighten-1">31 December 2025</span>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Clock In/Clock Out</span>
+                                    <span class="text-grey-lighten-1">-- : -- / -- : --</span>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Reason</span>
+                                    <span class="text-grey-lighten-1 text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse mollis justo eu dolor porta, at bibendum nulla lobortis. Morbi tempor, mi ut ultricies tempor, turpis felis laoreet neque, sit amet finibus lacus mauris eget lorem. Nam eu urna sed nibh feugiat vehicula. Mauris maximus accumsan odio, sed posuere felis pharetra sit amet. Suspendisse dapibus auctor risus, in euismod mi tempor vel. Mauris aliquet porta nisl dictum commodo. Donec vel turpis neque. Aenean faucibus volutpat risus, in laoreet augue bibendum ut. Nullam auctor felis et facilisis molestie. Aenean eleifend ligula justo, sit amet posuere ante dapibus at.</span>
+                                </div>
+                            </v-card-text>
+                            <v-card-actions class="w-100">
+                                <v-btn
+                                color="success"
+                                text="Approve"
+                                variant="flat"
+                                class="w-100"
+                                style="max-width: 150px;"
+                                ></v-btn>
+                                <v-btn
+                                color="red"
+                                text="Reject"
+                                variant="flat"
+                                class="w-100"
+                                style="max-width: 150px;"
+                                ></v-btn>
+                            </v-card-actions>
+                        </v-card>
                     </v-dialog>
+                    <!-- popup override -->
+                    <v-dialog 
+                    v-model="popupOverride"
+                    max-width="750">
+                        <v-card class="pa-4">
+                            <v-card-actions>
+                                <v-btn
+                                variant="text"
+                                icon="mdi-close"
+                                @click="popupOverride = false"></v-btn>
+                            </v-card-actions>
+                            <v-card-title class="font-weight-bold text-headline-medium">
+                                Override Request
+                                <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                            </v-card-title>
+                            <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Requester</span>
+                                    <span class="text-grey-lighten-1">John Doe <br>(johndoe@example.org)</span>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Date</span>
+                                    <span class="text-grey-lighten-1">31 December 2025</span>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Clock In/Clock Out</span>
+                                    <span class="text-grey-lighten-1">-- : -- / -- : --</span>
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <span class="text-title-large font-weight-bold">Reason</span>
+                                    <span class="text-grey-lighten-1 text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse mollis justo eu dolor porta, at bibendum nulla lobortis. Morbi tempor, mi ut ultricies tempor, turpis felis laoreet neque, sit amet finibus lacus mauris eget lorem. Nam eu urna sed nibh feugiat vehicula. Mauris maximus accumsan odio, sed posuere felis pharetra sit amet. Suspendisse dapibus auctor risus, in euismod mi tempor vel. Mauris aliquet porta nisl dictum commodo. Donec vel turpis neque. Aenean faucibus volutpat risus, in laoreet augue bibendum ut. Nullam auctor felis et facilisis molestie. Aenean eleifend ligula justo, sit amet posuere ante dapibus at.</span>
+                                </div>
+                            </v-card-text>
+                            <v-card-actions class="w-100">
+                                <v-btn
+                                color="success"
+                                text="Approve"
+                                variant="flat"
+                                class="w-100"
+                                style="max-width: 150px;"
+                                ></v-btn>
+                                <v-btn
+                                color="red"
+                                text="Reject"
+                                variant="flat"
+                                class="w-100"
+                                style="max-width: 150px;"
+                                ></v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+                    <div
+                    v-for="item in userGroupMember">
+                        <v-card 
+                        link
+                        class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+                        @click = 'popupLeave = true'
+                        >
+                        <v-card-text class="d-flex flex-column ga-1">
+                            <span class="text-title-large font-weight-bold">Request Title</span>
+                            <span class="text-body-small text-grey-lighten-1">Request from Jane Doe at December 25th, 2025</span>
+                        </v-card-text>
+                        </v-card>
+                    </div>
                 </template>
                 
                 <v-pagination :length="5"></v-pagination>

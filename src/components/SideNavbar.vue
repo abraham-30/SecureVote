@@ -32,7 +32,7 @@ function activateSidebar(){
 
         <template v-if="role === 'supervisor'">
             <v-list-item link title="My Team" to="/MyTeam"></v-list-item>
-            <v-list-item link title="Team Requests" to="/MyTeamRequest"></v-list-item>
+            <v-list-item link title="My Team Requests" to="/MyTeamRequest"></v-list-item>
         </template>
 
         <template v-slot:append>

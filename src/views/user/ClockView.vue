@@ -29,6 +29,31 @@ onMounted(async () => {
     userStore.setRole(selectedUserGroup.value?.role?.name)
     await groupDetails(selectedUserGroup.value?.group?.id)
 })
+
+// Data Dummy
+const dummyData = ref([
+{
+  date: 'Lorem Ipsum',
+  clockin: '00:00',
+  clockout: '00:00',
+  type: 'Late',
+  notes: 'Lorem ipsum dolor sit amet',
+},
+{
+  date: 'Lorem Ipsum',
+  clockin: '--:--',
+  clockout: '--:--',
+  type: 'Leave',
+  notes: 'Lorem ipsum dolor sit amet',
+},
+{
+  date: 'Lorem Ipsum',
+  clockin: '00:00',
+  clockout: '00:00',
+  type: 'Override',
+  notes: 'Lorem ipsum dolor sit amet',
+},
+])
 </script>
 
 <template>
@@ -62,13 +87,11 @@ onMounted(async () => {
                 </div>
                 <span class="text-display-small font-weight-bold">07:00 PM</span>
                 <span class="text-grey-lighten-1 text-center">
-                    Jakarta, Indonesia (GMT+7)
-                    <br>
                     December 19th, 2025
                 </span>
                 <span class="text-grey-lighten-1"></span>
             </div>
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-row w-100 ga-4">
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4">
                         <div class="d-flex flex-column ga-8 align-center">
@@ -89,15 +112,55 @@ onMounted(async () => {
                         </div>
                     </v-card>
                 </div>
+                <div class="d-flex flex-column ga-2">
+                    <v-table 
+                    theme="dark"
+                    density="compact"
+                    striped="even"
+                    >
+                        <thead>
+                        <tr>
+                            <th class="text-left">
+                            Date
+                            </th>
+                            <th class="text-left">
+                            Clock In
+                            </th>
+                            <th class="text-left">
+                            Clock Out
+                            </th>
+                            <th class="text-left">
+                            
+                            </th>
+                            <th class="text-left">
+                            Notes
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr
+                            v-for="item in dummyData"
+                            :key="item.name"
+                        >
+                            <td>{{ item.date }}</td>
+                            <td>{{ item.clockin }}</td>
+                            <td>{{ item.clockout }}</td>
+                            <td>{{ item.type }}</td>
+                            <td>{{ item.notes }}</td>
+                        </tr>
+                        </tbody>
+                    </v-table>
+                    <v-pagination :length="5"></v-pagination>
+                </div>
             </div>
-            <div class="d-flex flex-column ga-1">
-                <span class="text-title-medium font-weight-bold">This Month Attendance Report</span>
-                <v-divider class="border-opacity-50"></v-divider>      
-            </div>
-            <div>
-                <v-calendar>
-                    
-                </v-calendar>
+            <div class="d-flex flex-column ga-4">
+                <div class="d-flex flex-column ga-1">
+                    <span class="text-title-medium font-weight-bold">This Month Attendance Report</span>
+                    <v-divider class="border-opacity-50"></v-divider>      
+                </div>
+                <div>
+                    <!-- Table -->
+                </div>
             </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">

@@ -112,69 +112,43 @@ watch(page, async () => {
                                                 <v-card class="pa-4">
                                                     <v-card-actions>
                                                         <v-btn
+                                                        variant="text"
                                                         icon="mdi-close"
-                                                        @click="isActive.value = false">
-                                                        </v-btn>
+                                                        @click="isActive.value = false"></v-btn>
                                                     </v-card-actions>
-                                                    <v-card-title
-                                                    class="d-flex flex-column align-center ga-2">
-                                                        <v-icon 
-                                                        size="32"
-                                                        icon="mdi-note-alert-outline"
-                                                        ></v-icon>
-                                                        <span class="font-weight-bold">Override Request</span>
-                                                        <span class="text-body-small font-weight-regular text-grey-lighten-1">Requested at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                                    <v-card-title class="font-weight-bold text-headline-medium">
+                                                        Override Request
+                                                        <v-divider class="border-opacity-50 mt-1"></v-divider>      
                                                     </v-card-title>
-                                                    <v-card-text
-                                                    class="d-flex flex-column ga-8">
-                                                        <div class="d-flex flex-column ga-2">
-                                                            <span class="text-title-medium font-weight-bold">
-                                                                Supervisor
-                                                            </span>
-                                                            <div class="pa-4 border-sm border-opacity-50 rounded-lg">
-                                                                <span class="py-2 text-body-medium">
-                                                                    {{ item?.supervisor?.name }}
-                                                                </span>
-                                                            </div>
+                                                    <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
+                                                        <!-- Alert = If the requested is still on review-->
+                                                        <v-alert
+                                                            density="compact"
+                                                            text="Waiting on your supervisor approval..."
+                                                            type="warning"
+                                                            class="w-100"
+                                                        ></v-alert>
+                                                        <div class="d-flex flex-column">
+                                                            <span class="text-title-large font-weight-bold">Waiting on supervisor...</span>
+                                                            <span class="text-grey-lighten-1">{{ item?.supervisor?.name }} <br>({{ item?.supervisor?.name }})</span>
+                                                            <!-- please change to name (email) -->
                                                         </div>
-
-                                                        <div class="d-flex flex-column ga-2">
-                                                            <span class="text-title-medium font-weight-bold">Registered Time</span>
-                                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
-                                                                <span>
-                                                                    {{ formatDate(item?.start_date_time, "HH : mm") }}
-                                                                </span>
-                                                                <span>
-                                                                    {{ formatDate(item?.end_date_time, "HH : mm") }}
-                                                                </span>
-                                                            </div>
+                                                        <div class="d-flex flex-column">
+                                                            <span class="text-title-large font-weight-bold">Date</span>
+                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                                         </div>
-
-                                                        <div class="d-flex flex-column ga-2">
-                                                            <span class="text-title-medium font-weight-bold">
-                                                                Description
-                                                            </span>
-                                                            <div class="pa-4 border-sm border-opacity-50 rounded-lg">
-                                                                <span class="py-2 text-body-medium">
-                                                                    {{ item?.reason }}
-                                                                </span>
-                                                            </div>
+                                                        <div class="d-flex flex-column">
+                                                            <span class="text-title-large font-weight-bold">Clock In/Clock Out</span>
+                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH : mm") }} / {{ formatDate(item?.end_date_time, "HH : mm") }}</span>
+                                                        </div>
+                                                        <div class="d-flex flex-column">
+                                                            <span class="text-title-large font-weight-bold">Reason</span>
+                                                            <span class="text-grey-lighten-1 text-justify">{{ item?.reason }}</span>
                                                         </div>
                                                     </v-card-text>
-
                                                     <v-card-actions class="d-flex flex-row justify-center">
                                                         <template v-if="item?.status == 'requested'">
-                                                            <v-btn class="text-error" variant="outlined">
-                                                                <template #prepend>
-                                                                    <v-icon 
-                                                                    size="x-large"
-                                                                    icon="mdi-close" 
-                                                                    ></v-icon>
-                                                                </template>
-
-                                                                <template #default>
-                                                                    Cancel
-                                                                </template>
+                                                            <v-btn text="Cancel" class="text-error" variant="outlined">
                                                             </v-btn>
                                                         </template>
 
@@ -185,7 +159,7 @@ watch(page, async () => {
                                                                 </template>
                                                             </v-btn>
                                                         </template>
-                                                        </v-card-actions>
+                                                    </v-card-actions>
                                                 </v-card>
                                             </template>
                                         </v-dialog>

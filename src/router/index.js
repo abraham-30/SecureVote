@@ -16,6 +16,7 @@ import RegisterOrganizationView from "@/views/main/RegisterOrganizationView.vue"
 import ClockView from "@/views/user/ClockView.vue"
 import OverrideView from "@/views/user/OverrideView.vue"
 import CreateOverride from "@/views/user/CreateOverride.vue"
+import CreateLeaveView from "@/views/user/CreateLeaveView.vue"
 
 // Supervisor Pages
 import MyTeamRequestView from "@/views/supervisor/MyTeamRequestView.vue"
@@ -152,7 +153,7 @@ const router = createRouter({
             path:'/CreateLeave',
             name:'createleave',
             components:{
-                default: CreateOverride,
+                default: CreateLeaveView,
                 footer: Footer
             }
         },
@@ -174,7 +175,8 @@ const router = createRouter({
             }
         },
         {
-            path:'/MemberDetails/:id',
+            // path:'/MemberDetails/:id',
+            path:'/MemberDetails/',
             name:'memberDetails',
             components: {
                 default: MemberDetailsView,
@@ -219,7 +221,7 @@ const router = createRouter({
             path: '/:pathMatch(.*)*',
             name: 'InvalidPage',
             component: InvalidPageView
-        }
+        },
     ]
 })
 
