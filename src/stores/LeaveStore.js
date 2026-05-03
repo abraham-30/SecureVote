@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
-import { reactive } from "vue";
+import { ref } from "vue";
 
 export const useLeaveStore = defineStore('leave', () => {
-    const leaveRequest = reactive([])
+    const leaveRequest = ref([])
     
     function setLeaveRequest(response) {
-        Object.assign(leaveRequest, response)
+        leaveRequest.value = response
     }
     
     return { leaveRequest, setLeaveRequest }

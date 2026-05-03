@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
+import { ref } from 'vue'
 
 export const useInvitationStore = defineStore('invitation', () => {
-    const invitation = reactive({})
+    const invitation = ref([])
 
     function setInvitation(response) {
-        Object.assign(invitation, response)
+        invitation.value = response
     }
 
     return { invitation, setInvitation }

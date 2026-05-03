@@ -10,11 +10,7 @@ export const useGroupStore = defineStore(
             group.value = response
         }
 
-        function setGroupNull(response) {
-            Object.keys(group).forEach(key => delete group[key])
-        }
-
-        return { group, setGroup, setGroupNull }
+        return { group, setGroup }
     }, 
     {
         persist: true,

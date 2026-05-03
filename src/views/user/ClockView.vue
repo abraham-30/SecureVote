@@ -1,13 +1,20 @@
 <script setup>
 import { useGroupStore } from '@/stores/GroupStore';
 import { groupDetails } from '@/services/GroupServices';
+import { userGroupDetails } from '@/services/UserGroupServices';
+import { useUserGroupStore } from '@/stores/UserGroupStore';
+import { useUserStore } from '@/stores/UserStore'; 
+
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router';
 import SideNavbar from '@/components/SideNavbar.vue';
 import { storeToRefs } from 'pinia';
 
+const userStore = useUserStore()
 const groupStore = useGroupStore()
-const { group } = storeToRefs()
+const { group } = storeToRefs(groupStore)
+const userGroupStore = useUserGroupStore()
+const { selectedUserGroup } = storeToRefs(userGroupStore)
 const route = useRoute()
 
 const isSidebarOpen = ref(true)
@@ -17,7 +24,10 @@ function activateSidebar(){
 }
 
 onMounted(async () => {
-    await groupDetails(route.params.id)
+    await userGroupDetails(route.params.id)
+
+    userStore.setRole(selectedUserGroup.value?.role?.name)
+    await groupDetails(selectedUserGroup.value?.group?.id)
 })
 </script>
 

@@ -174,7 +174,7 @@ const router = createRouter({
             }
         },
         {
-            path:'/MemberDetails',
+            path:'/MemberDetails/:id',
             name:'memberDetails',
             components: {
                 default: MemberDetailsView,

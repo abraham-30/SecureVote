@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
-import { reactive } from "vue";
+import { ref } from "vue";
 
 export const useOverrideStore = defineStore('override', () => {
-    const overrideRequest = reactive({})
+    const overrideRequest = ref([])
     
     function setOverrideRequest(response) {
-        Object.assign(overrideRequest, response)
+        overrideRequest.value = response
     }
     
     return { overrideRequest, setOverrideRequest }

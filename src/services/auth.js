@@ -1,8 +1,9 @@
 import api from '@/services/BaseUrl.js'
 import { useUserStore } from '@/stores/UserStore.js'
 
+
 const login = async (email, password) => {
-    const store = useUserStore()
+    const UserStore = useUserStore()
     const response = await api.post(
         '/auth/login/',
         {
@@ -11,9 +12,9 @@ const login = async (email, password) => {
         },
     )
 
-    store.setID(response.data["id"])
-    store.setName(response.data["name"])
-    store.setEmail(response.data["name"])
+    UserStore.setID(response.data["id"])
+    UserStore.setName(response.data["name"])
+    UserStore.setEmail(response.data["name"])
 
     return response
 }

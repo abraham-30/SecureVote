@@ -7,6 +7,7 @@ export const useUserStore = defineStore(
         const id = ref()
         const name = ref()
         const email = ref()
+        const role = ref()
 
         function setID(data) {
             id.value = data
@@ -20,7 +21,11 @@ export const useUserStore = defineStore(
             email.value = data
         }
 
-        return { id, name, email, setName, setEmail, setID }
+        function setRole(data) {
+            role.value = data
+        }
+
+        return { id, name, email, role, setName, setEmail, setID, setRole }
     },
     {
         persist: true,

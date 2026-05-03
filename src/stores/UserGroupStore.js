@@ -1,17 +1,27 @@
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
+import { ref } from 'vue'
 
 export const useUserGroupStore = defineStore('userGroup', () => {
-    const userGroup = reactive({})
-    const userGroupAdmin = reactive({})
+    const userGroups = ref([])
+    const userGroupAdmin = ref([])
+    const userGroupMember = ref([])
+    const selectedUserGroup = ref()
 
     function setUserGroup(response) {
-        Object.assign(userGroup, response)
+        userGroups.value = response
     }
 
     function setUserGroupAdmin(response) {
-        Object.assign(userGroupAdmin, response)
+        userGroupAdmin.value = response
     }
 
-    return { userGroup, setUserGroup, userGroupAdmin, setUserGroupAdmin }
+    function setSelectedUserGroup(response) {
+        selectedUserGroup.value = response
+    }
+
+    function setUserGroupMember(response) {
+        userGroupMember.value = response
+    }
+
+    return { userGroups, userGroupAdmin, userGroupMember, selectedUserGroup, setUserGroupAdmin, setUserGroup, setSelectedUserGroup, setUserGroupMember }
 })

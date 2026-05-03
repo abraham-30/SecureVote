@@ -10,7 +10,7 @@ const userStore = useUserStore()
 const userGroupStore = useUserGroupStore()
 const groupStore = useGroupStore()
 const { id } = storeToRefs(userStore)
-const { userGroup, userGroupAdmin } = storeToRefs(userGroupStore)
+const { userGroups, userGroupAdmin } = storeToRefs(userGroupStore)
 
 const size = 5
 const pageMyOrg = ref(1)
@@ -21,9 +21,11 @@ const isLoadingManagedOrg = ref(true)
 onMounted(async () => {
   userGroupList(id.value, size, pageMyOrg.value)
   await userGroupListAdmin(id.value, size, pageMyOrg.value)
+  
   isLoadingMyOrg.value = false
   isLoadingManagedOrg.value = false
-  groupStore.setGroupNull
+  groupStore.setGroup(null)
+  userStore.setRole(null)
 })
 
 watch(pageMyOrg, async() => {
@@ -64,8 +66,8 @@ watch(pageManagedOrg, async() => {
               <v-card
                 class="bg-blur border-sm border-opacity-75 pa-2 text-white"
                 link
-                :to="`/clock/${item?.group?.id}`"
-                v-for="item in userGroup?.results"
+                :to="`/clock/${item?.id}`"
+                v-for="item in userGroups?.results"
                 >
                 <template v-slot:prepend>
                   <div class="d-flex flex-column ga-1">
@@ -80,7 +82,7 @@ watch(pageManagedOrg, async() => {
               </v-card>
             </template>
 
-            <v-pagination v-model=pageMyOrg :disabled="isLoadingMyOrg" :length="userGroup?.total_pages" @update:model-value="() => isLoadingMyOrg=!isLoadingMyOrg"></v-pagination>
+            <v-pagination v-model=pageMyOrg :disabled="isLoadingMyOrg" :length="userGroups?.total_pages" @update:model-value="() => isLoadingMyOrg=!isLoadingMyOrg"></v-pagination>
           </div>
         </div>
 
@@ -107,7 +109,7 @@ watch(pageManagedOrg, async() => {
               <v-card 
               class="bg-blur border-sm border-opacity-75 pa-2 text-white"
               link
-              :to="`/clock/${item?.group?.id}`"
+              :to="`/clock/${item?.id}`"
               v-for="item in userGroupAdmin.results"
               >
                 <template v-slot:prepend>
