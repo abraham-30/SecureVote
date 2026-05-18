@@ -1,10 +1,12 @@
 <script setup>
 import { useUserStore } from '@/stores/UserStore.js'
 import { useUserGroupStore } from '@/stores/UserGroupStore.js'
+import { userGroupDetails } from '@/services/UserGroupServices';
 import { useGroupStore } from '@/stores/GroupStore'
 import { storeToRefs } from 'pinia'
 import { userGroupList, userGroupListAdmin } from '@/services/UserGroupServices.js'
 import { ref, onMounted, watch } from 'vue'
+import router from '@/router/index.js'
 
 const userStore = useUserStore()
 const userGroupStore = useUserGroupStore()
@@ -18,6 +20,26 @@ const pageMyOrg = ref(1)
 const pageManagedOrg = ref(1)
 const isLoadingMyOrg = ref(true)
 const isLoadingManagedOrg = ref(true)
+const currentDate = ref(new Date())
+const selectedUserGroup = ref()
+const onOrgClick = async (id, isManagedOrg) => {
+  await userGroupDetails(id)
+  .then((response) => {
+      selectedUserGroup.value = response.data
+      
+      userStore.setRole(selectedUserGroup.value?.role?.name)
+      groupStore.setGroup(selectedUserGroup.value?.group)
+
+      if (isManagedOrg)
+        router.push({ name: "organizationProfile" })
+      else
+        router.push({ name: "clock", params: { id: id } })
+  })
+
+  setInterval(() => {
+      currentDate.value = new Date()
+  }, 1000)
+}
 
 onMounted(async () => {
   userGroupList(id.value, size, pageMyOrg.value)
@@ -31,6 +53,10 @@ onMounted(async () => {
     userGroupAdmin.value = response.data
     isLoadingManagedOrg.value = false
   })
+
+  setInterval(() => {
+    currentDate.value = new Date()
+  }, 1000)
 })
 
 watch(pageMyOrg, async() => {
@@ -48,13 +74,17 @@ watch(pageManagedOrg, async() => {
     isLoadingManagedOrg.value = false
   })
 })
+
+
 </script>
 
 <template>
-  <div class="min-h-screen py-14">
-      <div class="d-flex flex-column ga-8 py-14">
-        <div class="d-flex flex-column ga-4">
+  <div class="min-h-screen py-14 ">
+      <div class="d-flex flex-column ga-8 py-14 ">
+        <div class="d-flex flex-column ga-4 ">
           <div class="d-flex flex-column ga-1">
+            <span>{{ currentDate.toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit" }) }}</span>
+            <br>
             <span class="text-title-medium font-weight-bold">My Organizations</span>
             <v-divider class="border-opacity-50"></v-divider>      
           </div>
@@ -67,7 +97,7 @@ watch(pageManagedOrg, async() => {
             </v-btn>
           </div>
 
-          <div class="d-flex flex-column ga-4">
+          <div class="d-flex flex-column ga-4 ">
             <template v-if="isLoadingMyOrg">
               <v-skeleton-loader type="article" v-for="i in size">
               </v-skeleton-loader>
@@ -75,21 +105,21 @@ watch(pageManagedOrg, async() => {
             
             <template v-else>
               <v-card
-                class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+                class="bg-blur border-sm border-opacity-75 pa-2 text-white "
                 link
-                :to="`/clock/${item?.id}`"
+                @click="onOrgClick(item?.id, false)"
                 v-for="item in userGroups?.results"
                 >
-                <template v-slot:prepend>
-                  <div class="d-flex flex-column ga-1">
+                <v-card-text>
+                  <div class="d-flex flex-column ga-1 ">
                     <span class="text-title-large font-weight-bold">
                       {{ item?.group?.name }}
                     </span>
-                    <span class="text-grey-lighten-1 text-body-small">
+                    <span class="text-grey-lighten-1 text-body-small desc">
                       {{ item?.group?.description }}
                     </span>
                   </div>
-                </template>
+                </v-card-text>
               </v-card>
             </template>
 
@@ -97,7 +127,7 @@ watch(pageManagedOrg, async() => {
           </div>
         </div>
 
-        <div class="d-flex flex-column ga-4">
+        <div class="d-flex flex-column ga-4 ">
           <div class="d-flex flex-column ga-1">
             <span class="text-title-medium font-weight-bold">Managed Organizations</span>
             <v-divider class="border-opacity-50"></v-divider>      
@@ -111,28 +141,28 @@ watch(pageManagedOrg, async() => {
             </v-btn>
           </div>
           
-          <div class="d-flex flex-column ga-4">
+          <div class="d-flex flex-column ga-4 ">
             <template v-if="isLoadingManagedOrg">
               <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
             </template>
 
             <template v-else>
               <v-card 
-              class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+              class="bg-blur border-sm border-opacity-75 pa-2 text-white "
               link
-              :to="`/clock/${item?.id}`"
+              @click="onOrgClick(item?.id, true)"
               v-for="item in userGroupAdmin.results"
               >
-                <template v-slot:prepend>
-                  <div class="d-flex flex-column ga-1">
+                <v-card-text>
+                  <div class="d-flex flex-column ga-1 ">
                     <span class="text-title-large font-weight-bold">
                       {{ item?.group?.name }}
                     </span>
-                    <span class="text-grey-lighten-1 text-body-small">
+                    <span class="text-grey-lighten-1 text-body-small desc" >
                       {{ item?.group?.description }}
                     </span>
                   </div>
-                </template>
+                </v-card-text>
               </v-card>
             </template>
 
@@ -144,5 +174,12 @@ watch(pageManagedOrg, async() => {
 </template>
 
 <style lang="scss" scoped>
+:deep(.v-card-text) {
 
+  span {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+}
 </style>

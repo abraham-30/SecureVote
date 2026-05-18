@@ -1,6 +1,13 @@
 <script setup>
-    import iconUrl from '@/assets/icon-neutralgrey200.png'
-    import dummyImgUrl from '@/assets/dummy-img.png'
+import iconUrl from '@/assets/icon-neutralgrey200.png'
+import dummyImgUrl from '@/assets/dummy-img.png'
+import { onMounted } from 'vue';
+
+onMounted(() => {
+    setInterval(() => {
+        currentDate.value = new Date()
+    }, 1000)
+})
 </script>
 
 <template>
@@ -23,13 +30,8 @@
         </v-sheet>
         <v-sheet class="child-container-2 d-flex flex-column align-end">
             <div class="d-flex flex-column align-end">
-                <span class="font-weight-bold">
-                    07:00 PM GMT+7
-                    <v-icon 
-                    size="small"
-                    icon="mdi-white-balance-sunny" 
-                    ></v-icon>
-                </span>
+                <span>{{ currentDate.toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit" }) }}</span>
+                <br>
                 <span class="text-grey-lighten-1">
                     Jakarta, Indonesia
                 </span>

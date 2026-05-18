@@ -26,7 +26,7 @@ function activateSidebar(){
 }
 
 onMounted(async () => {
-    await combinedRequestsSupervisor(user_id.value, group.value.id, "requested", size, page.value)
+    await combinedRequestsSupervisor(user_id.value, group.value.id, size, page.value)
     .then((response) => {
         combinedRequestsForSupervisor.value = response.data
         isLoading.value = false
@@ -34,7 +34,7 @@ onMounted(async () => {
 })
 
 watch(page, async () => {
-    await combinedRequestsSupervisor(user_id.value, group.value.id, "requested", size, page.value)
+    await combinedRequestsSupervisor(user_id.value, group.value.id, size, page.value)
     .then((response) => {
         combinedRequestsForSupervisor.value = response.data
         isLoading.value = false
@@ -80,13 +80,13 @@ watch(page, async () => {
                             class="bg-blur border-sm border-opacity-75 pa-2 text-white"
                             v-bind="activatorProps"
                             >
-                            <template v-slot:prepend>
-                                <div class="d-flex flex-column ga-1">
-                                <span class="text-title-large font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
-                                <span class="text-title-large font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
-                                <span class="text-body-small text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
-                                </div>
-                            </template>
+                                <v-card-text>
+                                    <div class="d-flex flex-column ga-1">
+                                        <span class="text-title-large font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
+                                        <span class="text-title-large font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
+                                        <span class="text-body-small text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                    </div>
+                                </v-card-text>
                             </v-card>
                         </template>
                         <template v-slot:default="{isActive}">
@@ -98,103 +98,50 @@ watch(page, async () => {
                                     </v-btn>
                                 </v-card-actions>
                                 <v-card-title
-                                class="d-flex flex-column align-center ga-2">
-                                    <v-icon 
-                                    size="32"
-                                    icon="mdi-note-alert-outline"
-                                    ></v-icon>
-                                    <span class="font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
-                                    <span class="font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
-                                    <span class="text-body-small font-weight-regular text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                class="font-weight-bold text-headline-medium">
+                                    <template v-if="item?.type == 'override'">Override Request</template>
+                                    <template v-else-if="item?.type == 'leave'">Leave Request</template>
+                                    <v-divider class="border-opacity-50 mt-1"></v-divider>      
                                 </v-card-title>
                                 <v-card-text
-                                class="d-flex flex-column ga-8">
+                                class="d-flex flex-column align-start ga-8">
+                                    <div class="d-flex flex-column">
+                                        <span class="text-title-large font-weight-bold">Requester</span>
+                                        <span class="text-grey-lighten-1">{{ item?.user?.name }} <br>({{ item?.user?.email }})</span>
+                                        <!-- please change to name (email) -->
+                                    </div>
+
                                     <template v-if="item?.type == 'leave'">
-                                        <div class="d-flex flex-column ga-2">
-                                            <span class="text-title-medium font-weight-bold">
-                                                Leave Type
-                                            </span>
-                                            <div class="pa-4 border-sm border-opacity-50 rounded-lg">
-                                                <span class="py-2 text-body-medium">
-                                                    {{ item?.attendance_type?.name }}
-                                                </span>
-                                            </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="text-title-large font-weight-bold">Leave Type</span>
+                                            <span class="text-grey-lighten-1">{{ item?.attendance_type?.name }}</span>
                                         </div>
-
-                                        <div class="d-flex flex-column ga-2">
-                                            <div class="d-flex flex-row justify-space-evenly">
-                                                <span>
-                                                    <span class="text-title-medium font-weight-bold">Start Date</span>
-                                                </span>
-
-                                                <span>
-                                                    <span class="text-title-medium font-weight-bold">End Date</span>
-                                                </span>
-                                            </div>
-
-                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
-                                                <span>
-                                                    {{ formatDate(item?.start_date_time, "DD-MM-YYYY") }}
-                                                </span>
-
-                                                <span>
-                                                    {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}
-                                                </span>
-                                            </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="text-title-large font-weight-bold">Start Date / End Date</span>
+                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD-MM-YYYY") }} / {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}</span>
                                         </div>
                                     </template>
 
                                     <template v-else-if="item?.type == 'override'">
-                                        <div class="d-flex flex-column ga-2">
-                                            <span class="text-title-medium font-weight-bold">Registered Time</span>
-                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
-                                                <span>
-                                                    {{ formatDate(item?.start_date_time, "HH : mm") }}
-                                                </span>
-                                                <span>
-                                                    {{ formatDate(item?.end_date_time, "HH : mm") }}
-                                                </span>
-                                            </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="text-title-large font-weight-bold">Date</span>
+                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}</span>
                                         </div>
-
-                                        <div class="d-flex flex-column ga-2">
-                                                            <span class="text-title-medium font-weight-bold">Registered Time</span>
-                                                            <div class="d-flex flex-row justify-space-evenly pa-4 border-sm border-opacity-50 rounded-lg font-weight-bold">
-                                                                <span>
-                                                                    {{ formatDate(item?.start_date_time, "HH : mm") }}
-                                                                </span>
-                                                                <span>
-                                                                    {{ formatDate(item?.end_date_time, "HH : mm") }}
-                                                                </span>
-                                                            </div>
-                                                        </div>
+                                        <div class="d-flex flex-column">
+                                            <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
+                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") }} / {{ formatDate(item?.end_date_time, "HH:mm") }}</span>
+                                        </div>
                                     </template>
                                     
-                                    <div class="d-flex flex-column ga-2">
-                                        <span class="text-title-medium font-weight-bold">
-                                            Reason
-                                        </span>
-                                        <div class="pa-4 border-sm border-opacity-50 rounded-lg">
-                                            <span class="py-2 text-body-medium">
-                                                {{ item?.reason }}
-                                            </span>
-                                        </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-title-large font-weight-bold">Reason</span>
+                                        <span class="text-grey-lighten-1 text-justify">{{ item?.reason }}</span>
                                     </div>
                                 </v-card-text>
-                                <v-card-actions class="d-flex flex-row justify-center">
-                                    <v-btn class="text-success" stacked variant="text">
-                                        <v-icon 
-                                        size="x-large"
-                                        icon="mdi-check" 
-                                        ></v-icon>
-                                        Approve
+                                <v-card-actions class="d-flex flex-row justify-end">
+                                    <v-btn size="large" class="w-25" variant="flat" text="Approve" color="success">
                                     </v-btn>
-                                    <v-btn class="text-error" stacked variant="text">
-                                        <v-icon 
-                                        size="x-large"
-                                        icon="mdi-close" 
-                                        ></v-icon>
-                                        Reject
+                                    <v-btn size="large" class="w-25" variant="flat" text="Reject" color="error">
                                     </v-btn>
                                 </v-card-actions>
                             </v-card>

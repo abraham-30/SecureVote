@@ -4,7 +4,7 @@ import { groupDetails } from '@/services/GroupServices';
 import { userGroupDetails } from '@/services/UserGroupServices';
 import { useUserGroupStore } from '@/stores/UserGroupStore';
 import { useUserStore } from '@/stores/UserStore'; 
-
+import { formatDate } from '@/utils/date';
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router';
 import SideNavbar from '@/components/SideNavbar.vue';
@@ -13,10 +13,13 @@ import { storeToRefs } from 'pinia';
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
+const { name } = storeToRefs(userStore)
+
 const userGroupStore = useUserGroupStore()
 const selectedUserGroup = ref()
 const route = useRoute()
 
+const currentDate = ref(new Date())
 const isSidebarOpen = ref(true)
 
 function activateSidebar(){
@@ -24,37 +27,45 @@ function activateSidebar(){
 }
 
 onMounted(async () => {
-    await userGroupDetails(route.params.id)
-    .then((response) => {
-        selectedUserGroup.value = response.data
-        
-        userStore.setRole(selectedUserGroup.value?.role?.name)
-        groupStore.setGroup(selectedUserGroup.value?.group)
-    })
+    
 })
 
 // Data Dummy
 const dummyData = ref([
 {
-  date: 'Lorem Ipsum',
-  clockin: '00:00',
-  clockout: '00:00',
-  type: 'Late',
-  notes: 'Lorem ipsum dolor sit amet',
+    date: '12 April 2026',
+    clockin: '08:30',
+    clockout: '17:30',
+    type: 'Override',
+    notes: 'Lupa Absen',
 },
 {
-  date: 'Lorem Ipsum',
-  clockin: '--:--',
-  clockout: '--:--',
+  date: '11 April 2026',
+  clockin: '07:30',
+  clockout: '06:30',
   type: 'Leave',
-  notes: 'Lorem ipsum dolor sit amet',
+  notes: 'Cuti',
 },
 {
-  date: 'Lorem Ipsum',
-  clockin: '00:00',
-  clockout: '00:00',
-  type: 'Override',
-  notes: 'Lorem ipsum dolor sit amet',
+  date: '10 April 2026',
+  clockin: '09:30',
+  clockout: '05:30',
+  type: 'Late',
+  notes: '',
+},
+{
+  date: '09 April 2026',
+  clockin: '08:30',
+  clockout: '05:30',
+  type: '',
+  notes: '',
+},
+{
+  date: '08 April 2026',
+  clockin: '08:30',
+  clockout: '05:30',
+  type: '',
+  notes: '',
 },
 ])
 </script>
@@ -75,22 +86,15 @@ const dummyData = ref([
                 ></v-btn>
             </div>
             <div class="d-flex flex-column">
-                <span class="text-headline-medium font-weight-bold">Organization Name</span>
-                <span class="text-grey-lighten-1">John Doe</span>
+                <span class="text-headline-medium font-weight-bold">{{ group.name }}</span>
+                <span class="text-grey-lighten-1">{{ name }}</span>
             </div>
             <div class="d-flex flex-column align-center ga-2">
-                <div class="d-flex flex-row ga-1">
-                     <v-icon 
-                    icon="mdi-white-balance-sunny" 
-                    class="text-grey-darken-2"
-                    ></v-icon>
-                    <v-icon 
-                    icon="mdi-weather-night" 
-                    ></v-icon>
-                </div>
-                <span class="text-display-small font-weight-bold">07:00 PM</span>
+                <span class="text-display-small font-weight-bold">
+                    {{ currentDate.toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit" }) }}
+                </span>
                 <span class="text-grey-lighten-1 text-center">
-                    December 19th, 2025
+                    {{ formatDate(currentDate, "MMMM Do, YYYY") }}
                 </span>
                 <span class="text-grey-lighten-1"></span>
             </div>
@@ -115,54 +119,54 @@ const dummyData = ref([
                         </div>
                     </v-card>
                 </div>
-                <div class="d-flex flex-column ga-2">
-                    <v-table 
-                    theme="dark"
-                    density="compact"
-                    striped="even"
-                    >
-                        <thead>
-                        <tr>
-                            <th class="text-left">
-                            Date
-                            </th>
-                            <th class="text-left">
-                            Clock In
-                            </th>
-                            <th class="text-left">
-                            Clock Out
-                            </th>
-                            <th class="text-left">
-                            
-                            </th>
-                            <th class="text-left">
-                            Notes
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr
-                            v-for="item in dummyData"
-                            :key="item.name"
-                        >
-                            <td>{{ item.date }}</td>
-                            <td>{{ item.clockin }}</td>
-                            <td>{{ item.clockout }}</td>
-                            <td>{{ item.type }}</td>
-                            <td>{{ item.notes }}</td>
-                        </tr>
-                        </tbody>
-                    </v-table>
-                    <v-pagination :length="5"></v-pagination>
-                </div>
             </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
-                    <span class="text-title-medium font-weight-bold">This Month Attendance Report</span>
+                    <span class="text-title-medium font-weight-bold">Attendance History</span>
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
+
                 <div>
-                    <!-- Table -->
+                    <div class="d-flex flex-column ga-2">
+                        <v-table 
+                        theme="dark"
+                        density="compact"
+                        striped="even"
+                        >
+                            <thead>
+                            <tr>
+                                <th class="text-left">
+                                Date
+                                </th>
+                                <th class="text-left">
+                                Clock In
+                                </th>
+                                <th class="text-left">
+                                Clock Out
+                                </th>
+                                <th class="text-left">
+                                
+                                </th>
+                                <th class="text-left">
+                                Notes
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr
+                                v-for="item in dummyData"
+                                :key="item.name"
+                            >
+                                <td>{{ item.date }}</td>
+                                <td>{{ item.clockin }}</td>
+                                <td>{{ item.clockout }}</td>
+                                <td>{{ item.type }}</td>
+                                <td>{{ item.notes }}</td>
+                            </tr>
+                            </tbody>
+                        </v-table>
+                        <v-pagination :length="5"></v-pagination>
+                    </div>
                 </div>
             </div>
             <div class="d-flex flex-column ga-4">

@@ -43,10 +43,11 @@
             </span>
         </v-sheet>
         <v-sheet class="w-66">
-            <v-sheet class="d-flex flex-column align-center ga-4">
+            <v-sheet class="d-flex flex-column align-center ga-8">
                 <v-text-field 
                     v-model="email"
                     :rules="emailRules"
+                    hide-details="auto"
                     type="email"
                     variant="outlined"
                     label="Email"
@@ -55,6 +56,7 @@
                 <v-text-field 
                     v-model="password"
                     :rules = "passwordRules"
+                    hide-details="auto"
                     type="password"
                     variant="outlined"
                     label="Password"

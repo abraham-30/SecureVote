@@ -1,34 +1,29 @@
 <script setup>
-    import { shallowRef } from 'vue';
-    import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
+import { ref, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
+import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
+import { attendanceTypesList } from '@/services/AttendanceTypeService';
+import { WorkingHoursList } from '@/services/WorkingHoursService';
+import { useGroupStore } from '@/stores/GroupStore';
 
-    const popupDelete = shallowRef(false);
-    const popupAddCategory = shallowRef(false);
-    const popupEditCategory = shallowRef(false);
+const popupDelete = ref(false);
+const popupAddCategory = ref(false);
+const groupStore = useGroupStore()
+const { group } = storeToRefs(groupStore)
+const workingHours = ref()
+const attendanceTypes = ref()
 
-    const daysItems = [
-        {
-            itemName:'Monday',
-        },
-        {
-            itemName:'Tuesday',
-        },
-        {
-            itemName:'Wednesday',
-        },
-        {
-            itemName:'Thursday',
-        },
-        {
-            itemName:'Friday',
-        },
-        {
-            itemName:'Saturday',
-        },
-        {
-            itemName:'Sunday'
-        }
-    ];
+onMounted(async () => {
+    await attendanceTypesList(group?.id)
+    .then((response) => {
+        attendanceTypes.value = response.data
+    })
+
+    await WorkingHoursList(group?.id)
+    .then((response) => {
+        workingHours.value = response.data
+    })
+})
 </script>
 
 <template>
@@ -42,7 +37,6 @@
                 class="text-yellow-darken-1"
                 ></v-icon>
                 <span class="text-headline-medium font-weight-bold">Organization Settings</span>
-                <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
@@ -50,27 +44,60 @@
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <div>
-                    <v-card 
-                    variant="flat"
-                    color="white">
-                        <v-card-actions>
-                            <!-- iterate here -->
-                            <v-data-iterator
-                            :items="daysItems"
-                            item-value="itemName">
-                                <v-row>
-                                    <v-col
-                                    v-for="item in daysItems"
-                                    :key="item.itemName">
-                                        <v-checkbox 
-                                        :label="item.itemName"
-                                        hide-details="auto"
-                                        ></v-checkbox>
-                                    </v-col>
-                                </v-row>
-                            </v-data-iterator>
-                        </v-card-actions>
-                    </v-card>
+                    <div>
+                        <v-form>
+                            <v-row gap="8">
+                                <v-col>
+                                    <v-card class="bg-white">
+                                        <v-checkbox label="Monday" hide-details="true"></v-checkbox>
+                                    </v-card>
+                                </v-col>
+                                <v-col>
+                                    <v-card class="bg-white">
+                                        <v-checkbox label="Tuesday" hide-details="true"></v-checkbox>
+                                    </v-card>
+                                </v-col>
+                                <v-col>
+                                    <v-card class="bg-white">
+                                        <v-checkbox label="Wednesday" hide-details="true"></v-checkbox>
+                                    </v-card>
+                                </v-col>
+                                <v-col>
+                                    <v-card class="bg-white">
+                                        <v-checkbox label="Thursday" hide-details="true"></v-checkbox>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                            <v-row gap="8">
+                                <v-col>
+                                    <v-card class="bg-white">
+                                        <v-checkbox label="Friday" hide-details="true"></v-checkbox>
+                                    </v-card>
+                                </v-col>
+                                <v-col>
+                                    <v-card class="bg-white">
+                                        <v-checkbox label="Saturday" hide-details="true"></v-checkbox>
+                                    </v-card>
+                                </v-col>
+                                <v-col>
+                                    <v-card class="bg-white">
+                                        <v-checkbox label="Sunday" hide-details="true"></v-checkbox>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+
+                            <div class="d-flex flex-row ga-2 mt-4 justify-end">
+                            <v-btn
+                            text="Save Changes"
+                            class="bg-white"
+                            ></v-btn>
+                            <v-btn
+                            text="Discard Changes"
+                            color="red"
+                            ></v-btn> <!-- Disabled button when there no changes was made-->
+                        </div>
+                        </v-form>
+                    </div>
                 </div>
             </div>
             <div class="d-flex flex-column ga-4">
@@ -81,18 +108,21 @@
                 <div>
                     <v-form class="d-flex flex-column align-end ga-8">
                         <div class="d-flex flex-row w-100 ga-4">
-                            <v-text-field
-                            label="Start Hour"
-                            placeholder="--:--"
-                            hide-details="auto"
-                            persistent-placeholder
-                            variant="outlined"></v-text-field>
-                            <v-text-field
-                            label="End Hour"
-                            placeholder="--:--"
-                            hide-details="auto"
-                            persistent-placeholder
-                            variant="outlined"></v-text-field>
+                            <div class="w-50">
+                                Start Hour <br>
+                                <v-text-field
+                                type="time"
+                                hide-details="auto"
+                                variant="outlined"></v-text-field>
+                            </div>
+
+                            <div class="w-50">
+                                End Hour <br>
+                                <v-text-field
+                                type="time"
+                                hide-details="auto"
+                                variant="outlined"></v-text-field>
+                            </div>
                         </div>
                         <div class="d-flex flex-row ga-2">
                             <v-btn
@@ -133,24 +163,28 @@
                                 Add Category
                             </v-card-title>
                             <v-card-subtitle class="text-grey-lighten-1">
-                                Lorem ipsum dolor sit amet
                                 <v-divider class="border-opacity-50 mt-1"></v-divider>      
                             </v-card-subtitle>
-                            <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
+                            <v-card-text class="d-flex flex-column align-start ga-4">
                                 <v-form class="d-flex flex-column ga-8 w-100 align-start">
-                                    <v-text-field
-                                    label="itemName"
-                                    hide-details="auto"
-                                    persistent-placeholder
-                                    variant="outlined"
-                                    class="w-100"></v-text-field>
-                                    <v-text-field
-                                    label="Quantity"
-                                    hide-details="auto"
-                                    persistent-placeholder
-                                    type="number"
-                                    variant="outlined"
-                                    class="w-100"></v-text-field>
+                                    <div class="w-100">
+                                        Name <br>
+                                        <v-text-field
+                                        placeholder="Type Name"
+                                        hide-details="auto"
+                                        variant="outlined"
+                                        class="w-100"></v-text-field>
+                                    </div>
+
+                                    <div class="w-100">
+                                        Quantity <br>
+                                        <v-text-field
+                                        placeholder="Type Quantity"
+                                        hide-details="auto"
+                                        type="number"
+                                        variant="outlined"
+                                        class="w-100"></v-text-field>
+                                    </div>
                                     <v-btn
                                     text="Save Changes"
                                     class="bg-white"></v-btn>
@@ -159,66 +193,75 @@
                         </v-card>
                     </v-dialog>
                     <v-dialog
-                    v-model="popupEditCategory"
-                    max-width="600">
-                        <v-card class="pa-4">
+                    max-width="600"
+                    v-for="item in attendanceTypes">
+                    <template v-slot:activator="{ props: activatorProps }">
+                        <!-- Iterate Here -->
+                        <v-card 
+                        class="w-25"
+                        :title="item?.name"
+                        color="white"
+                        link
+                        v-bind="activatorProps">
+                            <v-card-text>
+                                <v-chip
+                                :text="item?.max_days"
+                                color="blue-darken-2"
+                                variant="flat"></v-chip>
+                            </v-card-text>
+                        </v-card>
+                    </template>
+
+                    <template v-slot:default="{ isActive }">
+                        <v-card class=" ">
                             <v-card-actions>
                                 <v-btn
                                 variant="text"
                                 icon="mdi-close"
-                                @click="popupEditCategory = false"></v-btn>
+                                @click="() => isActive.value = false"></v-btn>
                             </v-card-actions>
                             <v-card-title class="font-weight-bold text-headline-medium">
                                 Edit Category
                             </v-card-title>
                             <v-card-subtitle class="text-grey-lighten-1">
-                                Lorem ipsum dolor sit amet
                                 <v-divider class="border-opacity-50 mt-1"></v-divider>      
                             </v-card-subtitle>
-                            <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
+                            <v-card-text class="d-flex flex-column align-start ga-4">
                                 <v-btn
                                 color="red"
                                 text="Delete Category"
                                 @click = "popupReject = true"
                                 ></v-btn>
-                                <v-form class="d-flex flex-column ga-8 w-100 align-start">
-                                    <v-text-field
-                                    label="itemName"
-                                    placeholder="Cuti Tahunan"
-                                    hide-details="auto"
-                                    persistent-placeholder
-                                    variant="outlined"
-                                    class="w-100"></v-text-field>
-                                    <v-text-field
-                                    label="Quantity"
-                                    placeholder="999"
-                                    hide-details="auto"
-                                    persistent-placeholder
-                                    type="number"
-                                    variant="outlined"
-                                    class="w-100"></v-text-field>
+                                <v-form class="d-flex flex-column ga-8 w-100 align-end">
+                                    <div class="w-100">
+                                        Name <br>
+                                        <v-text-field
+                                        placeholder="Type Name"
+                                        hide-details="auto"
+                                        variant="outlined"
+                                        model-value="Cuti Tahunan"
+                                        class="w-100"></v-text-field>
+                                    </div>
+
+                                    <div class="w-100">
+                                        Quantity <br>
+                                        <v-text-field
+                                        placeholder="Type Quantity"
+                                        hide-details="auto"
+                                        type="number"
+                                        variant="outlined"
+                                        model-value="15"
+                                        class="w-100"></v-text-field>
+                                    </div>
                                     <v-btn
                                     text="Save Changes"
                                     class="bg-white"></v-btn>
                                 </v-form>
                             </v-card-text>
                         </v-card>
+                    </template>
                     </v-dialog>
-                    <div>
-                        <!-- Iterate Here -->
-                        <v-card 
-                        title="Cuti Tahunan"
-                        color="white"
-                        link
-                        @click = "popupEditCategory = true">
-                            <v-card-text>
-                                <v-chip
-                                text="999"
-                                color="blue-darken-2"
-                                variant="flat"></v-chip>
-                            </v-card-text>
-                        </v-card>
-                    </div>
+                   
                 </div>
             </div>
             <div class="d-flex flex-column ga-4">
@@ -240,7 +283,7 @@
                 max-width="500"
                 >
                     <v-card
-                    class="d-flex flex-column align-center pa-8">
+                    class="d-flex flex-column align-center pa-8 w-100">
                         <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
                             <v-icon
                             size="72"
@@ -254,29 +297,31 @@
                         <v-card-actions class="d-flex flex-column w-100 align-center">
                             <v-form
                             class="d-flex flex-column align-center ga-8 w-100">
-                                <v-text-field
-                                label="Please enter your password to continue"
-                                hide-details="auto"
-                                persistent-placeholder
-                                variant="outlined"
-                                type="password"
-                                class="w-100">
-                                </v-text-field>
+                                <div class="w-100">
+                                    Please enter your password to continue <br>
+                                    <v-text-field
+                                    placeholder=""
+                                    hide-details="auto"
+                                    variant="outlined"
+                                    type="password"
+                                    class="w-100">
+                                    </v-text-field>
+                                </div>    
+                            
                                 <div class="d-flex flex-row ga-2 w-100">
                                     <v-btn
+                                    variant="flat"
                                     text="Cancel"
-                                    class="bg-white"
+                                    class="bg-white w-50"
                                     @click = "popupDelete = false"
-                                    style="min-width: 150px;"
-                                    block
                                     ></v-btn>
                                     <v-btn
+                                    class="w-50"
                                     color="red"
                                     variant="flat"
                                     text="Delete"
                                     @click = ""
-                                    style="min-width: 150px;"
-                                    block
+                                    
                                     ></v-btn>  <!-- Please add delete action -->
                                 </div>
                             </v-form>

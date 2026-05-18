@@ -1,11 +1,19 @@
-<script setup></script>
+<script setup>
+import { useGroupStore } from '@/stores/GroupStore';
+import { storeToRefs } from 'pinia';
+
+const groupStore = useGroupStore()
+const { group } = storeToRefs(groupStore)
+
+</script>
 
 <template>
-    <v-navigation-drawer :width="400" class="pa-8">
+    <v-navigation-drawer :width="320" class="pa-8">
         <v-list-item color='primary'></v-list-item>
-        <v-list-item class="text-title-large font-weight-bold">Organization Name</v-list-item>
+        <v-list-item class="text-title-large font-weight-bold">{{ group?.name }}</v-list-item>
         <v-divider></v-divider>
         <div class="pt-2">
+            <v-list-item link title="Home" to="/home"></v-list-item>
             <v-list-item link title="Profile" to="/organizationprofile"></v-list-item>
             <v-list-item link title="Members" to="/organizationMembers"></v-list-item>
             <v-list-item link title="Settings" to="/organizationsettings"></v-list-item>

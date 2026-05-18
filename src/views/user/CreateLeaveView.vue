@@ -8,50 +8,62 @@
             </v-btn>
             <div class="d-flex flex-column">
                 <span class="text-headline-medium font-weight-bold">Create Request</span>
-                <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
             <div>
                 <v-form class="d-flex flex-column ga-8 align-center">
-                    <v-select
-                    label="Supervisor"
-                    persistent-placeholder
-                    hide-details="auto"
-                    :items="['Sawit 1', 'Sawit 2']"
-                    variant="outlined"
-                    class="w-100"
-                    ></v-select>
-                    <v-select
-                    label="Leave Type"
-                    persistent-placeholder
-                    hide-details="auto"
-                    :items="['Sawit 1', 'Sawit 2']"
-                    variant="outlined"
-                    class="w-100"
-                    ></v-select>
-                    <div class="d-flex flex-row ga-4 w-100">
-                        <v-text-field 
-                        v-model="startDate"
-                        label="Start Date"
-                        type="date"
+                    <div class="w-100">
+                        Supervisor <br>
+                        <v-select
+                        placeholder="Choose Supervisor"
                         persistent-placeholder
                         hide-details="auto"
-                        variant="outlined"></v-text-field>
-                        <v-text-field 
-                        v-model="endDate"
-                        label="End Date"
-                        type="date"
-                        persistent-placeholder
-                        hide-details="auto"
-                        variant="outlined"></v-text-field>
-                    </div>
-                    <v-textarea
-                        v-model="reason"
-                        label="Reason"
-                        persistent-placeholder
-                        hide-details="auto"
+                        :items="['Sawit 1', 'Sawit 2']"
                         variant="outlined"
                         class="w-100"
-                    ></v-textarea>
+                        ></v-select>
+                    </div>
+
+                    <div class="w-100">
+                        Leave Type <br>
+                        <v-select
+                        placeholder="Choose Leave Type"
+                        persistent-placeholder
+                        hide-details="auto"
+                        :items="['Sawit 1', 'Sawit 2']"
+                        variant="outlined"
+                        class="w-100"
+                        ></v-select>
+                    </div>
+                    <div class="d-flex flex-row ga-4 w-100">
+                        <div class="w-50">
+                            Start Date <br>
+                            <v-text-field 
+                            v-model="startDate"
+                            type="date"
+                            hide-details="auto"
+                            variant="outlined"></v-text-field>
+                        </div>
+                        <div class="w-50">
+                            End Date <br>
+                            <v-text-field 
+                            v-model="endDate"
+                            type="date"
+                            hide-details="auto"
+                            variant="outlined"></v-text-field>
+                        </div>
+                    </div>
+
+                    <div class="w-100">
+                        Reason <br>
+                        <v-textarea
+                            v-model="reason"
+                            placeholder="Type Reason"
+                            persistent-placeholder
+                            hide-details="auto"
+                            variant="outlined"
+                            class="w-100"
+                        ></v-textarea>
+                    </div>
                     <v-btn 
                     type="submit" 
                     class="bg-white"

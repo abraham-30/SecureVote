@@ -8,53 +8,61 @@
             </v-btn>
             <div class="d-flex flex-column">
                 <span class="text-headline-medium font-weight-bold">Create Request</span>
-                <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
             <div>
                 <v-form class="d-flex flex-column ga-8 align-center">
-                    <v-select
-                    label="Supervisor"
-                    persistent-placeholder
-                    hide-details="auto"
-                    :items="['Sawit 1', 'Sawit 2']"
-                    variant="outlined"
-                    class="w-100"
-                    ></v-select>
-                    <v-text-field 
-                    v-model="date"
-                    label="Date"
-                    type="date"
-                    persistent-placeholder
-                    hide-details="auto"
-                    variant="outlined"
-                    class="w-100"
-                    ></v-text-field>
-                    <div class="d-flex flex-row ga-4 w-100">
-                        <v-text-field 
-                        v-model="clockIn"
-                        label="Clock In"
-                        type="time"
-                        placeholder="--:--"
-                        persistent-placeholder
+                    <div class="w-100">
+                        Supervisor <br>
+                        <v-select
+                        placeholder="Choose Supervisor"
                         hide-details="auto"
-                        variant="outlined"></v-text-field>
-                        <v-text-field 
-                        v-model="clockOut"
-                        label="Clock Out"
-                        type="time"
-                        placeholder="--:--"
-                        persistent-placeholder
-                        hide-details="auto"
-                        variant="outlined"></v-text-field>
+                        :items="['Sawit 1', 'Sawit 2']"
+                        variant="outlined"
+                        class="w-100"
+                        ></v-select>
                     </div>
-                    <v-textarea
-                        v-model="reason"
-                        label="Reason"
-                        persistent-placeholder
+
+                    <div class="w-100">
+                        Date <br>
+                        <v-text-field 
+                        v-model="date"
+                        type="date"
                         hide-details="auto"
                         variant="outlined"
                         class="w-100"
-                    ></v-textarea>
+                        ></v-text-field>
+                    </div>
+
+                    <div class="d-flex flex-row ga-4 w-100">
+                        <div class="w-50">
+                            Clock In <br>
+                            <v-text-field 
+                            v-model="clockIn"
+                            type="time"
+                            hide-details="auto"
+                            variant="outlined"></v-text-field>
+                        </div>
+
+                        <div class="w-50">
+                            Clock Out <br>
+                            <v-text-field 
+                            v-model="clockOut"
+                            type="time"
+                            hide-details="auto"
+                            variant="outlined"></v-text-field>
+                        </div>
+                    </div>
+
+                    <div class="w-100">
+                        Reason <br>
+                        <v-textarea
+                            v-model="reason"
+                            placeholder="Reason"
+                            hide-details="auto"
+                            variant="outlined"
+                            class="w-100"
+                        ></v-textarea>
+                    </div>
                     <v-btn 
                     type="submit" 
                     class="bg-white"

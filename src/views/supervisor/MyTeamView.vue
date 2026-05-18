@@ -59,18 +59,9 @@ watch (page, async() => {
                         class="text-blue-darken-2"
                     ></v-icon>
                     <span class="text-headline-medium font-weight-bold">My Team</span>
-                    <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
                 </div>
             </div>
             <div class="d-flex flex-column ga-8">
-                <v-text-field
-                label="Search"
-                placeholder="Search by username or email"
-                variant="outlined"
-                prepend-icon="mdi-magnify"
-                hide-details="auto"
-                clearable
-                persistent-placeholder></v-text-field>
                 <div class="d-flex flex-column ga-4">
                     <template v-if="isLoading">
                         <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
@@ -88,11 +79,11 @@ watch (page, async() => {
                                 <span class="text-body-small text-grey-lighten-1">{{ item?.user?.email }}</span>
                                 <div class="mt-2">
                                     <v-chip 
-                                    color="blue-darken-2"
+                                    :color="item?.role?.name === 'member' ? 'blue-darken-2' : 'warning'"
                                     variant="flat"
                                     >
                                     <!-- Change color and role name here -->
-                                    Member
+                                    {{ item?.role?.name.charAt(0).toUpperCase() + item?.role?.name.slice(1).toLowerCase() }}
                                     </v-chip>
                                 </div>
                             </v-card-text>

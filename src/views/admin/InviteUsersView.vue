@@ -11,21 +11,22 @@
             </v-btn>
             <div class="d-flex flex-column">
                  <span class="text-headline-medium font-weight-bold">Invite User</span>
-                 <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
-            <div class="d-flex flex-column align-center ga-2">
-                <v-text-field
-                label="Search"
-                placeholder="Search by username or email"
-                prepend-icon="mdi-magnify"
-                variant="outlined"
-                persistent-placeholder
-                class="w-100"
-                ></v-text-field>
-                <v-btn 
-                text="Send Invitation →"
-                class="bg-white">
-                </v-btn>
+
+            <div class="w-100">
+                Search User by Email <br>
+                <div class="d-flex flex-column align-center ga-2">
+                    <v-text-field
+                    placeholder="Type Email"
+                    append-inner-icon="mdi-magnify"
+                    variant="outlined"
+                    class="w-100"
+                    ></v-text-field>
+                    <v-btn 
+                    text="Send Invitation →"
+                    class="bg-white">
+                    </v-btn>
+                </div>
             </div>
         </div>
     </div>

@@ -7,11 +7,13 @@ import { storeToRefs } from 'pinia'
 const userGroupList = async (id, size, page) => {
     const userGroupStore = useUserGroupStore()
     const response = await api.get(
-        `/user-groups/${id}/`,
+        `/user-groups/`,
         {
             params: {
                 size: size,
-                page: page
+                page: page,
+                user: id,
+                isMyOrganization: false,
             },
         }
     )
@@ -24,11 +26,13 @@ const userGroupList = async (id, size, page) => {
 const userGroupListAdmin = async (id, size, page) => {
     const userGroupStore = useUserGroupStore()
     const response = await api.get(
-        `/user-groups-admin/${id}/`,
+        `/user-groups/`,
         {
             params: {
                 size: size,
-                page: page
+                page: page,
+                user: id,
+                isMyOrganization: true,
             },
         }
     )
@@ -44,12 +48,13 @@ const userGroupListMember = async (id, size, page) => {
     const { role } = storeToRefs(userStore)
 
     const response = await api.get(
-        `/user-groups-members/${id}/`,
+        `/user-groups/`,
         {
             params: {
                 size: size,
                 page: page,
                 role: role.value,
+                group: id,
             },
         }
     )

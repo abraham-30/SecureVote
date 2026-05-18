@@ -23,19 +23,19 @@ const overrideRequestsForUser = async (user_id, group_id, status, size, page) =>
     return response
 } 
 
-const combinedRequestsSupervisor = async (user_id, group_id, status,size, page) => {
+const combinedRequestsSupervisor = async (user_id, group_id, size, page) => {
     const overrideStore = useOverrideStore()
     const userStore = useUserStore()
     const { role } = storeToRefs(userStore)
 
     const response = await api.get(
-        `combined-requests-supervisor/${user_id}/${group_id}/`,
+        `combined-requests/${user_id}/${group_id}/`,
         {
             params: {
                 size: size,
                 page: page,
                 role: role.value,
-                status: status,
+                isRequested: true,
             },
         },
     )
@@ -45,23 +45,20 @@ const combinedRequestsSupervisor = async (user_id, group_id, status,size, page) 
     return response
 } 
 
-const combinedRequestsUser = async (user_id, group_id, status,size, page) => {
+const combinedRequestsUser = async (user_id, group_id,size, page) => {
     const overrideStore = useOverrideStore()
     const userStore = useUserStore()
     const { role } = storeToRefs(userStore)
 
     const response = await api.get(
-        `combined-requests-user/${user_id}/${group_id}/`,
+        `combined-requests/${user_id}/${group_id}/`,
         {
             params: {
                 size: size,
                 page: page,
                 role: role.value,
-                status: status,
+                isRequested: false,
             },
-            paramsSerializer: params => {
-                return qs.stringify(params, { arrayFormat: 'repeat' })
-            }
         },
     )
 

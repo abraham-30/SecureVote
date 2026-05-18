@@ -44,7 +44,7 @@ const router = createRouter({
     routes:[
         // Temporary Authentication Pages -> path open for DEV and DEBUG purpose
         {
-            path:'/tenda',
+            path:'/',
             name:'tenda',
             components:{
                 default: LandingView,
@@ -76,7 +76,8 @@ const router = createRouter({
         {
             path: '/facecheck2',
             name: 'facecheck2',
-            component: Onboarding_BView
+            component: Onboarding_BView,
+            meta: { noStyle: true  },
         },
         {
             path: '/facecheck3',
@@ -85,7 +86,7 @@ const router = createRouter({
         },
         // Main Pages
         {
-            path:'/',
+            path:'/home',
             name:'home',
             components:{
                 default: HomeView,

@@ -78,7 +78,6 @@ watch(page, async () => {
                     class="text-yellow-darken-1"
                     ></v-icon>
                     <span class="text-headline-medium font-weight-bold">Override Requests</span>
-                    <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
                 </div>
                 <div>
                     <v-btn to="/createoverride" class="bg-white" variant="flat">Create Request +</v-btn>
@@ -110,12 +109,20 @@ watch(page, async () => {
                                                 class="bg-blur border-sm border-opacity-75 pa-2 text-white"
                                                 v-bind="activatorProps"
                                                 >
-                                                <template v-slot:prepend>
-                                                    <div class="d-flex flex-column ga-1">
-                                                    <span class="text-title-large font-weight-bold">Override Request</span>
-                                                    <span class="text-body-small text-grey-lighten-1">{{ item?.reason }}</span>
-                                                    </div>
-                                                </template>
+                                                    <v-card-text class="d-flex flex-column ga-1 align-start">
+                                                        <span class="text-title-large font-weight-bold">Override Request</span>
+                                                        <span class="text-body-small text-grey-lighten-1">{{ item?.reason }}</span>
+                                                        <span class="text-body-small text-grey-lighten-1">Request created at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                                        <div class="mt-2" v-if="item?.status != 'requested'">
+                                                            <v-chip 
+                                                            :color="item?.status === 'approved' ? 'success' : 'error'"
+                                                            variant="flat"
+                                                            >
+                                                                <!-- Change color and role name here -->
+                                                                {{ item?.status.charAt(0).toUpperCase() + item?.status.slice(1).toLowerCase() }}
+                                                            </v-chip>
+                                                        </div>
+                                                    </v-card-text>
                                                 </v-card>
                                             </template>
             
@@ -128,10 +135,18 @@ watch(page, async () => {
                                                         @click="isActive.value = false"></v-btn>
                                                     </v-card-actions>
                                                     <v-card-title class="font-weight-bold text-headline-medium">
-                                                        Override Request
+                                                        Override Request<span v-if="item?.status != 'requested'"> - </span>
+                                                        <v-chip 
+                                                        v-if="item?.status != 'requested'"
+                                                        :color="item?.status === 'approved' ? 'success' : 'error'"
+                                                        variant="flat"
+                                                        >
+                                                        <!-- Change color and role name here -->
+                                                        {{ item?.status.charAt(0).toUpperCase() + item?.status.slice(1).toLowerCase() }}
+                                                        </v-chip>
                                                         <v-divider class="border-opacity-50 mt-1"></v-divider>      
                                                     </v-card-title>
-                                                    <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
+                                                    <v-card-text class="d-flex flex-column align-start ga-8">
                                                         <!-- Alert = If the requested is still on review-->
                                                         <v-alert
                                                             density="compact"
@@ -141,36 +156,28 @@ watch(page, async () => {
                                                             v-if="item?.status == 'requested'"
                                                         ></v-alert>
                                                         <div class="d-flex flex-column">
-                                                            <span class="text-title-large font-weight-bold">Supervisor</span>
+                                                            <span v-if="item?.status == 'requested'" class="text-title-large font-weight-bold">Waiting on Supervisor...</span>
+                                                            <span v-else class="text-title-large font-weight-bold">Supervisor</span>
                                                             <span class="text-grey-lighten-1">{{ item?.supervisor?.name }} <br>({{ item?.supervisor?.email }})</span>
                                                             <!-- please change to name (email) -->
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-large font-weight-bold">Date</span>
-                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
-                                                            <span class="text-title-large font-weight-bold">Clock In/Clock Out</span>
-                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH : mm") }} / {{ formatDate(item?.end_date_time, "HH : mm") }}</span>
+                                                            <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
+                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") }} / {{ formatDate(item?.end_date_time, "HH:mm") }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-large font-weight-bold">Reason</span>
                                                             <span class="text-grey-lighten-1 text-justify">{{ item?.reason }}</span>
                                                         </div>
                                                     </v-card-text>
-                                                    <v-card-actions class="d-flex flex-row justify-center">
-                                                        <template v-if="item?.status == 'requested'">
-                                                            <v-btn text="Cancel" class="text-error" variant="outlined">
-                                                            </v-btn>
-                                                        </template>
 
-                                                        <template v-else>
-                                                            <v-btn class="" variant="outlined" disabled>
-                                                                <template #default>
-                                                                    {{ item?.status.charAt(0).toUpperCase() + item?.status.slice(1).toLowerCase() }}
-                                                                </template>
-                                                            </v-btn>
-                                                        </template>
+                                                    <v-card-actions v-if="item?.status == 'requested'" class="d-flex flex-row">
+                                                        <v-btn size="large" text="Cancel" class="w-25" variant="flat" color="error">
+                                                        </v-btn>
                                                     </v-card-actions>
                                                 </v-card>
                                             </template>

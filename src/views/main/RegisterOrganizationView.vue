@@ -10,7 +10,6 @@
             </v-btn>
             <div class="d-flex flex-column">
                 <span class="text-headline-medium font-weight-bold">Register Organization</span>
-                <span class="text-grey-lighten-1">Lorem Ipsum Dolor Sit Amet.</span>
             </div>
             <v-form class="d-flex flex-column ga-8">
                 <div class="d-flex flex-column ga-1">
@@ -18,8 +17,12 @@
                     <v-divider class="border-opacity-50"></v-divider>    
                 </div>
                 <div class="d-flex flex-column">
-                    <v-text-field label="Name" persistent-placeholder variant="outlined"></v-text-field>  
-                    <v-textarea label="Description" persistent-placeholder variant="outlined"></v-textarea>
+                    Name<br>
+                    <v-text-field placeholder="Type Name" variant="outlined" hide-details="auto"></v-text-field>  
+                </div>
+                <div>
+                    Description<br>
+                    <v-textarea placeholder="Type Description" variant="outlined" hide-details="auto"></v-textarea>
                 </div>
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Working Days</span>
@@ -29,39 +32,39 @@
                     <v-row gap="8">
                         <v-col>
                             <v-card class="bg-white">
-                                <v-checkbox label="Lorem Ipsum" hide-details="true"></v-checkbox>
+                                <v-checkbox label="Monday" hide-details="true"></v-checkbox>
                             </v-card>
                         </v-col>
                         <v-col>
                             <v-card class="bg-white">
-                                <v-checkbox label="Lorem Ipsum" hide-details="true"></v-checkbox>
+                                <v-checkbox label="Tuesday" hide-details="true"></v-checkbox>
                             </v-card>
                         </v-col>
                         <v-col>
                             <v-card class="bg-white">
-                                <v-checkbox label="Lorem Ipsum" hide-details="true"></v-checkbox>
+                                <v-checkbox label="Wednesday" hide-details="true"></v-checkbox>
                             </v-card>
                         </v-col>
                         <v-col>
                             <v-card class="bg-white">
-                                <v-checkbox label="Lorem Ipsum" hide-details="true"></v-checkbox>
+                                <v-checkbox label="Thursday" hide-details="true"></v-checkbox>
                             </v-card>
                         </v-col>
                     </v-row>
                     <v-row gap="8">
                         <v-col>
                             <v-card class="bg-white">
-                                <v-checkbox label="Lorem Ipsum" hide-details="true"></v-checkbox>
+                                <v-checkbox label="Friday" hide-details="true"></v-checkbox>
                             </v-card>
                         </v-col>
                         <v-col>
                             <v-card class="bg-white">
-                                <v-checkbox label="Lorem Ipsum" hide-details="true"></v-checkbox>
+                                <v-checkbox label="Saturday" hide-details="true"></v-checkbox>
                             </v-card>
                         </v-col>
                         <v-col>
                             <v-card class="bg-white">
-                                <v-checkbox label="Lorem Ipsum" hide-details="true"></v-checkbox>
+                                <v-checkbox label="Sunday" hide-details="true"></v-checkbox>
                             </v-card>
                         </v-col>
                     </v-row>
@@ -71,8 +74,15 @@
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <div class="d-flex flex-row ga-4">
-                    <v-text-field label="Clock In" placeholder="--:--" persistent-placeholder variant="outlined"></v-text-field>
-                    <v-text-field label="Clock Out" placeholder="--:--" persistent-placeholder variant="outlined"></v-text-field>
+                    <div class="w-50">
+                        Start Hour <br>
+                        <v-text-field type="time" variant="outlined" hide-details="auto"></v-text-field>
+                    </div>
+
+                    <div class="w-50">
+                        End Hour <br>
+                        <v-text-field type="time" variant="outlined" hide-details="auto"></v-text-field>
+                    </div>
                 </div>
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Leave Categories</span>
@@ -80,7 +90,7 @@
                 </div>
                 <v-btn 
                 text="Add Categories +"
-                class="bg-white">
+                class="bg-white w-25">
                 </v-btn>
                 <v-btn
                 text="Save and Register"
