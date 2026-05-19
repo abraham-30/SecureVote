@@ -4,4 +4,12 @@ function formatDate(dateString, formatString) {
     return moment(dateString).utc().format(formatString)
 }
 
-export { formatDate }
+function getCurrentDateTime() {
+    return moment()
+}
+
+function toDateTime(dateString, timeString, formatString) {
+    return moment(`${dateString} ${timeString}`, formatString)
+}
+
+export { formatDate, getCurrentDateTime, toDateTime }
