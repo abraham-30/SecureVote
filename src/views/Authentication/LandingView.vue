@@ -1,11 +1,14 @@
 <script setup>
 import iconUrl from '@/assets/icon-neutralgrey200.png'
 import dummyImgUrl from '@/assets/dummy-img.png'
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+import { formatDate, getCurrentDateTime } from '@/utils/date';
+import moment from 'moment';
 
+const currentDate = getCurrentDateTime(false)
 onMounted(() => {
     setInterval(() => {
-        currentDate.value = new Date()
+        currentDate.value = getCurrentDateTime(false)
     }, 1000)
 })
 </script>
@@ -30,7 +33,7 @@ onMounted(() => {
         </v-sheet>
         <v-sheet class="child-container-2 d-flex flex-column align-end">
             <div class="d-flex flex-column align-end">
-                <span>{{ currentDate.toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit" }) }}</span>
+                <span>{{ formatDate(currentDate, "hh:mm A") }}</span>
                 <br>
                 <span class="text-grey-lighten-1">
                     Jakarta, Indonesia

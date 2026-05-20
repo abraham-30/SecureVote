@@ -1,4 +1,56 @@
-<script setup></script>
+<script setup>
+import { onMounted, reactive, ref } from 'vue';
+import { fieldRequired } from '@/utils/rules';
+import { userGroupListSupervisor } from '@/services/UserGroupServices';
+import { useGroupStore } from '@/stores/GroupStore';
+import { storeToRefs } from 'pinia';
+import { addOverideRequest } from '@/services/OverrideServices';
+import { useUserStore } from '@/stores/UserStore';
+import router from '@/router';
+
+const groupStore = useGroupStore()
+const { group } = storeToRefs(groupStore)
+const userStore = useUserStore()
+const { id } = storeToRefs(userStore)
+const supervisorItems = ref()
+const form = reactive({
+    isValid: false,
+    supervisor: null,
+    date: null,
+    clockIn: null,
+    clockOut: null,
+    reason: null,
+})
+const isLoadingSpv = ref(true)
+
+const clockInOutRules = [
+    v => !!form.clockIn || !!form.clockOut || "Clock In or Clock Out is required"
+]
+
+const handleSubmit = async() => {
+    if(form.isValid) {
+        try {
+            await addOverideRequest(id.value, group.value?.id, form)
+            .then((response) => {
+                if (response.status == 201) {
+                    router.push({ name: "override"} )
+                }
+            })
+        } catch (error) {
+            console.error(error)
+        }
+    }
+}
+
+onMounted(async() => {
+    console.log(group.value?.id)
+    await userGroupListSupervisor(group.value?.id, id.value)
+    .then((response) => {
+        supervisorItems.value = response.data
+        isLoadingSpv.value = false
+    }) 
+})
+</script>
 
 <template>
     <div class="py-14 min-h-screen">
@@ -10,57 +62,77 @@
                 <span class="text-headline-medium font-weight-bold">Create Request</span>
             </div>
             <div>
-                <v-form class="d-flex flex-column ga-8 align-center">
+                <v-form 
+                v-model="form.isValid"
+                validate-on="input lazy" 
+                class="d-flex flex-column ga-8 align-center"
+                @submit.prevent="handleSubmit()"
+                >
                     <div class="w-100">
                         Supervisor <br>
                         <v-select
+                        v-model="form.supervisor"
+                        :items="supervisorItems"
+                        :loading="isLoadingSpv"
+                        :disabled="isLoadingSpv"
                         placeholder="Choose Supervisor"
                         hide-details="auto"
-                        :items="['Sawit 1', 'Sawit 2']"
+                        item-title="user.name"
+                        item-value="user.id"
                         variant="outlined"
                         class="w-100"
+                        :rules="[v => fieldRequired(v, 'Supervisor is required')]"
                         ></v-select>
                     </div>
 
                     <div class="w-100">
                         Date <br>
-                        <v-text-field 
-                        v-model="date"
-                        type="date"
+                        <v-date-input
+                        v-model="form.date"
+                        :rules="[v => fieldRequired(v, 'Date is required')]"
                         hide-details="auto"
                         variant="outlined"
                         class="w-100"
-                        ></v-text-field>
+                        placeholder="Choose Date"
+                        prepend-icon=""
+                        clearable=""
+                        >
+                        </v-date-input>
                     </div>
 
                     <div class="d-flex flex-row ga-4 w-100">
                         <div class="w-50">
                             Clock In <br>
                             <v-text-field 
-                            v-model="clockIn"
+                            v-model="form.clockIn"
                             type="time"
                             hide-details="auto"
-                            variant="outlined"></v-text-field>
+                            variant="outlined"
+                            :rules="clockInOutRules"
+                            ></v-text-field>
                         </div>
 
                         <div class="w-50">
                             Clock Out <br>
                             <v-text-field 
-                            v-model="clockOut"
+                            v-model="form.clockOut"
                             type="time"
                             hide-details="auto"
-                            variant="outlined"></v-text-field>
+                            variant="outlined"
+                            :rules="clockInOutRules"
+                            ></v-text-field>
                         </div>
                     </div>
 
                     <div class="w-100">
                         Reason <br>
                         <v-textarea
-                            v-model="reason"
+                            v-model="form.reason"
                             placeholder="Reason"
                             hide-details="auto"
                             variant="outlined"
                             class="w-100"
+                            :rules="[v => fieldRequired(v, 'Reason is required')]"
                         ></v-textarea>
                     </div>
                     <v-btn 

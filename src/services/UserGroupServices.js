@@ -5,7 +5,6 @@ import { storeToRefs } from 'pinia'
 
 
 const userGroupList = async (id, size, page) => {
-    const userGroupStore = useUserGroupStore()
     const response = await api.get(
         `/user-groups/`,
         {
@@ -13,18 +12,15 @@ const userGroupList = async (id, size, page) => {
                 size: size,
                 page: page,
                 user: id,
-                isMyOrganization: false,
+                isManagedOrg: false,
             },
         }
     )
-
-    // userGroupStore.setUserGroup(response.data)
 
     return response
 }
 
 const userGroupListAdmin = async (id, size, page) => {
-    const userGroupStore = useUserGroupStore()
     const response = await api.get(
         `/user-groups/`,
         {
@@ -32,20 +28,16 @@ const userGroupListAdmin = async (id, size, page) => {
                 size: size,
                 page: page,
                 user: id,
-                isMyOrganization: true,
+                isManagedOrg: true,
             },
         }
     )
-    
-    // userGroupStore.setUserGroupAdmin(response.data)
 
     return response
 }
 
 const userGroupListMember = async (id, size, page) => {
-    const userGroupStore = useUserGroupStore()
     const userStore = useUserStore()
-    const { role } = storeToRefs(userStore)
 
     const response = await api.get(
         `/user-groups/`,
@@ -53,13 +45,25 @@ const userGroupListMember = async (id, size, page) => {
             params: {
                 size: size,
                 page: page,
-                role: role.value,
                 group: id,
             },
         }
     )
-    
-    // userGroupStore.setUserGroupMember(response.data)
+
+    return response
+}
+
+const userGroupListSupervisor = async (id, user_id) => {
+    const response = await api.get(
+        `/user-groups/`,
+        {
+            params: {
+                group: id,
+                role: 2,
+                user_id: user_id
+            },
+        }
+    )
 
     return response
 }
@@ -79,4 +83,4 @@ const userGroupDetails = async (id) => {
     return response
 }
 
-export { userGroupList, userGroupListAdmin, userGroupListMember, userGroupDetails }
+export { userGroupList, userGroupListAdmin, userGroupListMember, userGroupListSupervisor, userGroupDetails }

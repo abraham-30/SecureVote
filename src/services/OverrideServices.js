@@ -1,27 +1,43 @@
 import api from "./BaseUrl";
 import { useOverrideStore } from "@/stores/OverrideStore";
 import { useUserStore } from "@/stores/UserStore";
+import { getCurrentDateTime, toDateTime } from "@/utils/date";
 import { storeToRefs } from "pinia";
-import qs from 'qs'
 
 
 const overrideRequestsForUser = async (user_id, group_id, status, size, page) => {
-    const overrideStore = useOverrideStore()
-
     const response = await api.get(
-        `override-requests/${user_id}/${group_id}/${status}/`,
+        `override-requests/${user_id}/${group_id}/`,
         {
             params: {
                 size: size,
                 page: page,
+                status: status,
             },
         },
     )
 
-    // overrideStore.setOverrideRequest(response.data)
-
     return response
 } 
+
+const addOverideRequest = async (user_id, group_id, request) => {
+    const clockInDateTime = toDateTime(request.date, request.clockIn, "YYYY-MM-DD HH:mm:ss[Z]")
+    const clockOutDateTime = toDateTime(request.date, request.clockOut, "YYYY-MM-DD HH:mm:ss[Z]")
+    const response = await api.post(
+        `override-requests/`, {
+            user_id: user_id,
+            group_id: group_id,
+            supervisor_id: request.supervisor,
+            start_date_time: clockInDateTime,
+            end_date_time: clockOutDateTime,
+            status: "requested",
+            reason: request.reason,
+            created_at: getCurrentDateTime(),
+        }
+    )
+
+    return response
+}
 
 const combinedRequestsSupervisor = async (user_id, group_id, size, page) => {
     const overrideStore = useOverrideStore()
@@ -65,4 +81,4 @@ const combinedRequestsUser = async (user_id, group_id,size, page) => {
     return response
 } 
 
-export { overrideRequestsForUser, combinedRequestsSupervisor, combinedRequestsUser }
+export { overrideRequestsForUser, combinedRequestsSupervisor, combinedRequestsUser, addOverideRequest }

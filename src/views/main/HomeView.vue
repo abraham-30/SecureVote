@@ -7,6 +7,8 @@ import { storeToRefs } from 'pinia'
 import { userGroupList, userGroupListAdmin } from '@/services/UserGroupServices.js'
 import { ref, onMounted, watch } from 'vue'
 import router from '@/router/index.js'
+import { formatDate, getCurrentDateTime } from '@/utils/date';
+import moment from 'moment';
 
 const userStore = useUserStore()
 const userGroupStore = useUserGroupStore()
@@ -20,28 +22,22 @@ const pageMyOrg = ref(1)
 const pageManagedOrg = ref(1)
 const isLoadingMyOrg = ref(true)
 const isLoadingManagedOrg = ref(true)
-const currentDate = ref(new Date())
+const currentDate = ref(getCurrentDateTime(false))
 const selectedUserGroup = ref()
-const onOrgClick = async (id, isManagedOrg) => {
-  await userGroupDetails(id)
-  .then((response) => {
-      selectedUserGroup.value = response.data
-      
-      userStore.setRole(selectedUserGroup.value?.role?.name)
-      groupStore.setGroup(selectedUserGroup.value?.group)
+const onOrgClick = async (item, isManagedOrg) => {
+    userStore.setRole(item?.role?.name)
+    groupStore.setGroup(item?.group)
 
-      if (isManagedOrg)
-        router.push({ name: "organizationProfile" })
-      else
-        router.push({ name: "clock", params: { id: id } })
-  })
-
-  setInterval(() => {
-      currentDate.value = new Date()
-  }, 1000)
+    if (isManagedOrg)
+      router.push({ name: "organizationProfile" })
+    else
+      router.push({ name: "clock", params: { id: id } })
 }
 
 onMounted(async () => {
+  userStore.setRole(null)
+  groupStore.setGroup(null)
+
   userGroupList(id.value, size, pageMyOrg.value)
   .then((response) => {
     userGroups.value = response.data
@@ -55,7 +51,7 @@ onMounted(async () => {
   })
 
   setInterval(() => {
-    currentDate.value = new Date()
+    currentDate.value = getCurrentDateTime(false)
   }, 1000)
 })
 
@@ -83,7 +79,7 @@ watch(pageManagedOrg, async() => {
       <div class="d-flex flex-column ga-8 py-14 ">
         <div class="d-flex flex-column ga-4 ">
           <div class="d-flex flex-column ga-1">
-            <span>{{ currentDate.toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit" }) }}</span>
+            <span>{{ formatDate(currentDate, "hh:mm A") }}</span>
             <br>
             <span class="text-title-medium font-weight-bold">My Organizations</span>
             <v-divider class="border-opacity-50"></v-divider>      
@@ -107,7 +103,7 @@ watch(pageManagedOrg, async() => {
               <v-card
                 class="bg-blur border-sm border-opacity-75 pa-2 text-white "
                 link
-                @click="onOrgClick(item?.id, false)"
+                @click="onOrgClick(item, false)"
                 v-for="item in userGroups?.results"
                 >
                 <v-card-text>
@@ -150,7 +146,7 @@ watch(pageManagedOrg, async() => {
               <v-card 
               class="bg-blur border-sm border-opacity-75 pa-2 text-white "
               link
-              @click="onOrgClick(item?.id, true)"
+              @click="onOrgClick(item, true)"
               v-for="item in userGroupAdmin.results"
               >
                 <v-card-text>

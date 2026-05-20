@@ -8,6 +8,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import '@mdi/font/css/materialdesignicons.css'
+import { VDateInput } from 'vuetify/labs/VDateInput'
 
 // fonts
 import '@fontsource/roboto/100.css'
@@ -28,7 +29,13 @@ import '@fontsource/roboto/900-italic.css'
 import '@/assets/index.scss'
 
 const pinia = createPinia()
-const vuetify = createVuetify()
+const vuetify = createVuetify(
+    {
+        components: {
+            VDateInput,
+        },
+    }
+)
 const app = createApp(App)
 
 pinia.use(piniaPluginPersistedstate)
