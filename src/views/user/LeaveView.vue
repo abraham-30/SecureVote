@@ -4,7 +4,7 @@ import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
 import { useLeaveStore } from '@/stores/LeaveStore';
-import { leaveRequestsForUser } from '@/services/leaveServices';
+import { leaveRequestsForUser } from '@/services/LeaveServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 
