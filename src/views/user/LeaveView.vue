@@ -3,13 +3,11 @@ import { onMounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
-import { useLeaveStore } from '@/stores/LeaveStore';
-import { leaveRequestsForUser } from '@/services/LeaveServices';
+import { cancelLeaveRequest, leaveRequestsForUser } from '@/services/LeaveServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 
 const userStore = useUserStore()
-const leaveStore = useLeaveStore()
 const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
@@ -22,16 +20,33 @@ const tabValue = ["requested", "approved", "rejected", "cancelled"]
 const isSidebarOpen = ref(true)
 const tab = ref('requested')
 const isLoading = ref(true)
+const isCancelLoading = ref(false)
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
+const handleCancel = async (id, index, isActive) => {
+    try {
+        isCancelLoading.value = true
+        await cancelLeaveRequest(id)
+        .then((response) => {
+            if (response.status == 200) {
+                isCancelLoading.value = false
+                isActive.value = false
+                leaveRequest.value?.results.splice(index, 1)
+            }
+        }) 
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 onMounted(async () => {
     await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
     .then((response) => {
-        leaveRequest.value = response.data
         isLoading.value = false
+        leaveRequest.value = response.data
     })
 })
 
@@ -101,7 +116,7 @@ watch(page, async () => {
                                     <template v-else>
                                         <v-dialog
                                             max-width="750"
-                                            v-for="item in leaveRequest?.results"
+                                            v-for="(item, index) in leaveRequest?.results"
                                         >
                                             <template v-slot:activator="{props:activatorProps}">
                                                 <v-card 
@@ -127,7 +142,11 @@ watch(page, async () => {
                                             </template>
             
                                             <template v-slot:default="{isActive}">
-                                                <v-card class="pa-4">
+                                                <v-card 
+                                                class="pa-4" 
+                                                :loading="isCancelLoading"
+                                                :disabled="isCancelLoading"
+                                                >
                                                     <v-card-actions>
                                                         <v-btn
                                                         variant="text"
@@ -176,7 +195,7 @@ watch(page, async () => {
                                                         </div>
                                                     </v-card-text>
 
-                                                    <v-card-actions v-if="item?.status == 'requested'" class="d-flex flex-row">
+                                                    <v-card-actions v-if="item?.status == 'requested'" class="d-flex flex-row" @click="handleCancel(item?.id, index, isActive)">
                                                         <v-btn size="large" text="Cancel" class="w-25" variant="flat" color="error">
                                                         </v-btn>
                                                     </v-card-actions>

@@ -32,7 +32,17 @@ const addOverideRequest = async (user_id, group_id, request) => {
             end_date_time: clockOutDateTime,
             status: "requested",
             reason: request.reason,
-            created_at: getCurrentDateTime(),
+            created_at: getCurrentDateTime(false),
+        }
+    )
+
+    return response
+}
+
+const cancelOverrideRequest = async (id) => {
+    const response = await api.put(
+        `override-requests-details/${id}/`, {
+            status: "cancelled",
         }
     )
 
@@ -81,4 +91,4 @@ const combinedRequestsUser = async (user_id, group_id,size, page) => {
     return response
 } 
 
-export { overrideRequestsForUser, combinedRequestsSupervisor, combinedRequestsUser, addOverideRequest }
+export { overrideRequestsForUser, combinedRequestsSupervisor, combinedRequestsUser, addOverideRequest, cancelOverrideRequest }

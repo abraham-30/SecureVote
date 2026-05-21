@@ -4,7 +4,7 @@ import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
 import { useOverrideStore } from '@/stores/OverrideStore';
-import { overrideRequestsForUser } from '@/services/OverrideServices';
+import { cancelOverrideRequest, overrideRequestsForUser } from '@/services/OverrideServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 
@@ -22,9 +22,26 @@ const tabValue = ["requested", "approved", "rejected", "cancelled"]
 const isSidebarOpen = ref(true)
 const tab = ref('requested')
 const isLoading = ref(true)
+const isCancelLoading = ref(false)
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const handleCancel = async (id, index, isActive) => {
+    try {
+        isCancelLoading.value = true
+        await cancelOverrideRequest(id)
+        .then((response) => {
+            if (response.status == 200) {
+                isCancelLoading.value = false
+                isActive.value = false
+                overrideRequest.value?.results.splice(index, 1)
+            }
+        }) 
+    } catch (error) {
+        console.error(error)
+    }
 }
 
 onMounted(async () => {
@@ -101,7 +118,7 @@ watch(page, async () => {
                                     <template v-else>
                                         <v-dialog
                                             max-width="750"
-                                            v-for="item in overrideRequest?.results"
+                                            v-for="(item, index) in overrideRequest?.results"
                                         >
                                             <template v-slot:activator="{props:activatorProps}">
                                                 <v-card 
@@ -127,7 +144,11 @@ watch(page, async () => {
                                             </template>
             
                                             <template v-slot:default="{isActive}">
-                                                <v-card class="pa-4">
+                                                <v-card 
+                                                class="pa-4"
+                                                :disabled="isCancelLoading"
+                                                :loading="isCancelLoading"
+                                                >
                                                     <v-card-actions>
                                                         <v-btn
                                                         variant="text"
@@ -175,7 +196,7 @@ watch(page, async () => {
                                                         </div>
                                                     </v-card-text>
 
-                                                    <v-card-actions v-if="item?.status == 'requested'" class="d-flex flex-row">
+                                                    <v-card-actions v-if="item?.status == 'requested'" class="d-flex flex-row" @click="handleCancel(item?.id, index, isActive)">
                                                         <v-btn size="large" text="Cancel" class="w-25" variant="flat" color="error">
                                                         </v-btn>
                                                     </v-card-actions>

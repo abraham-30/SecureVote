@@ -1,17 +1,11 @@
 import api from "./BaseUrl";
 
-const LeaveRemainingsList = async (user_id, group_id, size, page) => {
+const leaveRemainingsList = async (user_id, group_id, size, page) => {
     const response = await api.get(
-        `leave-remainings/${user_id}/${group_id}/`,
-        {
-            params: {
-                size: size,
-                page: page,
-            },
-        },
+        `leave-remaining/${group_id}/${user_id}/`,
     )
 
     return response
 } 
 
-export { LeaveRemainingsList }
+export { leaveRemainingsList }

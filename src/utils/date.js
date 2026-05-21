@@ -16,5 +16,5 @@ function toDateTime(dateString, timeString, formatString) {
     const [ hour, minute ] = timeString.split(":")
     return moment(date).set({ hour, minute,second: 0 }).format(formatString)
 }
-
+                                                                                                                                                             
 export { formatDate, getCurrentDateTime, toDateTime }

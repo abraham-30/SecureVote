@@ -43,8 +43,7 @@ const handleSubmit = async() => {
 }
 
 onMounted(async() => {
-    console.log(group.value?.id)
-    await userGroupListSupervisor(group.value?.id, id.value)
+    userGroupListSupervisor(group.value?.id, id.value)
     .then((response) => {
         supervisorItems.value = response.data
         isLoadingSpv.value = false

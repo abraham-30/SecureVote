@@ -6,16 +6,18 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/UserStore';
 import router from '@/router';
 import { addLeaveRequest } from '@/services/LeaveServices';
+import { userGroupListSupervisor } from '@/services/UserGroupServices';
+import { leaveRemainingsList } from '@/services/LeaveRemainingService';
+import { getCurrentDateTime } from '@/utils/date';
 
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const userStore = useUserStore()
 const { id } = storeToRefs(userStore)
 const supervisorItems = ref()
-const leaveTypeItems = ref()
 const leaveRemainingItems = ref()
-const isLoadingLeaveType = ref(true)
 const isLoadingLeaveRemaining = ref(true)
+const isLoadingSpv = ref(true)
 const form = reactive({
     isValid: false,
     supervisor: null,
@@ -31,7 +33,7 @@ const handleSubmit = async() => {
             await addLeaveRequest(id.value, group.value?.id, form)
             .then((response) => {
                 if (response.status == 201) {
-                    router.push({ name: "override"} )
+                    router.push({ name: "leave"} )
                 }
             })
         } catch (error) {
@@ -41,13 +43,13 @@ const handleSubmit = async() => {
 }
 
 onMounted(async() => {
-    await leaveTypesList(group.value?.id, id.value)
+    userGroupListSupervisor(group.value?.id, id.value)
     .then((response) => {
-        leaveTypeItems.value = response.data
-        isLoadingLeaveType.value = false
+        supervisorItems.value = response.data
+        isLoadingSpv.value = false
     }) 
     
-    await leaveRemainingItems(id.value, group.value?.id, id.value)
+    leaveRemainingsList(id.value, group.value?.id, id.value)
     .then((response) => {
         leaveRemainingItems.value = response.data
         isLoadingLeaveRemaining.value = false
@@ -76,8 +78,8 @@ onMounted(async() => {
                         <v-select
                         v-model="form.supervisor"
                         :items="supervisorItems"
-                        :loading="isLoadingLeaveType"
-                        :disabled="isLoadingLeaveType"
+                        :loading="isLoadingSpv"
+                        :disabled="isLoadingSpv"
                         placeholder="Choose Supervisor"
                         hide-details="auto"
                         item-title="user.name"
@@ -92,25 +94,32 @@ onMounted(async() => {
                         Leave Type <br>
                         <v-select
                         v-model="form.leaveType"
-                        :items="leaveTypeItems"
-                        :loading="isLoadingLeaveType"
-                        :disabled="isLoadingLeaveType"
+                        :items="leaveRemainingItems"
+                        :loading="isLoadingLeaveRemaining"
+                        :disabled="isLoadingLeaveRemaining"
                         placeholder="Choose Leave Type"
                         hide-details="auto"
-                        item-title="name"
-                        item-value="id"
+                        item-title="attendance_type.name"
+                        item-value="attendance_type.id"
                         variant="outlined"
                         class="w-100"
                         :rules="[v => fieldRequired(v, 'Leave Type is required')]"
                         >
-                            <template #item="{ item }">
-                                <v-list-item class="d-flex flex-row justify-space-between">
-                                    <p>
-                                    {{ item }}                     
-                                    </p>
-                                    <p>
-                                    1 Remaining(s)
-                                    </p>
+                            <template #item="{ item, props }">
+                                <v-list-item 
+                                v-bind="props"
+                                :disabled="item?.remaining_days === 0"
+                                >
+                                    <template #title>
+                                        <div class="d-flex flex-row justify-space-between">
+                                            <span>
+                                                {{ item?.attendance_type?.name }}                     
+                                            </span>
+                                            <span>
+                                                {{ item?.remaining_days }} Remaining(s)
+                                            </span>
+                                        </div>
+                                    </template>
                                 </v-list-item>
                             </template>
                         </v-select>
