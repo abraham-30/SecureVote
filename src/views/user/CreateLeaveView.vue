@@ -18,6 +18,7 @@ const supervisorItems = ref()
 const leaveRemainingItems = ref()
 const isLoadingLeaveRemaining = ref(true)
 const isLoadingSpv = ref(true)
+const isLoadingSubmit = ref(false)
 const form = reactive({
     isValid: false,
     supervisor: null,
@@ -28,17 +29,21 @@ const form = reactive({
 })
 
 const handleSubmit = async() => {
-    if(form.isValid) {
-        try {
+    try {
+        isLoadingSubmit.value = true
+
+        if(form.isValid) {
             await addLeaveRequest(id.value, group.value?.id, form)
             .then((response) => {
                 if (response.status == 201) {
                     router.push({ name: "leave"} )
                 }
             })
-        } catch (error) {
-            console.error(error)
         }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingSubmit = false
     }
 }
 
@@ -173,6 +178,7 @@ onMounted(async() => {
                     <v-btn 
                     type="submit" 
                     class="bg-white"
+                    :loading="isLoadingSubmit"
                     >Submit Request</v-btn>
                 </v-form>
             </div>

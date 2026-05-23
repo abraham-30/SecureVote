@@ -3,13 +3,13 @@ import { onMounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
-import { useOverrideStore } from '@/stores/OverrideStore';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 import { combinedRequestedSpv } from '@/services/CombinedRequestService';
+import { approveOverrideRequest, updateOverrideRequest } from '@/services/OverrideServices';
+import { approveLeaveRequest, updateLeaveRequest } from '@/services/LeaveServices';
 
 const userStore = useUserStore()
-const overrideStore = useOverrideStore()
 const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
@@ -20,20 +20,13 @@ const size = 5
 
 const isSidebarOpen = ref(true)
 const isLoading = ref(true)
+const isReviewLoading = ref(false)
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
-onMounted(async () => {
-    await combinedRequestedSpv(user_id.value, group.value.id, size, page.value)
-    .then((response) => {
-        combinedRequestsForSupervisor.value = response.data
-        isLoading.value = false
-    })
-})
-
-watch(page, async () => {
+const fetchCombinedRequest = async () => {
     isLoading.value = true
 
     await combinedRequestedSpv(user_id.value, group.value.id, size, page.value)
@@ -41,6 +34,103 @@ watch(page, async () => {
         combinedRequestsForSupervisor.value = response.data
         isLoading.value = false
     })
+}
+
+const handleReject = async (id, type, index, isActive) => {
+    try {
+        isReviewLoading.value = true
+
+        if(type == "override") {
+            await updateOverrideRequest(id, {
+                status: "rejected",
+            })
+            .then(async (response) => {
+                if (response.status == 200) {
+                    isReviewLoading.value = false
+                    isActive.value = false
+
+                    const currentLen = combinedRequestsForSupervisor.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    await fetchCombinedRequest()
+                }
+            }) 
+        } else if (type == "leave") {
+            await updateLeaveRequest(id, {
+                status: "rejected",
+            })
+            .then(async (response) => {
+                if (response.status == 200) {
+                    isActive.value = false
+                    
+                    const currentLen = combinedRequestsForSupervisor.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    await fetchCombinedRequest()
+                }
+            }) 
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isReviewLoading.value = false
+    }
+}
+
+const handleApprove = async (item, index, isActive) => {
+    try {
+        isReviewLoading.value = true
+
+        if(item.type == "override") {
+            await approveOverrideRequest(item)
+            .then(async (response) => {
+                if (response.status == 200) {
+                    isReviewLoading.value = false
+                    isActive.value = false
+
+                    const currentLen = combinedRequestsForSupervisor.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    await fetchCombinedRequest()
+                }
+            }) 
+        } else if (item.type == "leave") {
+            await approveLeaveRequest(item)
+            .then(async (response) => {
+                if (response.status == 200) {
+                    isReviewLoading.value = false
+                    isActive.value = false
+
+                    const currentLen = combinedRequestsForSupervisor.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    await fetchCombinedRequest()
+                }
+            }) 
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isReviewLoading.value = false
+    }
+}
+
+onMounted(async () => {
+    try {
+        await fetchCombinedRequest()
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+watch(page, async () => {
+    isLoading.value = true
+
+    try {
+        await fetchCombinedRequest()
+    } catch (error) {
+        console.error(error)
+    }
 })
 </script>
 
@@ -75,7 +165,7 @@ watch(page, async () => {
                 <template v-else>
                     <v-dialog
                     max-width="750"
-                    v-for="item in combinedRequestsForSupervisor.results">
+                    v-for="(item, index) in combinedRequestsForSupervisor.results">
                         <template v-slot:activator="{props:activatorProps}">
                             <v-card 
                             link
@@ -92,7 +182,7 @@ watch(page, async () => {
                             </v-card>
                         </template>
                         <template v-slot:default="{isActive}">
-                            <v-card class="pa-4">
+                            <v-card class="pa-4" :disabled="isReviewLoading" :loading="isReviewLoading">
                                 <v-card-actions>
                                     <v-btn
                                     icon="mdi-close"
@@ -120,7 +210,7 @@ watch(page, async () => {
                                         </div>
                                         <div class="d-flex flex-column">
                                             <span class="text-title-large font-weight-bold">Start Date / End Date</span>
-                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD-MM-YYYY") }} / {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}</span>
+                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }} / {{ formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                         </div>
                                     </template>
 
@@ -131,7 +221,7 @@ watch(page, async () => {
                                         </div>
                                         <div class="d-flex flex-column">
                                             <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
-                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") }} / {{ formatDate(item?.end_date_time, "HH:mm") }}</span>
+                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
                                         </div>
                                     </template>
                                     
@@ -141,9 +231,9 @@ watch(page, async () => {
                                     </div>
                                 </v-card-text>
                                 <v-card-actions class="d-flex flex-row justify-end">
-                                    <v-btn size="large" class="w-25" variant="flat" text="Approve" color="success">
+                                    <v-btn size="large" class="w-25" variant="flat" text="Approve" color="success" @click="handleApprove(item, index, isActive)">
                                     </v-btn>
-                                    <v-btn size="large" class="w-25" variant="flat" text="Reject" color="error">
+                                    <v-btn size="large" class="w-25" variant="flat" text="Reject" color="error" @click="handleReject(item?.id, item?.type, index, isActive)">
                                     </v-btn>
                                 </v-card-actions>
                             </v-card>

@@ -3,7 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
-import { cancelLeaveRequest, leaveRequestsForUser } from '@/services/LeaveServices';
+import { updateLeaveRequest, leaveRequestsForUser } from '@/services/LeaveServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 import { toTitleCase } from '@/utils/utils';
@@ -27,29 +27,42 @@ function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
+const fetchLeaveRequest = async () => {
+    isLoading.value = true
+
+    await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
+    .then((response) => {
+        isLoading.value = false
+        leaveRequest.value = response.data
+    })
+}
+
 const handleCancel = async (id, index, isActive) => {
     try {
         isCancelLoading.value = true
-        await cancelLeaveRequest(id)
-        .then((response) => {
+        await updateLeaveRequest(id, {
+            status: "cancelled",
+        })
+        .then(async (response) => {
             if (response.status == 200) {
-                isCancelLoading.value = false
                 isActive.value = false
-                leaveRequest.value?.results.splice(index, 1)
+
+                const currentLen = leaveRequest.value?.results.length
+                if (currentLen == 1) 
+                    page.value -= 1 
+                await fetchLeaveRequest()
             }
         }) 
     } catch (error) {
         console.error(error)
+    } finally {
+        isCancelLoading.value = false
     }
 }
 
 onMounted(async () => {
     try {
-        await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-        .then((response) => {
-            isLoading.value = false
-            leaveRequest.value = response.data
-        })
+        await fetchLeaveRequest()
     } catch (error) {
         console.error(error)
     }
@@ -60,11 +73,7 @@ watch(tab, async () => {
     page.value = 1
 
     try {
-        await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-        .then((response) => {
-            leaveRequest.value = response.data
-            isLoading.value = false
-        })
+        await fetchLeaveRequest()
     } catch (error) {
         console.error(error)
     }
@@ -171,7 +180,7 @@ watch(page, async () => {
                                                     </v-card-actions>
                                                     
                                                     <v-card-title class="font-weight-bold text-headline-medium">
-                                                        Leave Request<span v-if="item?.status != 'requested'"> - </span>
+                                                        Leave Request
                                                         <v-chip 
                                                         v-if="item?.status != 'requested'"
                                                         :color="item?.status === 'approved' ? 'success' : 'error'"
@@ -203,7 +212,7 @@ watch(page, async () => {
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-large font-weight-bold">Start Date / End Date</span>
-                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD-MM-YYYY") }} / {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}</span>
+                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }} / {{ formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-large font-weight-bold">Reason</span>

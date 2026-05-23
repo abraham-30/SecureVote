@@ -1,14 +1,15 @@
 <script setup>
-import { userGroupDetails } from '@/services/UserGroupServices';
 import { onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router';
 import { formatDate } from '@/utils/date';
 import { toTitleCase } from '@/utils/utils';
 import { userLogsList, userLogsStats } from '@/services/UserLogServices';
-import { combinedRequestHistory, combinedRequestsed } from '@/services/CombinedRequestService';
+import { combinedRequestHistory, combinedRequested } from '@/services/CombinedRequestService';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
 import { storeToRefs } from 'pinia';
+import { approveOverrideRequest, updateOverrideRequest } from '@/services/OverrideServices';
+import { approveLeaveRequest, updateLeaveRequest } from '@/services/LeaveServices';
 
 const userStore = useUserStore()
 const groupStore = useGroupStore()
@@ -37,91 +38,188 @@ const attendanceReport = reactive({
 const pageUserLog = ref(1)
 const size = 5
 const isLoadingUserLog = ref(true)
+const isReviewLoading = ref(false)
 const userLogs = ref()
 
 const headers = [
-    { title: "Date", value: "start_date_time", key: "date" },
-    { title: "Clock In", value: "start_date_time", key:"clockIn" },
-    { title: "Clock Out", value: "end_date_time", key: "clockOut" },
-    { title: "", value: "type", key: "type" },
-    { title: "Notes", value: "reason", key: "reason" },
+    { title: "Date", value: "start_date_time", key: "date", width: "20%" },
+    { title: "Clock In", value: "start_date_time", key:"clockIn", width: "15%" },
+    { title: "Clock Out", value: "end_date_time", key: "clockOut", width: "15%" },
+    { title: "", value: "type", key: "type", width: "15%" },
+    { title: "Notes", value: "reason", key: "reason", width: "35%" },
 ]
 
-onMounted(async () => {
-    try{  
-        userLogsStats(selectedUserGroup.id, group.value?.id)
-        .then((response) => {
-            attendanceReport.onTime = response.data["null"]
-            attendanceReport.late = response.data["late"]
-            attendanceReport.override = response.data?.["override clock in"] ?? 0 + response.data?.["override clock out"] ?? 0 + response.data?.["override clock in and out"] ?? 0
-            attendanceReport.leave = response.data["leave"]
-
-            isLoadingAttendanceReport.value = false
-        })
-
-        userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value)
-        .then((response) => {
-            userLogs.value = response.data
-            isLoadingUserLog.value = false
-        })
-        
-        combinedRequestsed(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value)
-        .then(response => {
-            requestWaiting.value = response.data
-            
-            isLoadingRequestWaiting.value = false
-        })
+const fetchCombinedRequest = async () => {
+    isLoadingRequestWaiting.value = true
     
-        combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value)
-        .then(response => {
-            requestHistory.value = response.data
-            
-            isLoadingRequestHistory.value = false
-        })
+    await combinedRequested(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value)
+    .then(response => {
+        requestWaiting.value = response.data
+        
+        isLoadingRequestWaiting.value = false
+    })
+}
+
+const fetchCombineHistory = async () => {
+    isLoadingRequestHistory.value = true
+
+    await combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value)
+    .then(response => {
+        requestHistory.value = response.data
+        
+        isLoadingRequestHistory.value = false
+    })
+}
+
+const fetchUserLog = async () => {
+    isLoadingUserLog.value = true
+
+    await userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value)
+    .then((response) => {
+        userLogs.value = response.data
+        isLoadingUserLog.value = false
+    })
+}
+
+const fetchStats = async () => {
+    isLoadingAttendanceReport.value = true
+    
+    userLogsStats(selectedUserGroup.id, group.value?.id)
+    .then((response) => {
+        attendanceReport.onTime = response.data["null"]
+        attendanceReport.late = response.data["late"]
+        attendanceReport.override = (response.data?.["override clock in"] ?? 0) + (response.data?.["override clock out"] ?? 0) + (response.data?.["override clock in and out"] ?? 0)
+        attendanceReport.leave = response.data["leave"]
+
+        isLoadingAttendanceReport.value = false
+    })
+}
+
+const handleReject = async (id, type, index, isActive) => {
+    try {
+        isReviewLoading.value = true
+
+        if(type == "override") {
+            await updateOverrideRequest(id, {
+                status: "rejected",
+            })
+            .then((response) => {
+                if (response.status == 200) {
+                    isReviewLoading.value = false
+                    isActive.value = false
+
+                    const currentLen = combinedRequested.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    
+                        fetchStats()
+                        fetchUserLog()
+                        fetchCombinedRequest()
+                        fetchCombineHistory()
+                }
+            }) 
+        } else if (type == "leave") {
+            await updateLeaveRequest(id, {
+                status: "rejected",
+            })
+            .then((response) => {
+                if (response.status == 200) {
+                    isActive.value = false
+                    
+                    const currentLen = combinedRequested.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    
+                        fetchStats()
+                        fetchUserLog()
+                        fetchCombinedRequest()
+                        fetchCombineHistory()
+                }
+            }) 
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isReviewLoading.value = false
+    }
+}
+
+const handleApprove = async (item, index, isActive) => {
+    try {
+        isReviewLoading.value = true
+
+        if(item.type == "override") {
+            await approveOverrideRequest(item)
+            .then((response) => {
+                if (response.status == 200) {
+                    isReviewLoading.value = false
+                    isActive.value = false
+
+                    const currentLen = combinedRequested.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    
+                        fetchStats()
+                        fetchUserLog()
+                        fetchCombinedRequest()
+                        fetchCombineHistory()
+                }
+            }) 
+        } else if (item.type == "leave") {
+            await approveLeaveRequest(item)
+            .then((response) => {
+                if (response.status == 200) {
+                    isReviewLoading.value = false
+                    isActive.value = false
+
+                    const currentLen = combinedRequested.value?.results.length
+                    if (currentLen == 1) 
+                        page.value -= 1 
+                    
+                        fetchStats()
+                        fetchUserLog()
+                        fetchCombinedRequest()
+                        fetchCombineHistory()
+                }
+            }) 
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isReviewLoading.value = false
+    }
+}
+
+onMounted(async () => {
+    try{ 
+        fetchStats()
+        fetchUserLog()
+        fetchCombinedRequest()
+        fetchCombineHistory()
     } catch (error) {
         console.error(error)
     }
 })
 
 watch(pageUserLog, async () => {
-    isLoadingUserLog.value = true
-
     try {
-        await userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value)
-        .then((response) => {
-            userLogs.value = response.data
-            isLoadingUserLog.value = false
-        })
+        await fetchUserLog()
     } catch (error) {
         console.error(error)
     }
 })
 
 watch(pageRequestWaiting, async () => {
-    isLoadingRequestWaiting.value = true
-
     try {
-        await combinedRequestsed(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value)
-        .then(response => {
-            requestWaiting.value = response.data
-            
-            isLoadingRequestWaiting.value = false
-        })
+        await fetchCombinedRequest()
     } catch (error) {
         error
     }
 })
 
 watch(pageRequestHistory, async () => {
-    isLoadingRequestHistory.value = true
-
     try {
-        await combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value)
-        .then(response => {
-            requestHistory.value = response.data
-            
-            isLoadingRequestHistory.value = false
-        })
+        await fetchCombineHistory()
     } catch (error) {
         console.error(error)
     }
@@ -215,11 +313,11 @@ watch(pageRequestHistory, async () => {
                             </template>
 
                             <template #item.clockIn="{ item }">
-                                {{ formatDate(item?.start_date_time, "HH:mm") }}
+                                {{ item.type != "leave" ? formatDate(item?.start_date_time, "HH:mm") : "" }}
                             </template>
 
                             <template #item.clockOut="{ item }">
-                                {{ formatDate(item?.start_end_time, "HH:mm") }}
+                                {{ item.type != "leave" ? formatDate(item?.end_date_time, "HH:mm") : "" }}
                             </template>
 
                             <template #item.type="{ item }">
@@ -244,7 +342,7 @@ watch(pageRequestHistory, async () => {
                     <template v-else>
                         <v-dialog
                         max-width="750"
-                        v-for="item in requestWaiting?.results">
+                        v-for="(item, index) in requestWaiting?.results">
                             <template v-slot:activator="{props:activatorProps}">
                                 <v-card 
                                 link
@@ -262,7 +360,7 @@ watch(pageRequestHistory, async () => {
                             </template>
 
                             <template v-slot:default="{isActive}">
-                                <v-card class="pa-4">
+                                <v-card class="pa-4" :disabled="isReviewLoading" :loading="isReviewLoading">
                                     <v-card-actions>
                                         <v-btn
                                         variant="text"
@@ -296,15 +394,15 @@ watch(pageRequestHistory, async () => {
 
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-large font-weight-bold">Start Date / End Date</span>
-                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD-MM-YYYY") }} / {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}</span>
+                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }} / {{ formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                             </div>
                                         </template>
 
                                         <template v-else-if="item?.type == 'override'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
-                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") }} / {{ formatDate(item?.end_date_time, "HH:mm") }}</span>
-                                            </div>
+                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
+                                            </div> 
                                         </template>
                                         
                                         <div class="d-flex flex-column">
@@ -320,6 +418,7 @@ watch(pageRequestHistory, async () => {
                                         variant="flat"
                                         class="w-100"
                                         style="max-width: 150px;"
+                                        @click="handleApprove(item, index, isActive)"
                                         ></v-btn>
 
                                         <v-btn
@@ -328,6 +427,7 @@ watch(pageRequestHistory, async () => {
                                         variant="flat"
                                         class="w-100"
                                         style="max-width: 150px;"
+                                        @click="handleReject(item?.id, item?.type, index, isActive)"
                                         ></v-btn>
                                     </v-card-actions>
                                 </v-card>
@@ -389,8 +489,8 @@ watch(pageRequestHistory, async () => {
                                     </v-card-actions>
 
                                     <v-card-title class="font-weight-bold text-headline-medium">
-                                        <span v-if="item?.type == 'override'">Override Request - </span>
-                                        <span v-else-if="item?.type == 'leave'">Leave Request - </span>
+                                        <span v-if="item?.type == 'override'">Override Request</span>
+                                        <span v-else-if="item?.type == 'leave'">Leave Request</span>
 
                                         <v-chip 
                                         v-if="item?.status != 'requested'"
@@ -422,14 +522,14 @@ watch(pageRequestHistory, async () => {
 
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-large font-weight-bold">Start Date / End Date</span>
-                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD-MM-YYYY") }} / {{ formatDate(item?.end_date_time, "DD-MM-YYYY") }}</span>
+                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }} / {{ formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                             </div>
                                         </template>
 
                                         <template v-else-if="item?.type == 'override'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
-                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") }} / {{ formatDate(item?.end_date_time, "HH:mm") }}</span>
+                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
                                             </div>
                                         </template>
                                         

@@ -35,14 +35,34 @@ const addOverideRequest = async (user_id, group_id, request) => {
     return response
 }
 
-const cancelOverrideRequest = async (id) => {
+const updateOverrideRequest = async (id, body) => {
     const response = await api.put(
-        `override-requests-details/${id}/`, {
-            status: "cancelled",
-        }
+        `override-requests-details/${id}/`, body
     )
 
     return response
 }
 
-export { overrideRequestsForUser, addOverideRequest, cancelOverrideRequest }
+const approveOverrideRequest = async (item) => {
+    const response = await api.post(
+        `approve-request/`, {
+            id: item.id,
+            type: item.type,
+            status: "approved",
+            user_id: item.user.id,
+            group_id: item.group.id,
+            start_date_time: item.start_date_time,
+            end_date_time: item.end_date_time,
+            reason: item.reason,
+        }, 
+        {
+            params: {
+                group_id: item.group.id,
+            },
+        },
+    )
+    
+    return response
+}
+
+export { overrideRequestsForUser, addOverideRequest, updateOverrideRequest, approveOverrideRequest }

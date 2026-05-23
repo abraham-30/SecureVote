@@ -1,7 +1,8 @@
 import moment from 'moment';
 
 function formatDate(dateString, formatString) {
-    return moment(dateString).format(formatString)
+    if(!!dateString)
+        return moment(dateString).format(formatString)
 }
 
 function getCurrentDateTime(stringValue=true) {

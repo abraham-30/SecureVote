@@ -22,23 +22,28 @@ const form = reactive({
     reason: null,
 })
 const isLoadingSpv = ref(true)
+const isLoadingSubmit = ref(false)
 
 const clockInOutRules = [
     v => !!form.clockIn || !!form.clockOut || "Clock In or Clock Out is required"
 ]
 
 const handleSubmit = async() => {
-    if(form.isValid) {
-        try {
+    try {
+        isLoadingSubmit.value = true
+
+        if(form.isValid) {
             await addOverideRequest(id.value, group.value?.id, form)
             .then((response) => {
                 if (response.status == 201) {
                     router.push({ name: "override"} )
                 }
             })
-        } catch (error) {
-            console.error(error)
         }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingSubmit.value = false
     }
 }
 
@@ -141,6 +146,7 @@ onMounted(async() => {
                     <v-btn 
                     type="submit" 
                     class="bg-white"
+                    :loading="isLoadingSubmit"
                     >Submit Request</v-btn>
                 </v-form>
             </div>

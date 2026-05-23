@@ -4,7 +4,7 @@ import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
 import { useOverrideStore } from '@/stores/OverrideStore';
-import { cancelOverrideRequest, overrideRequestsForUser } from '@/services/OverrideServices';
+import { updateOverrideRequest, overrideRequestsForUser } from '@/services/OverrideServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 import { toTitleCase } from '@/utils/utils';
@@ -29,29 +29,42 @@ function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
+const fetchOverrideRequest = async () => {
+    isLoading.value = true
+
+    await overrideRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
+    .then((response) => {
+        overrideRequest.value = response.data
+        isLoading.value = false
+    })
+}
+
 const handleCancel = async (id, index, isActive) => {
     try {
         isCancelLoading.value = true
-        await cancelOverrideRequest(id)
-        .then((response) => {
+        await updateOverrideRequest(id, {
+            status: "cancelled",
+        })
+        .then(async (response) => {
             if (response.status == 200) {
-                isCancelLoading.value = false
                 isActive.value = false
-                overrideRequest.value?.results.splice(index, 1)
+
+                const currentLen = overrideRequest.value?.results.length
+                if (currentLen == 1) 
+                    page.value -= 1 
+                await fetchOverrideRequest()
             }
         }) 
     } catch (error) {
         console.error(error)
+    } finally {
+        isCancelLoading.value = false
     }
 }
 
 onMounted(async () => {
     try {
-        await overrideRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-        .then((response) => {
-            overrideRequest.value = response.data
-            isLoading.value = false
-        })
+        await fetchOverrideRequest()
     } catch (error) {
         console.error(error)
     }
@@ -62,11 +75,7 @@ watch(tab, async () => {
     page.value = 1
 
     try {
-        await overrideRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-        .then((response) => {
-            overrideRequest.value = response.data
-            isLoading.value = false
-        })
+        await fetchOverrideRequest()
     } catch (error) {
         console.error(error)
     }
@@ -172,7 +181,7 @@ watch(page, async () => {
                                                         @click="isActive.value = false"></v-btn>
                                                     </v-card-actions>
                                                     <v-card-title class="font-weight-bold text-headline-medium">
-                                                        Override Request<span v-if="item?.status != 'requested'"> - </span>
+                                                        Override Request
                                                         <v-chip 
                                                         v-if="item?.status != 'requested'"
                                                         :color="item?.status === 'approved' ? 'success' : 'error'"
@@ -204,7 +213,7 @@ watch(page, async () => {
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
-                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") }} / {{ formatDate(item?.end_date_time, "HH:mm") }}</span>
+                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-large font-weight-bold">Reason</span>

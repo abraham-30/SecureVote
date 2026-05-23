@@ -25,11 +25,11 @@ function activateSidebar(){
 }
 
 const headers = [
-    { title: "Date", value: "start_date_time", key: "date" },
-    { title: "Clock In", value: "start_date_time", key:"clockIn" },
-    { title: "Clock Out", value: "end_date_time", key: "clockOut" },
-    { title: "", value: "type", key: "type" },
-    { title: "Notes", value: "reason", key: "reason" },
+    { title: "Date", value: "start_date_time", key: "date", width: "20%" },
+    { title: "Clock In", value: "start_date_time", key:"clockIn", width: "15%" },
+    { title: "Clock Out", value: "end_date_time", key: "clockOut", width: "15%" },
+    { title: "", value: "type", key: "type", width: "15%" },
+    { title: "Notes", value: "reason", key: "reason", width: "35%" },
 ]
 
 onMounted(async () => {
@@ -143,11 +143,11 @@ watch(page, async () => {
                             </template>
 
                             <template #item.clockIn="{ item }">
-                                {{ formatDate(item?.start_date_time, "HH:mm") }}
+                                {{ item.type != "leave" ? formatDate(item?.start_date_time, "HH:mm") : "" }}
                             </template>
 
                             <template #item.clockOut="{ item }">
-                                {{ formatDate(item?.start_end_time, "HH:mm") }}
+                                {{ item.type != "leave" ? formatDate(item?.end_date_time, "HH:mm") : "" }}
                             </template>
 
                             <template #item.type="{ item }">

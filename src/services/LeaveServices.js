@@ -35,14 +35,35 @@ const addLeaveRequest = async (user_id, group_id, request) => {
     return response
 }
 
-const cancelLeaveRequest = async (id) => {
+const updateLeaveRequest = async (id, body) => {
     const response = await api.put(
-        `leave-requests-details/${id}/`, {
-            status: "cancelled",
-        }
+        `leave-requests-details/${id}/`, body
     )
 
     return response
 }
 
-export { leaveRequestsForUser, addLeaveRequest, cancelLeaveRequest }
+const approveLeaveRequest = async (item) => {
+    const response = await api.post(
+        `approve-request/`, {
+            id: item.id,
+            type: item.type,
+            status: "approved",
+            user_id: item.user.id,
+            group_id: item.group.id,
+            attendance_type_id: item.attendance_type.id,
+            start_date_time: item.start_date_time,
+            end_date_time: item.end_date_time,
+            reason: item.reason,
+        }, 
+        {
+            params: {
+                group_id: item.group.id,
+            },
+        },
+    )
+    
+    return response
+}
+
+export { leaveRequestsForUser, addLeaveRequest, updateLeaveRequest, approveLeaveRequest }
