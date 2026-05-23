@@ -5,8 +5,7 @@ import { useUserGroupStore } from '@/stores/UserGroupStore';
 import { userGroupListMember } from '@/services/UserGroupServices';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue'
-import SideNavbar from '@/components/SideNavbar.vue';
-const userGroupStore = useUserGroupStore()
+import { toTitleCase } from '@/utils/utils';
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const userGroupMember = ref()
@@ -86,7 +85,7 @@ watch (page, async() => {
                                             variant="flat"
                                             >
                                             <!-- Change color and role name here -->
-                                            {{ item?.role?.name.charAt(0).toUpperCase() + item?.role?.name.slice(1).toLowerCase() }}
+                                            {{ toTitleCase(item?.role?.name) }}
                                             </v-chip>
                                         </div>
                                     </v-card-text>
@@ -127,7 +126,7 @@ watch (page, async() => {
                                                 hide-details="auto"
                                                 class="w-100"
                                                 :items="['Member', 'Supervisor']"
-                                                :model-value="item?.role?.name.charAt(0).toUpperCase() + item?.role?.name.slice(1).toLowerCase()"
+                                                :model-value="toTitleCase(item?.role?.name)"
                                                 ></v-select>
                                             </div>
                                             <v-btn

@@ -16,19 +16,29 @@ const page = ref(1)
 const isLoading = ref(true)
 
 onMounted(async () => {
-  await invitationListInvitee(id.value, size, page.value)
-  .then((response) => {
-    invitation.value = response.data
-    isLoading.value = false
-  })
+  try {
+    await invitationListInvitee(id.value, size, page.value)
+    .then((response) => {
+      invitation.value = response.data
+      isLoading.value = false
+    })
+  } catch (error) {
+    console.error(error)
+  }
 })
 
 watch(page, async() => {
-  await invitationListInvitee(id.value, size, page.value)
-  .then((response) => {
-    invitation.value = response.data
-    isLoading.value = false
-  })
+  isLoading.value = true
+
+  try {
+    await invitationListInvitee(id.value, size, page.value)
+    .then((response) => {
+      invitation.value = response.data
+      isLoading.value = false
+    })
+  } catch (error) {
+    console.error(error)
+  }
 })
 </script>
 
@@ -106,7 +116,7 @@ watch(page, async() => {
           
         </template>
 
-        <v-pagination v-model=page :disabled="isLoading" :length="invitation?.total_pages" @update:model-value="() => isLoading=!isLoading"></v-pagination>
+        <v-pagination v-model=page :disabled="isLoading" :length="invitation?.total_pages"></v-pagination>
       </div>
     </div>
   </div>

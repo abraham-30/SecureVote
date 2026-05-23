@@ -6,6 +6,7 @@ import { useGroupStore } from '@/stores/GroupStore';
 import { cancelLeaveRequest, leaveRequestsForUser } from '@/services/LeaveServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
+import { toTitleCase } from '@/utils/utils';
 
 const userStore = useUserStore()
 const groupStore = useGroupStore()
@@ -43,29 +44,44 @@ const handleCancel = async (id, index, isActive) => {
 }
 
 onMounted(async () => {
-    await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    .then((response) => {
-        isLoading.value = false
-        leaveRequest.value = response.data
-    })
+    try {
+        await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
+        .then((response) => {
+            isLoading.value = false
+            leaveRequest.value = response.data
+        })
+    } catch (error) {
+        console.error(error)
+    }
 })
 
 watch(tab, async () => {
+    isLoading.value = true
     page.value = 1
 
-    await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    .then((response) => {
-        leaveRequest.value = response.data
-        isLoading.value = false
-    })
+    try {
+        await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
+        .then((response) => {
+            leaveRequest.value = response.data
+            isLoading.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
 })
 
 watch(page, async () => {
-    await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-    .then((response) => {
-        leaveRequest.value = response.data
-        isLoading.value = false
-    })
+    isLoading.value = true
+
+    try {
+        await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
+        .then((response) => {
+            leaveRequest.value = response.data
+            isLoading.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
 })
 
 </script>
@@ -100,8 +116,8 @@ watch(page, async () => {
             </div>
             <div>
                 <v-sheet elevation="4" color="transparent">
-                    <v-tabs v-model="tab" grow color="white" :disabled="isLoading" @update:model-value="() => isLoading=!isLoading">
-                        <v-tab :value="item" v-for="item in tabValue">{{ item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() }}</v-tab>
+                    <v-tabs v-model="tab" grow color="white" :disabled="isLoading">
+                        <v-tab :value="item" v-for="item in tabValue">{{ toTitleCase(item) }}</v-tab>
                     </v-tabs>
                     <v-divider></v-divider>
                     
@@ -134,7 +150,7 @@ watch(page, async () => {
                                                             variant="flat"
                                                             >
                                                                 <!-- Change color and role name here -->
-                                                                {{ item?.status.charAt(0).toUpperCase() + item?.status.slice(1).toLowerCase() }}
+                                                                {{ toTitleCase(item?.status) }}
                                                             </v-chip>
                                                         </div>
                                                     </v-card-text>
@@ -162,7 +178,7 @@ watch(page, async () => {
                                                         variant="flat"
                                                         >
                                                         <!-- Change color and role name here -->
-                                                        {{ item?.status.charAt(0).toUpperCase() + item?.status.slice(1).toLowerCase() }}
+                                                        {{ toTitleCase(item?.status) }}
                                                         </v-chip>
                                                         <v-divider class="border-opacity-50 mt-1"></v-divider>      
                                                     </v-card-title>
@@ -203,7 +219,7 @@ watch(page, async () => {
                                             </template>
                                         </v-dialog>
 
-                                        <v-pagination v-model=page :disabled="isLoading" :length="leaveRequest?.total_pages" @update:model-value="() => isLoading=!isLoading"></v-pagination>
+                                        <v-pagination v-model=page :disabled="isLoading" :length="leaveRequest?.total_pages"></v-pagination>
                                     </template>
                                 </div>
 

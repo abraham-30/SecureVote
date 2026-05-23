@@ -5,34 +5,60 @@ import { userGroupListMember } from '@/services/UserGroupServices';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
+import { toTitleCase } from '@/utils/utils';
+import router from '@/router';
 
-const userGroupStore = useUserGroupStore()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const userGroupMember = ref()
 const isLoading = ref(true)
 const page = ref(1)
 const size = 5
-const isSidebarOpen = ref(true);
+const isSidebarOpen = ref(true)
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
+const handleMemberClick = (id, user_id, name, email, role) => {
+    router.push(
+        {
+            name: "memberDetails",
+            params: {
+                id: id,
+            },
+            query: {
+                user_id: user_id,
+                name: name,
+                email: email,
+                role: role,
+            }
+        }
+    )
+}
+
 onMounted(async () => {
-    await userGroupListMember(group.value?.id, size, page.value)
-    .then((response) => {
-        userGroupMember.value = response.data
-        isLoading.value = false
-    })
+    try {
+        await userGroupListMember(group.value?.id, size, page.value)
+        .then((response) => {
+            userGroupMember.value = response.data
+            isLoading.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
 })
 
 watch (page, async() => {
-    await userGroupListMember(group.value?.id, size, page.value)
-    .then((response) => {
-        userGroupMember.value = response.data
-        isLoading.value = false
-    })
+    try {
+        await userGroupListMember(group.value?.id, size, page.value)
+        .then((response) => {
+            userGroupMember.value = response.data
+            isLoading.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
 })
 </script>
 
@@ -70,7 +96,7 @@ watch (page, async() => {
                     <template v-else>
                         <v-card 
                         class="bg-blur border-sm border-opacity-75 pa-2 text-white"
-                        :to="`/MemberDetails/${item?.id}`"
+                        @click="handleMemberClick(item?.id, item?.user?.id, item?.user?.name, item?.user?.email, item?.role?.name)"
                         v-for="item in userGroupMember.results"
                         link
                         >
@@ -83,7 +109,7 @@ watch (page, async() => {
                                     variant="flat"
                                     >
                                     <!-- Change color and role name here -->
-                                    {{ item?.role?.name.charAt(0).toUpperCase() + item?.role?.name.slice(1).toLowerCase() }}
+                                    {{ toTitleCase(item?.role?.name) }}
                                     </v-chip>
                                 </div>
                             </v-card-text>

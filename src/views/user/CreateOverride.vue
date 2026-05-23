@@ -43,11 +43,15 @@ const handleSubmit = async() => {
 }
 
 onMounted(async() => {
-    userGroupListSupervisor(group.value?.id, id.value)
-    .then((response) => {
-        supervisorItems.value = response.data
-        isLoadingSpv.value = false
-    }) 
+    try {
+        userGroupListSupervisor(group.value?.id, id.value)
+        .then((response) => {
+            supervisorItems.value = response.data
+            isLoadingSpv.value = false
+        }) 
+    } catch (error) {
+        console.log(error)
+    }
 })
 </script>
 

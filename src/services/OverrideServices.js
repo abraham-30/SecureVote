@@ -1,9 +1,5 @@
 import api from "./BaseUrl";
-import { useOverrideStore } from "@/stores/OverrideStore";
-import { useUserStore } from "@/stores/UserStore";
 import { getCurrentDateTime, toDateTime } from "@/utils/date";
-import { storeToRefs } from "pinia";
-
 
 const overrideRequestsForUser = async (user_id, group_id, status, size, page) => {
     const response = await api.get(
@@ -49,46 +45,4 @@ const cancelOverrideRequest = async (id) => {
     return response
 }
 
-const combinedRequestsSupervisor = async (user_id, group_id, size, page) => {
-    const overrideStore = useOverrideStore()
-    const userStore = useUserStore()
-    const { role } = storeToRefs(userStore)
-
-    const response = await api.get(
-        `combined-requests/${user_id}/${group_id}/`,
-        {
-            params: {
-                size: size,
-                page: page,
-                role: role.value,
-                isRequested: true,
-            },
-        },
-    )
-
-    // overrideStore.setCombinedRequestsForSupervisor(response.data)
-
-    return response
-} 
-
-const combinedRequestsUser = async (user_id, group_id,size, page) => {
-    const overrideStore = useOverrideStore()
-    const userStore = useUserStore()
-    const { role } = storeToRefs(userStore)
-
-    const response = await api.get(
-        `combined-requests/${user_id}/${group_id}/`,
-        {
-            params: {
-                size: size,
-                page: page,
-                role: role.value,
-                isRequested: false,
-            },
-        },
-    )
-
-    return response
-} 
-
-export { overrideRequestsForUser, combinedRequestsSupervisor, combinedRequestsUser, addOverideRequest, cancelOverrideRequest }
+export { overrideRequestsForUser, addOverideRequest, cancelOverrideRequest }

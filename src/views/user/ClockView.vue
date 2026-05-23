@@ -1,23 +1,21 @@
 <script setup>
 import { useGroupStore } from '@/stores/GroupStore';
-import { groupDetails } from '@/services/GroupServices';
-import { userGroupDetails } from '@/services/UserGroupServices';
-import { useUserGroupStore } from '@/stores/UserGroupStore';
 import { useUserStore } from '@/stores/UserStore'; 
 import { formatDate } from '@/utils/date';
-import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router';
+import { onMounted, ref, watch } from 'vue';
 import SideNavbar from '@/components/SideNavbar.vue';
 import { storeToRefs } from 'pinia';
+import { userLogsList } from '@/services/UserLogServices';
+import { toTitleCase } from '@/utils/utils';
 
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
-const { name } = storeToRefs(userStore)
-
-const userGroupStore = useUserGroupStore()
-const selectedUserGroup = ref()
-const route = useRoute()
+const { id, name } = storeToRefs(userStore)
+const page = ref(1)
+const size = 5
+const isLoading = ref(true)
+const userLogs = ref()
 
 const currentDate = ref(new Date())
 const isSidebarOpen = ref(true)
@@ -26,48 +24,39 @@ function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
+const headers = [
+    { title: "Date", value: "start_date_time", key: "date" },
+    { title: "Clock In", value: "start_date_time", key:"clockIn" },
+    { title: "Clock Out", value: "end_date_time", key: "clockOut" },
+    { title: "", value: "type", key: "type" },
+    { title: "Notes", value: "reason", key: "reason" },
+]
+
 onMounted(async () => {
-    
+    try {
+        await userLogsList(id.value, group.value?.id, size, page.value)
+        .then((response) => {
+            userLogs.value = response.data
+            isLoading.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
 })
 
-// Data Dummy
-const dummyData = ref([
-{
-    date: '12 April 2026',
-    clockin: '08:30',
-    clockout: '17:30',
-    type: 'Override',
-    notes: 'Lupa Absen',
-},
-{
-  date: '11 April 2026',
-  clockin: '07:30',
-  clockout: '06:30',
-  type: 'Leave',
-  notes: 'Cuti',
-},
-{
-  date: '10 April 2026',
-  clockin: '09:30',
-  clockout: '05:30',
-  type: 'Late',
-  notes: '',
-},
-{
-  date: '09 April 2026',
-  clockin: '08:30',
-  clockout: '05:30',
-  type: '',
-  notes: '',
-},
-{
-  date: '08 April 2026',
-  clockin: '08:30',
-  clockout: '05:30',
-  type: '',
-  notes: '',
-},
-])
+watch(page, async () => {
+    isLoading.value = true
+
+    try {
+        await userLogsList(id.value, group.value?.id, size, page.value)
+        .then((response) => {
+            userLogs.value = response.data
+            isLoading.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
+})
 </script>
 
 <template>
@@ -128,44 +117,44 @@ const dummyData = ref([
 
                 <div>
                     <div class="d-flex flex-column ga-2">
-                        <v-table 
+                        <v-data-table 
                         theme="dark"
                         density="compact"
                         striped="even"
+                        :page="page"
+                        :headers="headers"
+                        :items="userLogs?.results"
+                        :loading="isLoading"
+                        :items-per-page="size"
+                        hide-default-footer
                         >
-                            <thead>
-                            <tr>
-                                <th class="text-left">
-                                Date
-                                </th>
-                                <th class="text-left">
-                                Clock In
-                                </th>
-                                <th class="text-left">
-                                Clock Out
-                                </th>
-                                <th class="text-left">
-                                
-                                </th>
-                                <th class="text-left">
-                                Notes
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr
-                                v-for="item in dummyData"
-                                :key="item.name"
-                            >
-                                <td>{{ item.date }}</td>
-                                <td>{{ item.clockin }}</td>
-                                <td>{{ item.clockout }}</td>
-                                <td>{{ item.type }}</td>
-                                <td>{{ item.notes }}</td>
-                            </tr>
-                            </tbody>
-                        </v-table>
-                        <v-pagination :length="5"></v-pagination>
+                            <template #loading>
+                                <tr v-for="n in size" :key="n" class="d-flex flex-row">
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                </tr>
+                            </template> 
+
+                            <template #item.date="{ item }">
+                                {{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}
+                            </template>
+
+                            <template #item.clockIn="{ item }">
+                                {{ formatDate(item?.start_date_time, "HH:mm") }}
+                            </template>
+
+                            <template #item.clockOut="{ item }">
+                                {{ formatDate(item?.start_end_time, "HH:mm") }}
+                            </template>
+
+                            <template #item.type="{ item }">
+                                {{ toTitleCase(item?.type) }}
+                            </template>
+                        </v-data-table>
+                        <v-pagination v-model=page :disabled="isLoading" :length="userLogs?.total_pages"></v-pagination>
                     </div>
                 </div>
             </div>
@@ -214,5 +203,7 @@ const dummyData = ref([
 </template>
 
 <style lang="scss" scoped>
-
+:deep(.v-skeleton-loader__text) {
+    margin-left: 0px;
+}
 </style>

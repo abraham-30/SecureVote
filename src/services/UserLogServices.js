@@ -1,23 +1,30 @@
 import api from '@/services/BaseUrl.js'
-import { useUserLogStore } from '@/stores/UserLogStore' 
-import { storeToRefs } from 'pinia'
 
-const userLogsList = async (user_id, group_id, size, page, date) => {    
-    const userLogStore = useUserLogStore()
+const userLogsList = async (user_id, group_id, size, page) => {
     const response = await api.get(
-        `/user-logs/${user_id}/${group_id}/`,
+        `/user-logs/${group_id}/${user_id}/`,
         {
             params: {
                 size: size,
                 page: page,
-                date: date,
             },
         }
     )
 
-    // userLogStore.setUserLogs(response.data)
+    return response
+}
+
+const userLogsStats = async (user_id, group_id) => {
+    const response = await api.get(
+        `/user-logs/${group_id}/${user_id}/`,
+        {
+            params: {
+                stats: true,
+            },
+        }
+    )
 
     return response
 }
 
-export { userLogsList }
+export { userLogsList, userLogsStats }

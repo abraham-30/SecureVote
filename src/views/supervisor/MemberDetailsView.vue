@@ -1,95 +1,132 @@
 <script setup>
-import { useUserGroupStore } from '@/stores/UserGroupStore';
 import { userGroupDetails } from '@/services/UserGroupServices';
-import { useOverrideStore } from '@/stores/OverrideStore';
-import { combinedRequestsUser } from '@/services/OverrideServices';
-import { useUserLogStore } from '@/stores/UserLogStore';
-import { userLogsList } from '@/services/UserLogServices';
-import { storeToRefs } from 'pinia';
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router';
 import { formatDate } from '@/utils/date';
+import { toTitleCase } from '@/utils/utils';
+import { userLogsList, userLogsStats } from '@/services/UserLogServices';
+import { combinedRequestHistory, combinedRequestsed } from '@/services/CombinedRequestService';
+import { useUserStore } from '@/stores/UserStore';
+import { useGroupStore } from '@/stores/GroupStore';
+import { storeToRefs } from 'pinia';
 
-const route = useRoute()
-const overrideStore = useOverrideStore()
-const userGroupStore = useUserGroupStore()
-const userLogStore = useUserLogStore()
-
-const isLoadingUser = ref(true)
+const userStore = useUserStore()
+const groupStore = useGroupStore()
+const { group } = storeToRefs(groupStore)
+const { id } = storeToRefs(userStore)
+const router = useRoute()
 const isLoadingAttendanceReport = ref(true)
 const isLoadingRequestWaiting = ref(true)
 const isLoadingRequestHistory = ref(true)
-const pageAttendanceReport = ref(1)
 const pageRequestWaiting = ref(1)
 const pageRequestHistory = ref(1)
-const selectedUserGroup = ref()
-const attendanceReport = ref()
+const selectedUserGroup = reactive({
+    id: router.query.user_id,
+    name: router.query.name,
+    email: router.query.email,
+    role: router.query.role,
+})
 const requestWaiting = ref()
 const requestHistory = ref()
+const attendanceReport = reactive({
+    onTime: null,
+    late: null,
+    override: null,
+    leave: null,
+})
+const pageUserLog = ref(1)
 const size = 5
-const isSidebarOpen = ref(true);
+const isLoadingUserLog = ref(true)
+const userLogs = ref()
+
+const headers = [
+    { title: "Date", value: "start_date_time", key: "date" },
+    { title: "Clock In", value: "start_date_time", key:"clockIn" },
+    { title: "Clock Out", value: "end_date_time", key: "clockOut" },
+    { title: "", value: "type", key: "type" },
+    { title: "Notes", value: "reason", key: "reason" },
+]
 
 onMounted(async () => {
-    await userGroupDetails(route.params.id)
-    .then((response) => {
-        selectedUserGroup.value = response.data
-        isLoadingUser.value = false
-    })
+    try{  
+        userLogsStats(selectedUserGroup.id, group.value?.id)
+        .then((response) => {
+            attendanceReport.onTime = response.data["null"]
+            attendanceReport.late = response.data["late"]
+            attendanceReport.override = response.data?.["override clock in"] ?? 0 + response.data?.["override clock out"] ?? 0 + response.data?.["override clock in and out"] ?? 0
+            attendanceReport.leave = response.data["leave"]
 
-    // userLogsList(selectedUserGroup.value?.user?.id, selectedUserGroup.value?.group?.id, size, pageAttendanceReport.value)
-    // .then(response => {
-    //     attendanceReport.value = response.data
-    //     isLoadingAttendanceReport.value = false
-    // })
-    
-    combinedRequestsUser(selectedUserGroup.value?.user?.id, selectedUserGroup.value?.group?.id, size, pageRequestWaiting.value)
-    .then(response => {
-        requestWaiting.value = response.data?.requested
-        requestHistory.value = response.data?.processed
+            isLoadingAttendanceReport.value = false
+        })
+
+        userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value)
+        .then((response) => {
+            userLogs.value = response.data
+            isLoadingUserLog.value = false
+        })
         
-        isLoadingRequestWaiting.value = false
-        isLoadingRequestHistory.value = false
-    })
+        combinedRequestsed(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value)
+        .then(response => {
+            requestWaiting.value = response.data
+            
+            isLoadingRequestWaiting.value = false
+        })
+    
+        combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value)
+        .then(response => {
+            requestHistory.value = response.data
+            
+            isLoadingRequestHistory.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
 })
 
+watch(pageUserLog, async () => {
+    isLoadingUserLog.value = true
 
-const dummyData = ref([
-{
-    date: '12 April 2026',
-    clockin: '08:30',
-    clockout: '17:30',
-    type: 'Override',
-    notes: 'Lupa Absen',
-},
-{
-  date: '11 April 2026',
-  clockin: '07:30',
-  clockout: '06:30',
-  type: 'Leave',
-  notes: 'Cuti',
-},
-{
-  date: '10 April 2026',
-  clockin: '09:30',
-  clockout: '05:30',
-  type: 'Late',
-  notes: '',
-},
-{
-  date: '09 April 2026',
-  clockin: '08:30',
-  clockout: '05:30',
-  type: '',
-  notes: '',
-},
-{
-  date: '08 April 2026',
-  clockin: '08:30',
-  clockout: '05:30',
-  type: '',
-  notes: '',
-},
-])
+    try {
+        await userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value)
+        .then((response) => {
+            userLogs.value = response.data
+            isLoadingUserLog.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+watch(pageRequestWaiting, async () => {
+    isLoadingRequestWaiting.value = true
+
+    try {
+        await combinedRequestsed(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value)
+        .then(response => {
+            requestWaiting.value = response.data
+            
+            isLoadingRequestWaiting.value = false
+        })
+    } catch (error) {
+        error
+    }
+})
+
+watch(pageRequestHistory, async () => {
+    isLoadingRequestHistory.value = true
+
+    try {
+        await combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value)
+        .then(response => {
+            requestHistory.value = response.data
+            
+            isLoadingRequestHistory.value = false
+        })
+    } catch (error) {
+        console.error(error)
+    }
+})
+
 </script>
 
 <template>
@@ -103,18 +140,18 @@ const dummyData = ref([
 
             <div class="d-flex flex-row justify-space-between align-center">
                  <div class="d-flex flex-column">
-                    <span class="text-headline-medium font-weight-bold">{{ selectedUserGroup?.user?.name }}</span>
+                    <span class="text-headline-medium font-weight-bold">{{ selectedUserGroup.name }}</span>
                     <div class="text-grey-lighten-1">
-                        <span>{{ selectedUserGroup?.user?.email }}</span>
+                        <span>{{ selectedUserGroup.email }}</span>
                     </div>
 
                     <div class="mt-2">
                         <v-chip 
-                        :color="selectedUserGroup?.role?.name === 'member' ? 'blue-darken-2' : 'warning'"
+                        :color="selectedUserGroup.name === 'member' ? 'blue-darken-2' : 'warning'"
                         variant="flat"
                         >
                         <!-- Change color and role name here -->
-                        {{ selectedUserGroup?.role?.name.charAt(0).toUpperCase() + selectedUserGroup?.role?.name.slice(1).toLowerCase() }}
+                         {{ toTitleCase(selectedUserGroup.name) }}
                         </v-chip>
                     </div>
                 </div>
@@ -130,63 +167,67 @@ const dummyData = ref([
                     <div class="d-flex flex-row ga-2">
                         <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>On Time</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">52</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.onTime }}</v-card-text>
                         </v-card>
                         <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>Late</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">4</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.late }}</v-card-text>
                         </v-card>
                         <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>Override</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">9</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.override }}</v-card-text>
                         </v-card>
                         <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>Leave</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">10</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.leave }}</v-card-text>
                         </v-card>
                     </div>
                 </div>
 
                 <div class="d-flex flex-column ga-2">
-                    <v-table 
+                        <v-data-table 
                         theme="dark"
                         density="compact"
                         striped="even"
+                        :page="pageUserLog"
+                        :headers="headers"
+                        :items="userLogs?.results"
+                        :loading="isLoadingUserLog"
+                        :items-per-page="size"
+                        hide-default-footer
                         >
-                            <thead>
-                            <tr>
-                                <th class="text-left">
-                                Date
-                                </th>
-                                <th class="text-left">
-                                Clock In
-                                </th>
-                                <th class="text-left">
-                                Clock Out
-                                </th>
-                                <th class="text-left">
-                                
-                                </th>
-                                <th class="text-left">
-                                Notes
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr
-                                v-for="item in dummyData"
-                                :key="item.name"
-                            >
-                                <td>{{ item.date }}</td>
-                                <td>{{ item.clockin }}</td>
-                                <td>{{ item.clockout }}</td>
-                                <td>{{ item.type }}</td>
-                                <td>{{ item.notes }}</td>
-                            </tr>
-                            </tbody>
-                        </v-table>
-                    <v-pagination :length="5"></v-pagination>
-                </div>
+                            <template #loading>
+                                <tr v-for="n in size" :key="n" class="d-flex flex-row">
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                </tr>
+                            </template> 
+
+                            <template #item.date="{ item }">
+                                {{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}
+                            </template>
+
+                            <template #item.clockIn="{ item }">
+                                {{ formatDate(item?.start_date_time, "HH:mm") }}
+                            </template>
+
+                            <template #item.clockOut="{ item }">
+                                {{ formatDate(item?.start_end_time, "HH:mm") }}
+                            </template>
+
+                            <template #item.type="{ item }">
+                                {{ toTitleCase(item?.type) }}
+                            </template>
+                        </v-data-table>
+                        <v-pagination v-model=pageUserLog :disabled="isLoadingUserLog" :length="userLogs?.total_pages"></v-pagination>
+                    </div>
             </div>
 
             <div class="d-flex flex-column ga-4">
@@ -239,7 +280,7 @@ const dummyData = ref([
                                     <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
                                         <div class="d-flex flex-column">
                                             <span class="text-title-large font-weight-bold">Requester</span>
-                                            <span class="text-grey-lighten-1">{{ item?.user__name }} <br>({{ item?.user__email }})</span>
+                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{ item?.user.email }})</span>
                                         </div>
                                         
                                         <div class="d-flex flex-column">
@@ -250,7 +291,7 @@ const dummyData = ref([
                                         <template v-if="item?.type == 'leave'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-large font-weight-bold">Leave Type</span>
-                                                <span class="text-grey-lighten-1">{{ item?.attendance_type__name }}</span>
+                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name }}</span>
                                             </div>
 
                                             <div class="d-flex flex-column">
@@ -272,7 +313,7 @@ const dummyData = ref([
                                         </div>
                                     </v-card-text>
 
-                                    <v-card-actions class="w-100">
+                                    <v-card-actions class="w-100" v-if="item?.supervisor?.id == id">
                                         <v-btn
                                         color="success"
                                         text="Approve"
@@ -330,7 +371,7 @@ const dummyData = ref([
                                             variant="flat"
                                             >
                                                 <!-- Change color and role name here -->
-                                                {{ item?.status.charAt(0).toUpperCase() + item?.status.slice(1).toLowerCase() }}
+                                                {{ toTitleCase(item?.status) }}
                                             </v-chip>
                                         </div>
                                     </v-card-text>
@@ -357,7 +398,7 @@ const dummyData = ref([
                                         variant="flat"
                                         >
                                         <!-- Change color and role name here -->
-                                        {{ item?.status.charAt(0).toUpperCase() + item?.status.slice(1).toLowerCase() }}
+                                            {{ toTitleCase(item?.status) }}
                                         </v-chip>
                                         <v-divider class="border-opacity-50 mt-1"></v-divider>      
                                     </v-card-title>
@@ -365,7 +406,7 @@ const dummyData = ref([
                                     <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
                                         <div class="d-flex flex-column">
                                             <span class="text-title-large font-weight-bold">Requester</span>
-                                            <span class="text-grey-lighten-1">{{ item?.user__name }} <br>({{ item?.user__email }})</span>
+                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{ item?.user.email }})</span>
                                         </div>
                                         
                                         <div class="d-flex flex-column">
@@ -376,7 +417,7 @@ const dummyData = ref([
                                         <template v-if="item?.type == 'leave'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-large font-weight-bold">Leave Type</span>
-                                                <span class="text-grey-lighten-1">{{ item?.attendance_type__name }}</span>
+                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name }}</span>
                                             </div>
 
                                             <div class="d-flex flex-column">

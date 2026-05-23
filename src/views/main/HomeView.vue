@@ -1,17 +1,13 @@
 <script setup>
 import { useUserStore } from '@/stores/UserStore.js'
-import { useUserGroupStore } from '@/stores/UserGroupStore.js'
-import { userGroupDetails } from '@/services/UserGroupServices';
 import { useGroupStore } from '@/stores/GroupStore'
 import { storeToRefs } from 'pinia'
 import { userGroupList, userGroupListAdmin } from '@/services/UserGroupServices.js'
 import { ref, onMounted, watch } from 'vue'
 import router from '@/router/index.js'
 import { formatDate, getCurrentDateTime } from '@/utils/date';
-import moment from 'moment';
 
 const userStore = useUserStore()
-const userGroupStore = useUserGroupStore()
 const groupStore = useGroupStore()
 const { id } = storeToRefs(userStore)
 const userGroups = ref()
@@ -23,7 +19,6 @@ const pageManagedOrg = ref(1)
 const isLoadingMyOrg = ref(true)
 const isLoadingManagedOrg = ref(true)
 const currentDate = ref(getCurrentDateTime(false))
-const selectedUserGroup = ref()
 const onOrgClick = async (item, isManagedOrg) => {
     userStore.setRole(item?.role?.name)
     groupStore.setGroup(item?.group)
@@ -38,17 +33,21 @@ onMounted(async () => {
   userStore.setRole(null)
   groupStore.setGroup(null)
 
-  userGroupList(id.value, size, pageMyOrg.value)
-  .then((response) => {
-    userGroups.value = response.data
-    isLoadingMyOrg.value = false
-  })
-
-  userGroupListAdmin(id.value, size, pageManagedOrg.value)
-  .then((response) => {
-    userGroupAdmin.value = response.data
-    isLoadingManagedOrg.value = false
-  })
+  try {
+    userGroupList(id.value, size, pageMyOrg.value)
+    .then((response) => {
+      userGroups.value = response.data
+      isLoadingMyOrg.value = false
+    })
+  
+    userGroupListAdmin(id.value, size, pageManagedOrg.value)
+    .then((response) => {
+      userGroupAdmin.value = response.data
+      isLoadingManagedOrg.value = false
+    })
+  } catch (error) {
+    console.error(error)
+  }
 
   setInterval(() => {
     currentDate.value = getCurrentDateTime(false)
@@ -56,19 +55,27 @@ onMounted(async () => {
 })
 
 watch(pageMyOrg, async() => {
-  await userGroupList(id.value, size, pageMyOrg.value)
-  .then((response) => {
-    userGroups.value = response.data
-    isLoadingMyOrg.value = false
-  })
+  try {
+    await userGroupList(id.value, size, pageMyOrg.value)
+    .then((response) => {
+      userGroups.value = response.data
+      isLoadingMyOrg.value = false
+    })
+  } catch (error) {
+    console.error(error)
+  }
 })
 
 watch(pageManagedOrg, async() => {
-  await userGroupListAdmin(id.value, size, pageManagedOrg.value)
-  .then((response) => {
-    userGroupAdmin.value = response.data
-    isLoadingManagedOrg.value = false
-  })
+  try {
+    await userGroupListAdmin(id.value, size, pageManagedOrg.value)
+    .then((response) => {
+      userGroupAdmin.value = response.data
+      isLoadingManagedOrg.value = false
+    })
+  } catch (error) {
+    console.error(error)
+  }
 })
 
 

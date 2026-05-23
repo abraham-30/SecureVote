@@ -95,7 +95,7 @@ const router = createRouter({
             }
         },
         {
-            path:'/Invitations',
+            path:'/invitations',
             name:'invitations',
             components:{
                 default: InvitationListView,
@@ -104,7 +104,7 @@ const router = createRouter({
             }
         },
         {
-            path:'/RegisterOrganization',
+            path:'/registerorganization',
             name:'registerorganization',
             components:{
                 default: RegisterOrganizationView,
@@ -114,7 +114,7 @@ const router = createRouter({
         },
         // User Pages
         {
-            path:'/Clock/:id',
+            path:'/clock',
             name:'clock',
             components:{
                 default: ClockView,
@@ -127,7 +127,7 @@ const router = createRouter({
             }
         },
         {
-            path:'/Override',
+            path:'/override',
             name:'override',
             components:{
                 default: OverrideView,
@@ -135,7 +135,7 @@ const router = createRouter({
             } 
         },
         {
-            path:'/CreateOverride',
+            path:'/createoverride',
             name:'createoverride',
             components:{
                 default: CreateOverride,
@@ -143,7 +143,7 @@ const router = createRouter({
             }
         },
         {
-            path:'/Leave',
+            path:'/leave',
             name:'leave',
             components:{
                 default: LeaveView,
@@ -151,7 +151,7 @@ const router = createRouter({
             } 
         },
         {
-            path:'/CreateLeave',
+            path:'/createleave',
             name:'createleave',
             components:{
                 default: CreateLeaveView,
@@ -160,7 +160,7 @@ const router = createRouter({
         },
         // Supervisor Pages
         {
-            path:'/MyTeamRequest',
+            path:'/myteamrequest',
             name:"myteamrequest",
             components: {
                 default: MyTeamRequestView,
@@ -168,7 +168,7 @@ const router = createRouter({
             }
         },
         {
-            path:'/MyTeam',
+            path:'/myteam',
             name:"myTeam",
             components:{
                 default: MyTeamView,
@@ -176,7 +176,7 @@ const router = createRouter({
             }
         },
         {
-            path:'/MemberDetails/:id',
+            path:'/memberdetails/:id',
             name:'memberDetails',
             components: {
                 default: MemberDetailsView,
@@ -185,7 +185,7 @@ const router = createRouter({
         },
         // Admin Pages
         {
-            path: '/OrganizationProfile',
+            path: '/organizationprofile',
             name: 'organizationProfile',
             components: {
                 default: OrgProfileView,
@@ -193,7 +193,7 @@ const router = createRouter({
             }
         },
         {
-            path: '/OrganizationMembers',
+            path: '/organizationmembers',
             name: 'organizationMembers',
             components: {
                 default: OrgMembersView,
@@ -201,7 +201,7 @@ const router = createRouter({
             }
         },
         {
-            path: '/OrganizationSettings',
+            path: '/organizationsettings',
             name: 'organizationSettings',
             components: {
                 default: OrgSettingsView,
@@ -209,7 +209,7 @@ const router = createRouter({
             }
         },
         {
-            path: '/InviteUser',
+            path: '/inviteuser',
             name: 'inviteUser',
             components: {
                 default: InviteUsersView,

@@ -4,9 +4,9 @@ import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
 import { useOverrideStore } from '@/stores/OverrideStore';
-import { combinedRequestsSupervisor } from '@/services/OverrideServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
+import { combinedRequestedSpv } from '@/services/CombinedRequestService';
 
 const userStore = useUserStore()
 const overrideStore = useOverrideStore()
@@ -26,7 +26,7 @@ function activateSidebar(){
 }
 
 onMounted(async () => {
-    await combinedRequestsSupervisor(user_id.value, group.value.id, size, page.value)
+    await combinedRequestedSpv(user_id.value, group.value.id, size, page.value)
     .then((response) => {
         combinedRequestsForSupervisor.value = response.data
         isLoading.value = false
@@ -34,7 +34,9 @@ onMounted(async () => {
 })
 
 watch(page, async () => {
-    await combinedRequestsSupervisor(user_id.value, group.value.id, size, page.value)
+    isLoading.value = true
+
+    await combinedRequestedSpv(user_id.value, group.value.id, size, page.value)
     .then((response) => {
         combinedRequestsForSupervisor.value = response.data
         isLoading.value = false
@@ -149,7 +151,7 @@ watch(page, async () => {
                     </v-dialog>
                 </template>
                 
-                <v-pagination v-model=page :disabled="isLoading" :length="combinedRequestsForSupervisor?.total_pages" @update:model-value="() => isLoading=!isLoading"></v-pagination>
+                <v-pagination v-model=page :disabled="isLoading" :length="combinedRequestsForSupervisor?.total_pages"></v-pagination>
             </div>
         </div>
     </div>
