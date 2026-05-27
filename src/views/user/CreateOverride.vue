@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import { fieldRequired } from '@/utils/rules';
 import { userGroupListSupervisor } from '@/services/UserGroupServices';
 import { useGroupStore } from '@/stores/GroupStore';
@@ -12,6 +12,7 @@ const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const userStore = useUserStore()
 const { id } = storeToRefs(userStore)
+const controller = new AbortController()
 const supervisorItems = ref()
 const form = reactive({
     isValid: false,
@@ -49,7 +50,7 @@ const handleSubmit = async() => {
 
 onMounted(async() => {
     try {
-        userGroupListSupervisor(group.value?.id, id.value)
+        userGroupListSupervisor(group.value?.id, id.value, controller.signal)
         .then((response) => {
             supervisorItems.value = response.data
             isLoadingSpv.value = false
@@ -57,6 +58,10 @@ onMounted(async() => {
     } catch (error) {
         console.log(error)
     }
+})
+
+onUnmounted(() => {
+    controller.abort()
 })
 </script>
 

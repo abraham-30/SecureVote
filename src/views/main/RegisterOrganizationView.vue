@@ -11,7 +11,7 @@
             <div class="d-flex flex-column">
                 <span class="text-headline-medium font-weight-bold">Register Organization</span>
             </div>
-            <v-form class="d-flex flex-column ga-8">
+            <v-form validate-on="input lazy" class="d-flex flex-column ga-8">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Organization Details</span>
                     <v-divider class="border-opacity-50"></v-divider>    

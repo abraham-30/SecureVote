@@ -1,6 +1,6 @@
 <script setup>
 import iconUrl from '@/assets/icon-neutralgrey200.png'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { login } from '@/services/auth.js'
 import router from '@/router'
 import { fieldRequired, emailFieldCheck, passwordFieldCheck } from '@/utils/rules'
@@ -18,18 +18,38 @@ const passwordRules = [
     v => passwordFieldCheck(v)
 ]
 
+const emailError = ref([])
+const passwordError = ref([])
+
 const handleSubmit = async () => {
-    if(isValid.value) {
-        try {
-            const response = await login(email.value, password.value)
-            
-            if (response.status == 200)
-                router.push({name: 'home'})
-        } catch (error) {
-            console.log(error)
+    emailError.value = []
+    passwordError.value = []
+
+    setTimeout(async () => {
+        if(isValid.value) {
+            try {
+                const response = await login(email.value, password.value)
+                
+                if (response.status == 200 && !response.data.error_code)
+                    router.push({name: 'home'})
+                else if(response.data.error_code == 4) {
+                    emailError.value = ['Incorrect email or password']
+                    passwordError.value = ['Incorrect email or password']
+                }
+            } catch (error) {
+                console.log(error)
+            }
         }
-    }
+    }, 100)
 }
+
+watch(email, () => {
+    emailError.value = []
+})
+
+watch(password, () => {
+    passwordError.value = []
+})
 </script>
 
 <template>
@@ -52,6 +72,7 @@ const handleSubmit = async () => {
                 <v-text-field 
                     v-model="email"
                     :rules="emailRules"
+                    :error-messages="emailError"
                     hide-details="auto"
                     type="email"
                     variant="outlined"
@@ -61,6 +82,7 @@ const handleSubmit = async () => {
                 <v-text-field 
                     v-model="password"
                     :rules = "passwordRules"
+                    :error-messages="passwordError"
                     hide-details="auto"
                     type="password"
                     variant="outlined"

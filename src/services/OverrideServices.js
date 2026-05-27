@@ -1,7 +1,7 @@
 import api from "./BaseUrl";
 import { getCurrentDateTime, toDateTime } from "@/utils/date";
 
-const overrideRequestsForUser = async (user_id, group_id, status, size, page) => {
+const overrideRequestsForUser = async (user_id, group_id, status, size, page, signal) => {
     const response = await api.get(
         `override-requests/${user_id}/${group_id}/`,
         {
@@ -10,6 +10,7 @@ const overrideRequestsForUser = async (user_id, group_id, status, size, page) =>
                 page: page,
                 status: status,
             },
+            signal: signal,
         },
     )
 
@@ -28,7 +29,7 @@ const addOverideRequest = async (user_id, group_id, request) => {
             end_date_time: clockOutDateTime,
             status: "requested",
             reason: request.reason,
-            created_at: getCurrentDateTime(false),
+            created_at: getCurrentDateTime(),
         }
     )
 

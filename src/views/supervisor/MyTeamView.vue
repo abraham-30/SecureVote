@@ -3,7 +3,7 @@ import { useGroupStore } from '@/stores/GroupStore';
 import { useUserGroupStore } from '@/stores/UserGroupStore';
 import { userGroupListMember } from '@/services/UserGroupServices';
 import { storeToRefs } from 'pinia';
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { toTitleCase } from '@/utils/utils';
 import router from '@/router';
@@ -15,6 +15,7 @@ const isLoading = ref(true)
 const page = ref(1)
 const size = 5
 const isSidebarOpen = ref(true)
+const controller = new AbortController()
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
@@ -39,7 +40,7 @@ const handleMemberClick = (id, user_id, name, email, role) => {
 
 onMounted(async () => {
     try {
-        await userGroupListMember(group.value?.id, size, page.value)
+        await userGroupListMember(group.value?.id, size, page.value, controller.signal)
         .then((response) => {
             userGroupMember.value = response.data
             isLoading.value = false
@@ -51,7 +52,7 @@ onMounted(async () => {
 
 watch (page, async() => {
     try {
-        await userGroupListMember(group.value?.id, size, page.value)
+        await userGroupListMember(group.value?.id, size, page.value, controller.signal)
         .then((response) => {
             userGroupMember.value = response.data
             isLoading.value = false
@@ -59,6 +60,10 @@ watch (page, async() => {
     } catch (error) {
         console.error(error)
     }
+})
+
+onUnmounted(() => {
+    controller.abort()
 })
 </script>
 

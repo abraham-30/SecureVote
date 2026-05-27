@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router';
 import { formatDate } from '@/utils/date';
 import { toTitleCase } from '@/utils/utils';
@@ -15,17 +15,17 @@ const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const { id } = storeToRefs(userStore)
-const router = useRoute()
+const route = useRoute()
 const isLoadingAttendanceReport = ref(true)
 const isLoadingRequestWaiting = ref(true)
 const isLoadingRequestHistory = ref(true)
 const pageRequestWaiting = ref(1)
 const pageRequestHistory = ref(1)
 const selectedUserGroup = reactive({
-    id: router.query.user_id,
-    name: router.query.name,
-    email: router.query.email,
-    role: router.query.role,
+    id: route.query.user_id,
+    name: route.query.name,
+    email: route.query.email,
+    role: route.query.role,
 })
 const requestWaiting = ref()
 const requestHistory = ref()
@@ -40,19 +40,20 @@ const size = 5
 const isLoadingUserLog = ref(true)
 const isReviewLoading = ref(false)
 const userLogs = ref()
+const controller = new AbortController()
 
 const headers = [
-    { title: "Date", value: "start_date_time", key: "date", width: "20%" },
-    { title: "Clock In", value: "start_date_time", key:"clockIn", width: "15%" },
-    { title: "Clock Out", value: "end_date_time", key: "clockOut", width: "15%" },
-    { title: "", value: "type", key: "type", width: "15%" },
-    { title: "Notes", value: "reason", key: "reason", width: "35%" },
+    { title: "Date", value: "start_date_time", key: "date", width: "20%", sortable: false },
+    { title: "Clock In", value: "start_date_time", key:"clockIn", width: "15%", sortable: false },
+    { title: "Clock Out", value: "end_date_time", key: "clockOut", width: "15%", sortable: false },
+    { title: "", value: "type", key: "type", width: "15%", sortable: false },
+    { title: "Notes", value: "reason", key: "reason", width: "35%", sortable: false },
 ]
 
 const fetchCombinedRequest = async () => {
     isLoadingRequestWaiting.value = true
     
-    await combinedRequested(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value)
+    await combinedRequested(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value, controller.signal)
     .then(response => {
         requestWaiting.value = response.data
         
@@ -63,7 +64,7 @@ const fetchCombinedRequest = async () => {
 const fetchCombineHistory = async () => {
     isLoadingRequestHistory.value = true
 
-    await combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value)
+    await combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value, controller.signal)
     .then(response => {
         requestHistory.value = response.data
         
@@ -74,7 +75,7 @@ const fetchCombineHistory = async () => {
 const fetchUserLog = async () => {
     isLoadingUserLog.value = true
 
-    await userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value)
+    await userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value, controller.signal)
     .then((response) => {
         userLogs.value = response.data
         isLoadingUserLog.value = false
@@ -84,7 +85,7 @@ const fetchUserLog = async () => {
 const fetchStats = async () => {
     isLoadingAttendanceReport.value = true
     
-    userLogsStats(selectedUserGroup.id, group.value?.id)
+    userLogsStats(selectedUserGroup.id, group.value?.id, controller.signal)
     .then((response) => {
         attendanceReport.onTime = response.data["null"]
         attendanceReport.late = response.data["late"]
@@ -225,13 +226,16 @@ watch(pageRequestHistory, async () => {
     }
 })
 
+onUnmounted(() => {
+    controllerAbort()
+})
 </script>
 
 <template>
     <div class="py-8 min-h-screen">
         <div class="d-flex flex-column ga-8">
             <div>
-                <v-btn variant="text" style="width: fit-content;" @click="$router.back()">
+                <v-btn variant="text" style="width: fit-content;" @click="$route.back()">
                     ← Back
                 </v-btn>
             </div>

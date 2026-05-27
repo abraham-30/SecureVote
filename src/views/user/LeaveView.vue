@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
@@ -13,6 +13,7 @@ const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
 const leaveRequest  = ref()
+const controller = new AbortController()
 
 const page = ref(1)
 const size = 5
@@ -30,7 +31,7 @@ function activateSidebar(){
 const fetchLeaveRequest = async () => {
     isLoading.value = true
 
-    await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
+    await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value, controller.signal)
     .then((response) => {
         isLoading.value = false
         leaveRequest.value = response.data
@@ -83,16 +84,15 @@ watch(page, async () => {
     isLoading.value = true
 
     try {
-        await leaveRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value)
-        .then((response) => {
-            leaveRequest.value = response.data
-            isLoading.value = false
-        })
+        await fetchLeaveRequest()
     } catch (error) {
         console.error(error)
     }
 })
 
+onUnmounted(() => {
+    controller.abort()
+})
 </script>
 
 <template>

@@ -3,25 +3,30 @@ import { useUserStore } from '@/stores/UserStore.js'
 import { useInvitationStore } from '@/stores/InvitationStore.js'
 import { storeToRefs } from 'pinia'
 import { invitationListInvitee } from '@/services/InvitationServices.js'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { formatDate } from '@/utils/date'
 
 const userStore = useUserStore()
 const { id } = storeToRefs(userStore)
 const invitationStore = useInvitationStore()
 const invitation = ref()
+const controller = new AbortController()
 
 const size = 5
 const page = ref(1)
 const isLoading = ref(true)
 
+const fetchInvitationInvitee = async () => {
+  await invitationListInvitee(id.value, size, page.value, controller.signal)
+  .then((response) => {
+    invitation.value = response.data
+    isLoading.value = false
+  })
+}
+
 onMounted(async () => {
   try {
-    await invitationListInvitee(id.value, size, page.value)
-    .then((response) => {
-      invitation.value = response.data
-      isLoading.value = false
-    })
+    await fetchInvitationInvitee()
   } catch (error) {
     console.error(error)
   }
@@ -31,14 +36,14 @@ watch(page, async() => {
   isLoading.value = true
 
   try {
-    await invitationListInvitee(id.value, size, page.value)
-    .then((response) => {
-      invitation.value = response.data
-      isLoading.value = false
-    })
+    await fetchInvitationInvitee()
   } catch (error) {
     console.error(error)
   }
+})
+
+onUnmounted(() => {
+  controller.abort()
 })
 </script>
 

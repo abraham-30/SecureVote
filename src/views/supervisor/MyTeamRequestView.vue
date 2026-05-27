@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
@@ -14,6 +14,7 @@ const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
 const combinedRequestsForSupervisor = ref()
+const controller = new AbortController()
 
 const page = ref(1)
 const size = 5
@@ -29,7 +30,7 @@ function activateSidebar(){
 const fetchCombinedRequest = async () => {
     isLoading.value = true
 
-    await combinedRequestedSpv(user_id.value, group.value.id, size, page.value)
+    await combinedRequestedSpv(user_id.value, group.value.id, size, page.value, controller.signal)
     .then((response) => {
         combinedRequestsForSupervisor.value = response.data
         isLoading.value = false
@@ -131,6 +132,10 @@ watch(page, async () => {
     } catch (error) {
         console.error(error)
     }
+})
+
+onUnmounted(() => {
+    controller.abort()
 })
 </script>
 

@@ -38,6 +38,7 @@ import InvalidPageView from "@/views/main/InvalidPageView.vue"
 import TopNavbar from "@/components/TopNavbar.vue"
 import Footer from "@/components/Footer.vue"
 import LeaveView from "@/views/user/LeaveView.vue"
+import FaceRecogView from "@/views/user/FaceRecogView.vue"
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -157,6 +158,12 @@ const router = createRouter({
                 default: CreateLeaveView,
                 footer: Footer
             }
+        },
+        {
+            path: '/facerecog',
+            name: 'facerecog',
+            component: FaceRecogView,
+            meta: { noStyle: true  },
         },
         // Supervisor Pages
         {

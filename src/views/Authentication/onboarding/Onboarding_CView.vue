@@ -11,7 +11,7 @@
             
             <span class="text-headline-large font-weight-bold">Complete!</span>
             <span class="text-grey-lighten-1">Welcome to Tenda, you can now start using the app</span>
-            <v-btn class="bg-white">Enter TENDA →</v-btn>
+            <v-btn class="bg-white" to="/home">Enter TENDA →</v-btn>
         </div>
     </div>
 </template>

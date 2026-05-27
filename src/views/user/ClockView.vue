@@ -1,13 +1,15 @@
 <script setup>
 import { useGroupStore } from '@/stores/GroupStore';
 import { useUserStore } from '@/stores/UserStore'; 
-import { formatDate } from '@/utils/date';
-import { onMounted, ref, watch } from 'vue';
+import { formatDate, getCurrentDateTime } from '@/utils/date';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import SideNavbar from '@/components/SideNavbar.vue';
 import { storeToRefs } from 'pinia';
 import { userLogsList } from '@/services/UserLogServices';
 import { toTitleCase } from '@/utils/utils';
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
@@ -16,47 +18,65 @@ const page = ref(1)
 const size = 5
 const isLoading = ref(true)
 const userLogs = ref()
-
-const currentDate = ref(new Date())
+const controller = new AbortController()
+const timeInterval = ref()
+const currentDate = ref(getCurrentDateTime())
 const isSidebarOpen = ref(true)
+
+const headers = [
+    { title: "Date", value: "start_date_time", key: "date", width: "20%", sortable: false },
+    { title: "Clock In", value: "start_date_time", key:"clockIn", width: "15%", sortable: false },
+    { title: "Clock Out", value: "end_date_time", key: "clockOut", width: "15%", sortable: false },
+    { title: "", value: "type", key: "type", width: "15%", sortable: false },
+    { title: "Notes", value: "reason", key: "reason", width: "35%", sortable: false },
+]
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
-const headers = [
-    { title: "Date", value: "start_date_time", key: "date", width: "20%" },
-    { title: "Clock In", value: "start_date_time", key:"clockIn", width: "15%" },
-    { title: "Clock Out", value: "end_date_time", key: "clockOut", width: "15%" },
-    { title: "", value: "type", key: "type", width: "15%" },
-    { title: "Notes", value: "reason", key: "reason", width: "35%" },
-]
+const fetchUserLogs = async () => {
+    isLoading.value = true
+
+    await userLogsList(id.value, group.value?.id, size, page.value, controller.signal)
+    .then((response) => {
+        userLogs.value = response.data
+        isLoading.value = false
+    })
+}
+
+const handleClockClick = (type) => {
+    router.push({ name: 'facerecog', query: { type: type } })
+}
+
+const startTimeInterval = () => {
+    timeInterval.value = setInterval(() => {
+        currentDate.value = getCurrentDateTime()
+    }, 1000)
+}
 
 onMounted(async () => {
     try {
-        await userLogsList(id.value, group.value?.id, size, page.value)
-        .then((response) => {
-            userLogs.value = response.data
-            isLoading.value = false
-        })
+        await fetchUserLogs()
     } catch (error) {
         console.error(error)
     }
+    startTimeInterval()
 })
 
 watch(page, async () => {
-    isLoading.value = true
-
     try {
-        await userLogsList(id.value, group.value?.id, size, page.value)
-        .then((response) => {
-            userLogs.value = response.data
-            isLoading.value = false
-        })
+        await fetchUserLogs()
     } catch (error) {
         console.error(error)
     }
 })
+
+onUnmounted(() => {
+    controller.abort()
+    clearInterval(timeInterval.value)
+})
+
 </script>
 
 <template>
@@ -80,7 +100,7 @@ watch(page, async () => {
             </div>
             <div class="d-flex flex-column align-center ga-2">
                 <span class="text-display-small font-weight-bold">
-                    {{ currentDate.toLocaleTimeString('en-US', { hour: "2-digit", minute: "2-digit" }) }}
+                    {{ formatDate(currentDate, "hh:mm A") }}
                 </span>
                 <span class="text-grey-lighten-1 text-center">
                     {{ formatDate(currentDate, "MMMM Do, YYYY") }}
@@ -89,7 +109,7 @@ watch(page, async () => {
             </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-row w-100 ga-4">
-                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4">
+                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock in')">
                         <div class="d-flex flex-column ga-8 align-center">
                             <v-card-title class="text-subtitle-1">Registered Clock In</v-card-title>
                             <v-card-text class="text-title-large font-weight-bold">-- : --</v-card-text>
@@ -98,7 +118,7 @@ watch(page, async () => {
                             </v-card-actions>
                         </div>
                     </v-card>
-                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4">
+                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock out')">
                         <div class="d-flex flex-column ga-8 align-center">
                             <v-card-title class="text-subtitle-1">Registered Clock Out</v-card-title>
                             <v-card-text class="text-title-large font-weight-bold">-- : --</v-card-text>

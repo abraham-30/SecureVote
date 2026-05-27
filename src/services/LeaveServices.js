@@ -1,7 +1,7 @@
 import { getCurrentDateTime, toDateTime } from "@/utils/date";
 import api from "./BaseUrl";
 
-const leaveRequestsForUser = async (user_id, group_id, status, size, page) => {
+const leaveRequestsForUser = async (user_id, group_id, status, size, page, signal) => {
     const response = await api.get(
         `leave-requests/${user_id}/${group_id}/${status}/`,
         {
@@ -9,6 +9,7 @@ const leaveRequestsForUser = async (user_id, group_id, status, size, page) => {
                 size: size,
                 page: page,
             },
+            signal: signal,
         },
     )
 
@@ -28,8 +29,8 @@ const addLeaveRequest = async (user_id, group_id, request) => {
             end_date_time: endDate,
             status: "requested",
             reason: request.reason,
-            created_at: getCurrentDateTime(false),
-        }
+            created_at: getCurrentDateTime(),
+        },
     )
 
     return response

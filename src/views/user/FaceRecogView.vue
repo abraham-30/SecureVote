@@ -1,8 +1,10 @@
 <script setup>
-import { faceRegister } from '@/services/auth'
+import { addUserLog } from '@/services/UserLogServices'
 import { onMounted, onBeforeUnmount, computed, ref, reactive, watch } from 'vue'
-import { useRouter } from 'vuetify/lib/composables/router.mjs'
+import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const router = useRouter()
 const isLoading = ref(false)
 const isDialogOpen = ref(false)
@@ -19,11 +21,13 @@ let intervalPhoto = null
 const startPhotoInterval = () => {
   clearInterval(intervalPhoto)
 
-  intervalPhoto = setInterval(() => {
-    if (!!videoEl.value && videoEl.value.readyState === 4) {
-      takePhoto()
-    }
-  }, 300)
+  setTimeout(() => {
+      intervalPhoto = setInterval(() => {
+        if (!!videoEl.value && videoEl.value.readyState === 4) {
+          takePhoto()
+        }
+      }, 300)
+  }, 1000)
 }
 
 const stopPhotoInterval = () => {
@@ -60,13 +64,12 @@ const handleSubmit = async () => {
     isLoading.value = true
     videoEl.value.pause()
     
-    await faceRegister(form.photo)
+    await addUserLog(form.photo, route.query.type)
     .then((response) => {
       if(response.status === 200 && !response.data.error) {
         console.log(response.data)
-        router.push({ name: 'facecheck3' })
+        router.push({ name: 'clock' })
       } else {
-        console.log(response.data)
         isDialogOpen.value = true
       }
     })
@@ -76,12 +79,7 @@ const handleSubmit = async () => {
 }
 
 const handleRetry = () => {
-  form.photo = []
-  isDialogOpen.value = false
-  isLoading.value = false
-  videoEl.value.play()
-
-  startPhotoInterval()
+    router.push({ name: 'clock' })
 }
 
 onMounted(() => {
@@ -95,7 +93,7 @@ onBeforeUnmount(() => {
 })
 
 watch(() => totalPhoto.value, (newVal) => {
-  if (newVal >= 10) {
+  if (newVal >= 1) {
     stopPhotoInterval()
 
     handleSubmit()
@@ -104,6 +102,15 @@ watch(() => totalPhoto.value, (newVal) => {
 </script>
 
 <template>
+    <div class="" style="height: 5vh; background-color: #1E1E1E; border-bottom: 1px solid #B5B5B5">
+      <div class="w-25 h-100 d-flex flex-column justify-center align-center">
+        <v-btn variant="text" style="width: fit-content;" @click="$router.back()">
+          ← Back
+        </v-btn>
+      </div>
+      
+    </div>
+
   <div class="app">
     <!-- Main Camera Area -->
     <main class="main">
@@ -130,11 +137,11 @@ watch(() => totalPhoto.value, (newVal) => {
           Failed to Capture
         </v-card-title>
         <v-card-text class="text-body-small text-grey-lighten-1 text-center px-0 pt-0">
-          Please try again in a well-lit area and make sure your face is clearly visible to the camera.
+          Please try face verification again in a well-lit area and make sure your face is clearly visible to the camera.
         </v-card-text>
         <v-card-actions class="w-100">
             <v-btn size="large" text="Retry" class="w-100" variant="flat" color="white" @click="handleRetry()">
-              Retry
+              Understood
             </v-btn>
         </v-card-actions>
       </v-card>

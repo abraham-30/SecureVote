@@ -3,8 +3,7 @@ import { useInvitationStore } from '@/stores/InvitationStore'
 import { storeToRefs } from 'pinia'
 
 
-const invitationListInvitee = async (id, size, page) => {    
-    const invitationStore = useInvitationStore()
+const invitationListInvitee = async (id, size, page, signal) => {
     const response = await api.get(
         `/invitation-requests/`,
         {
@@ -13,6 +12,7 @@ const invitationListInvitee = async (id, size, page) => {
                 page: page,
                 invitee: id, 
             },
+            signal: signal,
         }
     )
 

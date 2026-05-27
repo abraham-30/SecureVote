@@ -1,15 +1,22 @@
 <script setup>
 import iconUrl from '@/assets/icon-neutralgrey200.png'
 import dummyImgUrl from '@/assets/dummy-img.png'
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { formatDate, getCurrentDateTime } from '@/utils/date';
-import moment from 'moment';
 
-const currentDate = getCurrentDateTime(false)
-onMounted(() => {
-    setInterval(() => {
-        currentDate.value = getCurrentDateTime(false)
+const currentDate = ref(getCurrentDateTime())
+const timeInterval = ref()
+const startTimeInterval = () => {
+        timeInterval.value = setInterval(() => {
+        currentDate.value = getCurrentDateTime()
     }, 1000)
+}
+onMounted(() => {
+    startTimeInterval()
+})
+
+onUnmounted(() => {
+    clearInterval(timeInterval.value)
 })
 </script>
 

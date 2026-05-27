@@ -4,7 +4,7 @@ import { useUserGroupStore } from '@/stores/UserGroupStore.js'
 import { storeToRefs } from 'pinia'
 
 
-const userGroupList = async (id, size, page) => {
+const userGroupList = async (id, size, page, signal) => {
     const response = await api.get(
         `/user-groups/`,
         {
@@ -14,13 +14,14 @@ const userGroupList = async (id, size, page) => {
                 user: id,
                 isManagedOrg: false,
             },
+            signal: signal,
         }
     )
 
     return response
 }
 
-const userGroupListAdmin = async (id, size, page) => {
+const userGroupListAdmin = async (id, size, page, signal) => {
     const response = await api.get(
         `/user-groups/`,
         {
@@ -30,13 +31,14 @@ const userGroupListAdmin = async (id, size, page) => {
                 user: id,
                 isManagedOrg: true,
             },
+            signal: signal,
         }
     )
 
     return response
 }
 
-const userGroupListMember = async (id, size, page) => {
+const userGroupListMember = async (id, size, page, signal) => {
     const userStore = useUserStore()
 
     const response = await api.get(
@@ -47,13 +49,14 @@ const userGroupListMember = async (id, size, page) => {
                 page: page,
                 group: id,
             },
+            signal: signal,
         }
     )
 
     return response
 }
 
-const userGroupListSupervisor = async (id, user_id) => {
+const userGroupListSupervisor = async (id, user_id, signal) => {
     const response = await api.get(
         `/user-groups/`,
         {
@@ -62,6 +65,7 @@ const userGroupListSupervisor = async (id, user_id) => {
                 role: 2,
                 user_id: user_id
             },
+            signal: signal,
         }
     )
 

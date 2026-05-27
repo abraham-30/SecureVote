@@ -1,6 +1,6 @@
 import api from "./BaseUrl";
 
-const LeaveTypesList = async (group_id, size, page) => {
+const LeaveTypesList = async (group_id, size, page, signal) => {
     const response = await api.get(
         `leave-types/${group_id}/`,
         {
@@ -8,6 +8,7 @@ const LeaveTypesList = async (group_id, size, page) => {
                 size: size,
                 page: page,
             },
+            signal: signal,
         },
     )
 

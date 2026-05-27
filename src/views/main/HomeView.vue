@@ -3,7 +3,7 @@ import { useUserStore } from '@/stores/UserStore.js'
 import { useGroupStore } from '@/stores/GroupStore'
 import { storeToRefs } from 'pinia'
 import { userGroupList, userGroupListAdmin } from '@/services/UserGroupServices.js'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
 import router from '@/router/index.js'
 import { formatDate, getCurrentDateTime } from '@/utils/date';
 
@@ -12,13 +12,14 @@ const groupStore = useGroupStore()
 const { id } = storeToRefs(userStore)
 const userGroups = ref()
 const userGroupAdmin = ref()
-
+const controller = new AbortController()
+const timeInterval = ref()
 const size = 5
 const pageMyOrg = ref(1)
 const pageManagedOrg = ref(1)
 const isLoadingMyOrg = ref(true)
 const isLoadingManagedOrg = ref(true)
-const currentDate = ref(getCurrentDateTime(false))
+const currentDate = ref(getCurrentDateTime())
 const onOrgClick = async (item, isManagedOrg) => {
     userStore.setRole(item?.role?.name)
     groupStore.setGroup(item?.group)
@@ -26,7 +27,29 @@ const onOrgClick = async (item, isManagedOrg) => {
     if (isManagedOrg)
       router.push({ name: "organizationProfile" })
     else
-      router.push({ name: "clock", params: { id: id } })
+      router.push({ name: "clock", query: { id: id } })
+}
+
+const fetchUserGroup = async () => {
+  await userGroupList(id.value, size, pageMyOrg.value, controller.signal)
+    .then((response) => {
+      userGroups.value = response.data
+      isLoadingMyOrg.value = false
+    })
+}
+
+const fetchUserGroupAdmin = async () => {
+  await userGroupListAdmin(id.value, size, pageManagedOrg.value, controller.signal)
+  .then((response) => {
+    userGroupAdmin.value = response.data
+    isLoadingManagedOrg.value = false
+  })
+}
+
+const startTimeInterval = () => {
+  timeInterval.value = setInterval(() => {
+    currentDate.value = getCurrentDateTime()
+  }, 1000)
 }
 
 onMounted(async () => {
@@ -34,33 +57,19 @@ onMounted(async () => {
   groupStore.setGroup(null)
 
   try {
-    userGroupList(id.value, size, pageMyOrg.value)
-    .then((response) => {
-      userGroups.value = response.data
-      isLoadingMyOrg.value = false
-    })
-  
-    userGroupListAdmin(id.value, size, pageManagedOrg.value)
-    .then((response) => {
-      userGroupAdmin.value = response.data
-      isLoadingManagedOrg.value = false
-    })
+    fetchUserGroup()
+    
+    fetchUserGroupAdmin()
   } catch (error) {
     console.error(error)
   }
 
-  setInterval(() => {
-    currentDate.value = getCurrentDateTime(false)
-  }, 1000)
+  startTimeInterval()
 })
 
 watch(pageMyOrg, async() => {
   try {
-    await userGroupList(id.value, size, pageMyOrg.value)
-    .then((response) => {
-      userGroups.value = response.data
-      isLoadingMyOrg.value = false
-    })
+    await fetchUserGroup()
   } catch (error) {
     console.error(error)
   }
@@ -68,17 +77,16 @@ watch(pageMyOrg, async() => {
 
 watch(pageManagedOrg, async() => {
   try {
-    await userGroupListAdmin(id.value, size, pageManagedOrg.value)
-    .then((response) => {
-      userGroupAdmin.value = response.data
-      isLoadingManagedOrg.value = false
-    })
+    await fetchUserGroupAdmin()
   } catch (error) {
     console.error(error)
   }
 })
 
-
+onUnmounted(() => {
+  controller.abort()
+  clearInterval(timeInterval.value)
+})
 </script>
 
 <template>

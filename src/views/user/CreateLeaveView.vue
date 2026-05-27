@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import { fieldRequired } from '@/utils/rules';
 import { useGroupStore } from '@/stores/GroupStore';
 import { storeToRefs } from 'pinia';
@@ -8,7 +8,6 @@ import router from '@/router';
 import { addLeaveRequest } from '@/services/LeaveServices';
 import { userGroupListSupervisor } from '@/services/UserGroupServices';
 import { leaveRemainingsList } from '@/services/LeaveRemainingService';
-import { getCurrentDateTime } from '@/utils/date';
 
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
@@ -27,6 +26,7 @@ const form = reactive({
     endDate: null,
     reason: null,
 })
+const controller = new AbortController()
 
 const handleSubmit = async() => {
     try {
@@ -43,19 +43,19 @@ const handleSubmit = async() => {
     } catch (error) {
         console.error(error)
     } finally {
-        isLoadingSubmit = false
+        isLoadingSubmit.value = false
     }
 }
 
 onMounted(async() => {
     try {
-        userGroupListSupervisor(group.value?.id, id.value)
+        userGroupListSupervisor(group.value?.id, id.value, controller.signal)
         .then((response) => {
             supervisorItems.value = response.data
             isLoadingSpv.value = false
         }) 
 
-        leaveRemainingsList(id.value, group.value?.id, id.value)
+        leaveRemainingsList(id.value, group.value?.id, id.value, controller.signal)
         .then((response) => {
             leaveRemainingItems.value = response.data
             isLoadingLeaveRemaining.value = false
@@ -63,6 +63,10 @@ onMounted(async() => {
     } catch (error) {
         console.error(error)
     }
+})
+
+onUnmounted(() => {
+    controller.abort()
 })
 </script>
 

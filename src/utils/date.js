@@ -5,11 +5,8 @@ function formatDate(dateString, formatString) {
         return moment(dateString).format(formatString)
 }
 
-function getCurrentDateTime(stringValue=true) {
-    if(stringValue)
-        return moment().format("YYYY-MM-DD HH:mm:ss[Z]")
-    else
-        return moment()
+function getCurrentDateTime() {
+    return moment().toISOString()
 }
 
 function toDateTime(dateString, timeString, formatString) {
