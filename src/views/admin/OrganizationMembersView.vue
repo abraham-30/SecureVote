@@ -2,7 +2,7 @@
 import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
 import { useGroupStore } from '@/stores/GroupStore';
 import { useUserGroupStore } from '@/stores/UserGroupStore';
-import { userGroupListMember } from '@/services/UserGroupServices';
+import { deleteUserGroup, editUserGroup, userGroupListMember } from '@/services/UserGroupServices';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue'
 import { toTitleCase } from '@/utils/utils';
@@ -13,6 +13,31 @@ const isLoading = ref(true)
 const page = ref(1)
 const size = 5  
 const popUpRemove = ref(false)
+
+const handleEdit = async(userGroupId, userId, roleId) => {
+    try{
+        isLoading.value = true
+        await editUserGroup(userGroupId, {
+            user_id : userId,
+            role_id : roleId
+        })
+    } catch (error) {
+        console.log(error)
+    } finally {
+        isLoading.value = false
+    }
+}
+
+const handleDelete = async(userGroupId) => {
+    try{
+        isLoading.value = true
+        await  deleteUserGroup(userGroupId)
+    } catch (error){
+        console.log(error)
+    } finally {
+        isLoading.value = false
+    }
+}
 
 onMounted(async () => {
     await userGroupListMember(group.value?.id, size, page.value)
@@ -30,12 +55,28 @@ watch (page, async() => {
     })
 })
 
+const isSidebarOpen = ref(true)
+function activateSidebar(){
+    isSidebarOpen.value = !isSidebarOpen.value
+}
+
 </script>
 
 <template>
-    <admin-side-navbar></admin-side-navbar>
+    <admin-side-navbar
+    :is-open = isSidebarOpen
+    @activate="activateSidebar"
+    ></admin-side-navbar>
     <div class="py-14 min-h-screen">
         <div class="d-flex flex-column ga-8">
+            <div>
+                <v-btn 
+                icon="mdi-menu"
+                variant="text"
+                v-if="!isSidebarOpen"
+                @click="activateSidebar"
+                ></v-btn>
+            </div>
             <div class="d-flex flex-row align-center justify-space-between">
                 <div class="d-flex flex-column">
                     <v-icon 
@@ -112,13 +153,16 @@ watch (page, async() => {
                                         <v-btn
                                         color="red"
                                         text="Remove Member"
-                                        v-bind="activatorProps"
                                         @click="() => {
                                             popUpRemove = true
                                             isActive.value = false
                                         }"
                                         ></v-btn>
-                                        <v-form class="d-flex flex-column ga-8 w-100 align-end">
+                                        <!-- v-bind="activatorProps" -->
+                                        <v-form 
+                                        class="d-flex flex-column ga-8 w-100 align-end"
+                                        @submit.prevent="handleEdit(item?.id, item?.user?.id, item?.role.id)"
+                                        >
                                             <div class="w-100">
                                                 User Role <br>
                                                 <v-select
@@ -130,6 +174,7 @@ watch (page, async() => {
                                                 ></v-select>
                                             </div>
                                             <v-btn
+                                            type="submit"
                                             text="Save Changes"
                                             class="bg-white"></v-btn>
                                         </v-form>
@@ -164,8 +209,8 @@ watch (page, async() => {
                             color="red"
                             variant="flat"
                             text="Remove Member"
-                            @click = "" 
-                            ></v-btn>  <!-- Please add remove member action -->
+                            @click = "handleDelete()" 
+                            ></v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>

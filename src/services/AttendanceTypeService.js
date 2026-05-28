@@ -1,10 +1,13 @@
 import api from "./BaseUrl"
 
-const attendanceTypesList = async (id, signal) => {
+const attendanceTypesList = async (group_id, signal) => {
     const response = await api.get(
-        `/attendance-types/${id}/`,
+        `/attendance-types/${group_id}/`,
         {
-            signal: signal,
+            params: {
+                group_id : group_id,
+                signal: signal
+            }
         }
     )
 

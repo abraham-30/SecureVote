@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { storeToRefs } from 'pinia';
 import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
 import { attendanceTypesList } from '@/services/AttendanceTypeService';
@@ -10,26 +10,79 @@ const popupDelete = ref(false);
 const popupAddCategory = ref(false);
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
-const workingHours = ref()
-const attendanceTypes = ref()
+
+const size = 5
+const isLoadingDays = ref(true)
+const isLoadingWorkingHours = ref(true)
+const isLoadingCategory = ref(true)
+
+const isSidebarOpen = ref(true)
+
+const workingHours = ref([])
+const attendanceTypes = ref([])
+
+const startTime = ref()
+const endTime = ref()
+
+const allDays = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+]
+
+let selectedDays = ref([])
+
 
 onMounted(async () => {
-    await attendanceTypesList(group?.id)
+    await attendanceTypesList(group.value?.id, false)
     .then((response) => {
-        attendanceTypes.value = response.data
+        attendanceTypes.value = response.data.results
+        isLoadingCategory.value = false
     })
+    
+    await WorkingHoursList(group.value?.id, false)
+    .then((response) => {
+        workingHours.value = response.data.results
+    
+        startTime.value = workingHours.value[0]?.start_time?.slice(0,5).trim() || ""
+        endTime.value = workingHours.value[0]?.end_time?.slice(0,5).trim() || ""
+        selectedDays = workingHours.value.map(item => item.day)
+        
+        isLoadingDays.value = false
+        isLoadingWorkingHours.value = false
 
-    await WorkingHoursList(group?.id)
-    .then((response) => {
-        workingHours.value = response.data
-    })
+        // Debug
+        console.log(selectedDays)
+        console.log(allDays)
+        console.log(workingHours.value)
+    })    
 })
+
+
+function activateSidebar(){
+    isSidebarOpen.value = !isSidebarOpen.value
+}
 </script>
 
 <template>
-    <admin-side-navbar></admin-side-navbar>
+    <admin-side-navbar
+    :is-open = isSidebarOpen
+    @activate="activateSidebar"
+    ></admin-side-navbar>    
     <div class="py-14 min-h-screen">
         <div class="d-flex flex-column ga-8">
+            <div>
+                <v-btn 
+                icon="mdi-menu"
+                variant="text"
+                v-if="!isSidebarOpen"
+                @click="activateSidebar"
+                ></v-btn>
+            </div>
             <div class="d-flex flex-column">
                 <v-icon 
                 size="60"
@@ -43,61 +96,40 @@ onMounted(async () => {
                     <span class="text-title-medium font-weight-bold">Working Days</span>
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
-                <div>
-                    <div>
+                <div class="d-flex flex-column ga-2">
+                    <template v-if="isLoadingDays">
+                        <v-skeleton-loader 
+                        type="paragraph"
+                        ></v-skeleton-loader>
+                    </template>
+                    <template v-else>
                         <v-form>
-                            <v-row gap="8">
-                                <v-col>
-                                    <v-card class="bg-white">
-                                        <v-checkbox label="Monday" hide-details="true"></v-checkbox>
-                                    </v-card>
-                                </v-col>
-                                <v-col>
-                                    <v-card class="bg-white">
-                                        <v-checkbox label="Tuesday" hide-details="true"></v-checkbox>
-                                    </v-card>
-                                </v-col>
-                                <v-col>
-                                    <v-card class="bg-white">
-                                        <v-checkbox label="Wednesday" hide-details="true"></v-checkbox>
-                                    </v-card>
-                                </v-col>
-                                <v-col>
-                                    <v-card class="bg-white">
-                                        <v-checkbox label="Thursday" hide-details="true"></v-checkbox>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-                            <v-row gap="8">
-                                <v-col>
-                                    <v-card class="bg-white">
-                                        <v-checkbox label="Friday" hide-details="true"></v-checkbox>
-                                    </v-card>
-                                </v-col>
-                                <v-col>
-                                    <v-card class="bg-white">
-                                        <v-checkbox label="Saturday" hide-details="true"></v-checkbox>
-                                    </v-card>
-                                </v-col>
-                                <v-col>
-                                    <v-card class="bg-white">
-                                        <v-checkbox label="Sunday" hide-details="true"></v-checkbox>
-                                    </v-card>
-                                </v-col>
-                            </v-row>
-
+                            <div class="d-flex flex-wrap justify-center ga-2">
+                                <v-card
+                                v-for="day in allDays"
+                                class="bg-white w-100"
+                                style="max-width:310px"
+                                >
+                                    <v-checkbox
+                                    :label="day"
+                                    :model-value="selectedDays.includes(day)"
+                                    hide-details="auto"
+                                    ></v-checkbox>
+                                </v-card>
+                            </div>
                             <div class="d-flex flex-row ga-2 mt-4 justify-end">
-                            <v-btn
-                            text="Save Changes"
-                            class="bg-white"
-                            ></v-btn>
-                            <v-btn
-                            text="Discard Changes"
-                            color="red"
-                            ></v-btn> <!-- Disabled button when there no changes was made-->
-                        </div>
+                                <v-btn
+                                text="Save Changes"
+                                class="bg-white"
+                                ></v-btn>
+                                <v-btn
+                                text="Discard Changes"
+                                color="red"
+                                ></v-btn>
+                            </div>
                         </v-form>
-                    </div>
+                        
+                    </template>
                 </div>
             </div>
             <div class="d-flex flex-column ga-4">
@@ -106,35 +138,43 @@ onMounted(async () => {
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <div>
-                    <v-form class="d-flex flex-column align-end ga-8">
-                        <div class="d-flex flex-row w-100 ga-4">
-                            <div class="w-50">
-                                Start Hour <br>
-                                <v-text-field
-                                type="time"
-                                hide-details="auto"
-                                variant="outlined"></v-text-field>
+                    <template v-if="isLoadingDays">
+                        <v-skeleton-loader
+                        type="paragraph"></v-skeleton-loader>
+                    </template>
+                    <template v-else>
+                        <v-form 
+                        class="d-flex flex-column align-end ga-8">
+                            <div class="d-flex flex-row w-100 ga-4">
+                                <div class="w-50">
+                                    Start Hour <br>
+                                    <v-text-field
+                                    type="time"
+                                    v-model="startTime"
+                                    hide-details="auto"
+                                    variant="outlined"></v-text-field>
+                                </div>
+                                <div class="w-50">
+                                    End Hour <br>
+                                    <v-text-field
+                                    type="time"
+                                    v-model="endTime"
+                                    hide-details="auto"
+                                    variant="outlined"></v-text-field>
+                                </div>
                             </div>
-
-                            <div class="w-50">
-                                End Hour <br>
-                                <v-text-field
-                                type="time"
-                                hide-details="auto"
-                                variant="outlined"></v-text-field>
+                            <div class="d-flex flex-row ga-2">
+                                <v-btn
+                                text="Save Changes"
+                                class="bg-white"
+                                ></v-btn>
+                                <v-btn
+                                text="Discard Changes"
+                                color="red"
+                                ></v-btn>
                             </div>
-                        </div>
-                        <div class="d-flex flex-row ga-2">
-                            <v-btn
-                            text="Save Changes"
-                            class="bg-white"
-                            ></v-btn>
-                            <v-btn
-                            text="Discard Changes"
-                            color="red"
-                            ></v-btn> <!-- Disabled button when there no changes was made-->
-                        </div>
-                    </v-form>
+                        </v-form>
+                    </template>
                 </div>
             </div>
             <div class="d-flex flex-column ga-4">
@@ -142,127 +182,140 @@ onMounted(async () => {
                     <span class="text-title-medium font-weight-bold">Leave Categories</span>
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
-                <div class="d-flex flex-column ga-4">
-                    <v-btn
-                        text="Add Category +"
-                        class="bg-white"
-                        style="max-width: 150px;"
-                        @click = "popupAddCategory=true"
-                    ></v-btn>
-                    <v-dialog
-                    v-model="popupAddCategory"
-                    max-width="600">
-                        <v-card class="pa-4">
-                            <v-card-actions>
-                                <v-btn
-                                variant="text"
-                                icon="mdi-close"
-                                @click="popupAddCategory = false"></v-btn>
-                            </v-card-actions>
-                            <v-card-title class="font-weight-bold text-headline-medium">
-                                Add Category
-                            </v-card-title>
-                            <v-card-subtitle class="text-grey-lighten-1">
-                                <v-divider class="border-opacity-50 mt-1"></v-divider>      
-                            </v-card-subtitle>
-                            <v-card-text class="d-flex flex-column align-start ga-4">
-                                <v-form class="d-flex flex-column ga-8 w-100 align-start">
-                                    <div class="w-100">
-                                        Name <br>
-                                        <v-text-field
-                                        placeholder="Type Name"
-                                        hide-details="auto"
-                                        variant="outlined"
-                                        class="w-100"></v-text-field>
-                                    </div>
-
-                                    <div class="w-100">
-                                        Quantity <br>
-                                        <v-text-field
-                                        placeholder="Type Quantity"
-                                        hide-details="auto"
-                                        type="number"
-                                        variant="outlined"
-                                        class="w-100"></v-text-field>
-                                    </div>
-                                    <v-btn
-                                    text="Save Changes"
-                                    class="bg-white"></v-btn>
-                                </v-form>
-                            </v-card-text>
-                        </v-card>
-                    </v-dialog>
-                    <v-dialog
-                    max-width="600"
-                    v-for="item in attendanceTypes">
-                    <template v-slot:activator="{ props: activatorProps }">
-                        <!-- Iterate Here -->
-                        <v-card 
-                        class="w-25"
-                        :title="item?.name"
-                        color="white"
-                        link
-                        v-bind="activatorProps">
-                            <v-card-text>
-                                <v-chip
-                                :text="item?.max_days"
-                                color="blue-darken-2"
-                                variant="flat"></v-chip>
-                            </v-card-text>
-                        </v-card>
+                <div class="d-flex flex-column ga-2">
+                    <template 
+                    v-if="isLoadingCategory"
+                    >
+                        <v-skeleton-loader
+                        type="paragraph"></v-skeleton-loader>
                     </template>
-
-                    <template v-slot:default="{ isActive }">
-                        <v-card class=" ">
-                            <v-card-actions>
-                                <v-btn
-                                variant="text"
-                                icon="mdi-close"
-                                @click="() => isActive.value = false"></v-btn>
-                            </v-card-actions>
-                            <v-card-title class="font-weight-bold text-headline-medium">
-                                Edit Category
-                            </v-card-title>
-                            <v-card-subtitle class="text-grey-lighten-1">
-                                <v-divider class="border-opacity-50 mt-1"></v-divider>      
-                            </v-card-subtitle>
-                            <v-card-text class="d-flex flex-column align-start ga-4">
-                                <v-btn
-                                color="red"
-                                text="Delete Category"
-                                @click = "popupReject = true"
-                                ></v-btn>
-                                <v-form class="d-flex flex-column ga-8 w-100 align-end">
-                                    <div class="w-100">
-                                        Name <br>
-                                        <v-text-field
-                                        placeholder="Type Name"
-                                        hide-details="auto"
-                                        variant="outlined"
-                                        model-value="Cuti Tahunan"
-                                        class="w-100"></v-text-field>
-                                    </div>
-
-                                    <div class="w-100">
-                                        Quantity <br>
-                                        <v-text-field
-                                        placeholder="Type Quantity"
-                                        hide-details="auto"
-                                        type="number"
-                                        variant="outlined"
-                                        model-value="15"
-                                        class="w-100"></v-text-field>
-                                    </div>
-                                    <v-btn
-                                    text="Save Changes"
-                                    class="bg-white"></v-btn>
-                                </v-form>
-                            </v-card-text>
-                        </v-card>
+                    <template v-else>
+                        <div class="d-flex flex-column ga-4">
+                            <v-btn
+                                text="Add Category +"
+                                class="bg-white"
+                                style="max-width: 150px;"
+                                @click = "popupAddCategory=true"
+                            ></v-btn>
+                            <div class="d-flex flex-wrap ga-2">
+                                <v-dialog
+                                v-model="popupAddCategory"
+                                max-width="600">
+                                    <v-card class="pa-4">
+                                        <v-card-actions>
+                                            <v-btn
+                                            variant="text"
+                                            icon="mdi-close"
+                                            @click="popupAddCategory = false"></v-btn>
+                                        </v-card-actions>
+                                        <v-card-title class="font-weight-bold text-headline-medium">
+                                            Add Category
+                                        </v-card-title>
+                                        <v-card-subtitle class="text-grey-lighten-1">
+                                            <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                                        </v-card-subtitle>
+                                        <v-card-text class="d-flex flex-column align-start ga-4">
+                                            <v-form 
+                                            class="d-flex flex-column ga-8 w-100 align-start">
+                                                <div class="w-100">
+                                                    Name <br>
+                                                    <v-text-field
+                                                    placeholder="Type Name"
+                                                    hide-details="auto"
+                                                    variant="outlined"
+                                                    class="w-100"></v-text-field>
+                                                </div>
+            
+                                                <div class="w-100">
+                                                    Quantity <br>
+                                                    <v-text-field
+                                                    placeholder="Type Quantity"
+                                                    hide-details="auto"
+                                                    type="number"
+                                                    variant="outlined"
+                                                    class="w-100"></v-text-field>
+                                                </div>
+                                                <v-btn
+                                                text="Save Changes"
+                                                class="bg-white"></v-btn>
+                                            </v-form>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-dialog>
+                                <v-dialog
+                                max-width="600"
+                                v-for="item in attendanceTypes">
+                                <template v-slot:activator="{ props: activatorProps }">
+                                    <!-- Iterate Here -->
+                                    <v-card 
+                                    class="w-100"
+                                    :title="item?.name"
+                                    color="white"
+                                    link
+                                    style="max-width:300px"
+                                    v-bind="activatorProps">
+                                        <v-card-text>
+                                            <v-chip
+                                            :text="item?.max_days"
+                                            color="blue-darken-2"
+                                            variant="flat"></v-chip>
+                                        </v-card-text>
+                                    </v-card>
+                                </template>
+                                <template v-slot:default="{ isActive }">
+                                    <v-card class="pa-4">
+                                        <v-card-actions>
+                                            <v-btn
+                                            variant="text"
+                                            icon="mdi-close"
+                                            @click="() => isActive.value = false"></v-btn>
+                                        </v-card-actions>
+                                        <v-card-title class="font-weight-bold text-headline-medium">
+                                            Edit Category
+                                        </v-card-title>
+                                        <v-card-subtitle class="text-grey-lighten-1">
+                                            <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                                        </v-card-subtitle>
+                                        <v-card-text class="d-flex flex-column align-start ga-4">
+                                            <v-btn
+                                            color="red"
+                                            text="Delete Category"
+                                            @click = "popupReject = true"
+                                            ></v-btn>
+                                            <v-form
+                                            class="d-flex flex-column ga-8 w-100 align-end">
+                                                <div class="w-100">
+                                                    Name <br>
+                                                    <v-text-field
+                                                    placeholder="Type Name"
+                                                    hide-details="auto"
+                                                    variant="outlined"
+                                                    :model-value="item.name"
+                                                    class="w-100"></v-text-field>
+                                                </div>
+            
+                                                <div class="w-100">
+                                                    Quantity <br>
+                                                    <v-text-field
+                                                    placeholder="Type Quantity"
+                                                    hide-details="auto"
+                                                    type="number"
+                                                    variant="outlined"
+                                                    :model-value="item.max_days"
+                                                    class="w-100"></v-text-field>
+                                                </div>
+                                                <v-btn
+                                                text="Save Changes"
+                                                class="bg-white"></v-btn>
+                                            </v-form>
+                                        </v-card-text>
+                                    </v-card>
+                                </template>
+                                </v-dialog>
+                            </div>
+                        </div>
                     </template>
-                    </v-dialog>
-                   
-                </div>
+                </div class="d-flex flex-column ga-4">
             </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">

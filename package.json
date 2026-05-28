@@ -24,7 +24,7 @@
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "primeicons": "^7.0.0",
-    "qs": "^6.15.1",
+    "qs": "^6.15.2",
     "sass-embedded": "^1.99.0",
     "sweetalert2": "^11.26.24",
     "vite-plugin-vuetify": "^2.1.3",

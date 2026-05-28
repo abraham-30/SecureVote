@@ -5,11 +5,26 @@ import { storeToRefs } from 'pinia';
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 
+const props = defineProps({
+    isOpen: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
+})
+
+const emits = defineEmits([
+    'activate'
+])
+
+function activateSidebar(){
+    emits('activate')
+}
 </script>
 
 <template>
-    <v-navigation-drawer :width="320" class="pa-8">
-        <v-list-item color='primary'></v-list-item>
+    <v-navigation-drawer :width="400" class="pa-8" v-model="props.isOpen">
+        <v-btn icon="mdi-close" variant="text" @click="activateSidebar"></v-btn>
         <v-list-item class="text-title-large font-weight-bold">{{ group?.name }}</v-list-item>
         <v-divider></v-divider>
         <div class="pt-2">
@@ -23,7 +38,7 @@ const { group } = storeToRefs(groupStore)
                 <div class="d-flex flex-column ga-2 w-100">
                     <div>
                         <span>
-                            John Doe
+                            {{ }}
                         </span>
                     </div>
                     <div style="height: 16px;">

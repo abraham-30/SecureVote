@@ -24,7 +24,6 @@ $xl-max: 2137px;
 // Extra extra large (4K / ultra-wide) 
 $xxl-min: 2138px;
 
-
 .bg-blur {
     // background-color: transparent;
     background-color: rgba(255, 255, 255, 0.12);
@@ -35,6 +34,27 @@ $xxl-min: 2138px;
   max-width: 850px;
 }
 
-.min-h-screen{
-    min-height: 100vh;
-}
+.min-h-25   { min-height: 25% !important; }
+.min-h-33   { min-height: 33% !important; }
+.min-h-50   { min-height: 50% !important; }
+.min-h-66   { min-height: 66% !important; }
+.min-h-75   { min-height: 75% !important; }
+.min-h-screen { min-height: 100dvh !important; }
+.max-h-25   { max-height: 25% !important; }
+.max-h-33   { max-height: 33% !important; }
+.max-h-50   { max-height: 50% !important; }
+.max-h-66   { max-height: 66% !important; }
+.max-h-75   { max-height: 75% !important; }
+.max-h-screen { max-height: 100dvh !important; }
+.min-w-25   { min-width: 25% !important; }
+.min-w-33   { min-width: 33% !important; }
+.min-w-50   { min-width: 50% !important; }
+.min-w-66   { min-width: 66% !important; }
+.min-w-75   { min-width: 75% !important; }
+.min-w-screen { min-width: 100dwh !important; }
+.max-w-25   { max-width: 25% !important; }
+.max-w-33   { max-width: 33% !important; }
+.max-w-50   { max-width: 50% !important; }
+.max-w-66   { max-width: 66% !important; }
+.max-w-75   { max-width: 75% !important; }
+.max-w-screen { max-width: 100dwh !important; }

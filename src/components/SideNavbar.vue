@@ -23,7 +23,7 @@ function activateSidebar(){
 </script>
 
 <template>
-    <v-navigation-drawer :width="320" class="pa-8" v-model="props.isOpen">
+    <v-navigation-drawer :width="400" class="pa-8" v-model="props.isOpen">
         <v-btn icon="mdi-close" variant="text" @click="activateSidebar"></v-btn>
         <v-list-item link title="Home" to="/home"></v-list-item>
         <v-list-item link title="Clock In / Clock Out" to="/clock"></v-list-item>

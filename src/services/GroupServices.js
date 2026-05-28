@@ -15,4 +15,12 @@ const groupDetails = async (id, signal) => {
     return response
 }
 
-export { groupDetails }
+const updateGroupDetails = async (id, body) => {
+    const response = await api.put(
+        `groups-details/${id}/`, body
+    )
+
+    return response
+}
+
+export { groupDetails, updateGroupDetails }

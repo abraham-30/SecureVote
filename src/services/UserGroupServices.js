@@ -87,4 +87,21 @@ const userGroupDetails = async (id) => {
     return response
 }
 
-export { userGroupList, userGroupListAdmin, userGroupListMember, userGroupListSupervisor, userGroupDetails }
+const editUserGroup = async (id, body) => {
+    const response = await api.put(
+        `/user-groups-details/${id}/`, body
+    )
+
+    return response
+}
+
+const deleteUserGroup = async (id) => {
+    const response = await api.delete(
+        `/user-groups-details/${id}/`
+    )
+
+    return response
+}
+
+
+export { userGroupList, userGroupListAdmin, userGroupListMember, userGroupListSupervisor, userGroupDetails, editUserGroup, deleteUserGroup }
