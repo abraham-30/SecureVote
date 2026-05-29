@@ -89,7 +89,7 @@ onUnmounted(() => {
                       icon="mdi-close"
                       @click="isActive.value = false"></v-btn>
                   </v-card-actions>
-                  <v-card-title class="font-weight-bold text-headline-medium text-truncate">
+                  <v-card-title class="font-weight-bold text-title-large text-truncate">
                       {{ item?.group?.name }}<span v-if="item?.status != 'requested'"></span>
                       <v-divider class="border-opacity-50 mt-1"></v-divider>      
                   </v-card-title>
