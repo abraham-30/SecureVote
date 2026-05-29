@@ -56,57 +56,76 @@ watch(() => form.email, () => {
 </script>
 
 <template>
-    <div>
-        <v-btn class="mt-8" variant="text" style="width: fit-content;" @click="$router.back()">
-            ← Back
-        </v-btn>
-
-        <div class="d-flex flex-column align-center ga-8" style="padding-top: 20%; height: 93vh;">
-            <div class="d-flex flex-column ga-2">
-                <div class="w-100 d-flex flex-column align-center">
-                    <img :src="iconUrl" alt="" style="height: 16px;">
-                </div>
-                <span class="text-grey-lighten-1">
-                    Please fill out the form
-                </span>
+    <div class="mt-8">
+        <v-btn 
+        text="← Back"
+        variant="text"
+        to="/login"></v-btn>
+    </div>
+    <v-form 
+    validate-on="input lazy" 
+    v-model="form.isValid" 
+    class="d-flex flex-column min-h-screen justify-center align-center ga-8 mt-n16" 
+    @submit.prevent="handleSubmit()"
+    >
+        <v-sheet class="d-flex flex-column ga-2">
+            <div class="w-100 d-flex flex-column align-center">
+                <v-img
+                 :src="iconUrl" 
+                 alt=""
+                 width="135" 
+                 ></v-img>
             </div>
-            <div class="w-66">
-                <v-form validate-on="input lazy" v-model="form.isValid" class="d-flex flex-column align-center ga-8" @submit.prevent="handleSubmit()">
-                    <v-text-field 
-                        v-model="form.username"
-                        variant="outlined"
-                        label="Username"
-                        class="w-100"
-                        hide-details="auto"
-                        :rules="usernameRules"
-                        ></v-text-field>
+            <span class="text-grey-lighten-1">
+                Please fill out the form
+            </span>
+        </v-sheet>
+        <v-sheet class="w-100 px-lg-16">
+            <v-sheet class="px-lg-16">
+                <div class="d-flex flex-column align-center ga-8 px-lg-8 w-100">
+                    <div class="w-100">
+                        Username <br>
+                        <v-text-field 
+                            v-model="form.username"
+                            variant="outlined"
+                            hide-details="auto"
+                            :rules="usernameRules"
+                            class="w-100 mt-2"
+                            ></v-text-field>
+                    </div>
+                    <div class="w-100">
+                        Email <br>
                         <v-text-field 
                         v-model="form.email"
                         variant="outlined"
-                        label="Email"
-                        class="w-100"
                         hide-details="auto"
-                        :rules="emailRules"
                         :error-messages="emailError"
+                        :rules="emailRules"
+                        class="w-100 mt-2"
                     ></v-text-field>
-                    <v-text-field 
-                        v-model="form.password"
-                        variant="outlined"
-                        label="Password"
-                        class="w-100"
-                        hide-details="auto"
-                        type="password"
-                        :rules="passwordRules"
-                    ></v-text-field>
-                    <v-btn 
-                    class="w-50 bg-white" 
-                    type="submit">
-                        Continue →
-                    </v-btn>
-                </v-form>
-            </div>
-        </div>
-    </div>
+                    </div>
+                    <div class="w-100">
+                        Password <br>
+                        <v-text-field 
+                            v-model="form.password"
+                            variant="outlined"
+                            hide-details="auto"
+                            type="password"
+                            :rules="passwordRules"
+                            class="w-100 mt-2"
+                        ></v-text-field>
+                    </div>
+                    <div class="w-100 d-flex justify-center mt-4">
+                        <v-btn 
+                        type="submit"
+                        text="Continue →"
+                        class="w-66 w-lg-50 bg-white" 
+                        ></v-btn>
+                    </div>
+                </div>
+            </v-sheet>
+        </v-sheet>
+    </v-form>
 </template>
 
 <style lang="scss" scoped>

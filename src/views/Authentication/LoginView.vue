@@ -61,41 +61,51 @@ watch(password, () => {
     >
         <v-sheet class="d-flex flex-column ga-2">
             <div class="w-100 d-flex flex-column align-center">
-                <img :src="iconUrl" alt="" style="height: 16px;">
+                <v-img
+                 :src="iconUrl" 
+                 alt=""
+                 width="135"></v-img>
             </div>
             <span class="text-grey-lighten-1">
                 Please enter your credential.
             </span>
         </v-sheet>
-        <v-sheet class="w-66">
-            <v-sheet class="d-flex flex-column align-center ga-8">
-                <v-text-field 
-                    v-model="email"
-                    :rules="emailRules"
-                    :error-messages="emailError"
-                    hide-details="auto"
-                    type="email"
-                    variant="outlined"
-                    label="Email"
-                    class="w-100"
-                ></v-text-field>
-                <v-text-field 
-                    v-model="password"
-                    :rules = "passwordRules"
-                    :error-messages="passwordError"
-                    hide-details="auto"
-                    type="password"
-                    variant="outlined"
-                    label="Password"
-                    class="w-100"
-                >
-                </v-text-field>
-                <v-btn 
-                    class="w-50 bg-white"
-                    type="submit"
-                >
-                    Sign In →
-                </v-btn>
+        <v-sheet class="w-100 px-lg-16">
+            <v-sheet class="px-lg-16">
+                <div class="d-flex flex-column align-center ga-8 px-lg-8 w-100">
+                    <div class="w-100">
+                        Email <br>
+                        <v-text-field 
+                            v-model="email"
+                            :rules="emailRules"
+                            :error-messages="emailError"
+                            hide-details="auto"
+                            type="email"
+                            variant="outlined"
+                            class="w-100 mt-2"
+                        ></v-text-field>
+                    </div>
+                    <div class="w-100">
+                        Password <br>
+                        <v-text-field 
+                            v-model="password"
+                            :rules = "passwordRules"
+                            :error-messages="passwordError"
+                            hide-details="auto"
+                            type="password"
+                            variant="outlined"
+                            class="w-100 mt-2"
+                        >
+                        </v-text-field>
+                    </div>
+                    <div class="w-100 d-flex justify-center mt-4">
+                        <v-btn 
+                            type="submit"
+                            text="Sign In →"
+                            class="w-66 w-lg-50 bg-white"
+                        ></v-btn>
+                    </div>
+                </div>
             </v-sheet>
         </v-sheet>
         <v-sheet class="d-flex flex-row ga-2">
