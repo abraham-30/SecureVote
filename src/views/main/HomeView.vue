@@ -10,6 +10,7 @@ import { formatDate, getCurrentDateTime } from '@/utils/date';
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { id } = storeToRefs(userStore)
+const { name } = storeToRefs(userStore)
 const userGroups = ref()
 const userGroupAdmin = ref()
 const controller = new AbortController()
@@ -93,9 +94,11 @@ onUnmounted(() => {
   <div class="min-h-screen py-14 ">
       <div class="d-flex flex-column ga-8 py-14 ">
         <div class="d-flex flex-column ga-4 ">
-          <div class="d-flex flex-column ga-1">
+          <div class="d-flex flex-column ga-2">
             <span>{{ formatDate(currentDate, "hh:mm A") }}</span>
-            <br>
+            <span class="text-headline-medium font-weight-bold text-truncate">Welcome, {{ name }}!</span>
+          </div>
+          <div class="d-flex flex-column ga-1">
             <span class="text-title-medium font-weight-bold">My Organizations</span>
             <v-divider class="border-opacity-50"></v-divider>      
           </div>
