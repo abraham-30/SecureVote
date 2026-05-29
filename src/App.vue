@@ -6,7 +6,7 @@
   <v-app>
     <div class="bg-black">
       <RouterView name="navbar"/>
-      <div :class="{ 'w-50 mx-auto d-flex flex-column': !$route.meta.noStyle }">
+      <div :class="{ 'w-75 w-md-50 w-lg-66 w-xl-50 mx-auto d-flex flex-column': !$route.meta.noStyle }">
         <RouterView />
         <RouterView name="footer"/>
       </div>

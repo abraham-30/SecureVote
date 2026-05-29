@@ -21,9 +21,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <v-sheet class="parent-container h-screen d-flex flex-row flex-lg-nowrap flex-wrap-reverse ga-12 align-center mx-auto" style="width: 80%">
-        <v-sheet class="d-flex flex-column ga-8">
-            <img :src="iconUrl" alt="" class="w-50">
+    <v-sheet 
+    class="parent-container min-h-screen d-flex flex-row flex-lg-nowrap flex-wrap-reverse ga-12 align-center">
+        <v-sheet class="d-flex flex-column ga-8 ga-lg-12 w-lg-50">
+            <img :src="iconUrl" alt="" width="150">
             <v-sheet class="d-flex flex-column ga-4">
                 <span class="text-headline-large font-weight-bold">
                     Absensi Digital, Kerja Lebih Cerdas.
@@ -32,22 +33,27 @@ onUnmounted(() => {
                     Hadirkan pengalaman absensi yang lebih cerdas, praktis, dan efisien bersama Tenda.
                 </span>
             </v-sheet>
-            <v-btn 
-            class="bg-white"
-            to="/login">
-                Sign In →
-            </v-btn>
+            <div>
+                <v-btn 
+                class="bg-white w-100"
+                to="/login">
+                    Sign In →
+                </v-btn>
+            </div>
+            <div class="d-lg-none w-100" style="height: 125px;">
+
+            </div>
         </v-sheet>
-        <v-sheet class="child-container-2 d-flex flex-column align-end">
+        <v-sheet class="child-container-2 d-flex flex-column w-100 w-lg-50">
             <div class="d-flex flex-column align-end">
                 <span>{{ formatDate(currentDate, "hh:mm A") }}</span>
-                <br>
-                <span class="text-grey-lighten-1">
-                    Jakarta, Indonesia
-                </span>
             </div>
-            <div class="image-container mt-4 mx-auto w-75">
-                <img :src="dummyImgUrl" alt="" class="w-100 border-sm rounded-lg">
+            <div class="image-container mt-2">
+                <v-img 
+                :src="dummyImgUrl" 
+                alt="" 
+                rounded="xl"
+                class="w-100 border-solid"></v-img>
             </div>
         </v-sheet>
     </v-sheet>
