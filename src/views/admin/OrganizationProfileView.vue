@@ -21,15 +21,22 @@ const formTemp = reactive({
     ...form
 })
 
-const handleSubmit = async(name, description) => {
+const handleSubmit = async() => {
     try{
         isLoadingSubmit.value = true;
-        // console.log(form.isValid)
+        
         if(form.isValid){
             await updateGroupDetails(group.value?.id,{
-                name: name,
-                description: description,
+                name: formTemp.orgName,
+                description: formTemp.orgDescription,
                 signal: controller.signal,
+            })
+            .then((response) => {
+                groupStore.setGroup(response.data)
+
+                form.orgName = response.data.name
+                form.orgDescription = response.data.description
+                Object.assign(formTemp, form)
             })
         }
     } catch(error) {
@@ -77,56 +84,50 @@ onUnmounted(() => {
                 <span class="text-headline-medium font-weight-bold">Organization Profile</span>
             </div>
             <div>
-                <template v-if="isLoadingSubmit">
-                    <v-skeleton-loader
-                    type="paragraph"></v-skeleton-loader>
-                </template>
-                <template v-else>
-                    <v-form 
-                    v-model="form.isValid"
-                    validate-on="lazy"
-                    class="d-flex flex-column ga-8"
-                    @submit.prevent="handleSubmit(formTemp.orgName, formTemp.orgDescription)">
-                        <div>
-                            Name <br>
-                            <v-text-field variant="outlined"
-                                placeholder="Type Name"
-                                v-model="formTemp.orgName"
-                                hide-details="auto" 
-                                :rules = "[v => fieldRequired(v, 'Organization Name')]"
-                            ></v-text-field>
+                <v-form 
+                v-model="form.isValid"
+                validate-on="input eager"
+                class="d-flex flex-column ga-8"
+                @submit.prevent="handleSubmit()">
+                    <div>
+                        Name <br>
+                        <v-text-field variant="outlined"
+                            placeholder="Type Name"
+                            v-model="formTemp.orgName"
+                            hide-details="auto" 
+                            :rules = "[v => fieldRequired(v, 'Organization Name is required')]"
+                        ></v-text-field>
+                    </div>
+
+                    <div>
+                        Description <br>
+                        <v-textarea variant="outlined"
+                            placeholder="Type Description"
+                            v-model="formTemp.orgDescription"
+                            hide-details="auto"
+                            :rules = "[v => fieldRequired(v, 'Organization Description is required')]"
+                        ></v-textarea>
+                    </div>
+                    <div class="d-flex justify-end w-100">
+                        <div class="d-flex flex-row ga-2">
+                            <v-btn
+                                type="submit"
+                                text="Save Changes"
+                                :disabled="!isChanged || isLoadingSubmit"
+                                :loading="isLoadingSubmit"
+                                class="bg-white"
+                            >    
+                            </v-btn>
+                            <v-btn
+                                color="red"
+                                text="Discard Changes"
+                                :disabled="!isChanged || isLoadingSubmit"
+                                @click="resetForm"
+                            >
+                            </v-btn>
                         </div>
-    
-                        <div>
-                            Description <br>
-                            <v-textarea variant="outlined"
-                                placeholder="Type Description"
-                                v-model="formTemp.orgDescription"
-                                hide-details="auto"
-                                :rules = "[v => fieldRequired(v, 'Organization Description')]"
-                            ></v-textarea>
-                        </div>
-                        <div class="d-flex justify-end w-100">
-                            <div class="d-flex flex-row ga-2">
-                                <v-btn
-                                    type="submit"
-                                    text="Save Changes"
-                                    :disabled="!isChanged"
-                                    :loading="isLoadingSubmit"
-                                    class="bg-white"
-                                >    
-                                </v-btn>
-                                <v-btn
-                                    color="red"
-                                    text="Discard Changes"
-                                    :disabled="!isChanged"
-                                    @click = "resetForm()"
-                                >
-                                </v-btn>
-                            </div>
-                        </div>
-                    </v-form>
-                </template>
+                    </div>
+                </v-form>
             </div>
         </div>
     </div>
