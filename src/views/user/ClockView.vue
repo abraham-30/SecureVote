@@ -95,10 +95,10 @@ onUnmounted(() => {
                 ></v-btn>
             </div>
             <div class="d-flex flex-column">
-                <span class="text-headline-medium font-weight-bold">{{ group.name }}</span>
-                <span class="text-grey-lighten-1">{{ name }}</span>
+                <span class="text-headline-small font-weight-bold">{{ group.name }}</span>
+                <span class="text-grey-lighten-1 text-truncate">{{ name }}</span>
             </div>
-            <div class="d-flex flex-column align-center ga-2">
+            <div class="d-flex flex-column align-center">
                 <span class="text-display-small font-weight-bold">
                     {{ formatDate(currentDate, "hh:mm A") }}
                 </span>
@@ -108,22 +108,22 @@ onUnmounted(() => {
                 <span class="text-grey-lighten-1"></span>
             </div>
             <div class="d-flex flex-column ga-4">
-                <div class="d-flex flex-row w-100 ga-4">
+                <div class="d-flex flex-row flex-wrap flex-sm-nowrap w-100 ga-4">
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock in')">
                         <div class="d-flex flex-column ga-8 align-center">
-                            <v-card-title class="text-subtitle-1">Registered Clock In</v-card-title>
+                            <v-card-title class="text-title-medium">Registered Clock In</v-card-title>
                             <v-card-text class="text-title-large font-weight-bold">-- : --</v-card-text>
                             <v-card-actions class="w-100">
-                                <v-btn block variant="elevated" class="bg-white">Clock In →</v-btn>
+                                <v-btn block text="Clock In →" variant="elevated" class="bg-white"></v-btn>
                             </v-card-actions>
                         </div>
                     </v-card>
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock out')">
                         <div class="d-flex flex-column ga-8 align-center">
-                            <v-card-title class="text-subtitle-1">Registered Clock Out</v-card-title>
+                            <v-card-title class="text-title-medium">Registered Clock Out</v-card-title>
                             <v-card-text class="text-title-large font-weight-bold">-- : --</v-card-text>
                             <v-card-actions class="w-100">
-                                <v-btn block variant="elevated" class="bg-white">Clock Out →</v-btn>
+                                <v-btn block text="Clock Out →" variant="elevated" class="bg-white"></v-btn>
                             </v-card-actions>
                         </div>
                     </v-card>
@@ -225,5 +225,9 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 :deep(.v-skeleton-loader__text) {
     margin-left: 0px;
+}
+
+:deep(.v-data-table .v-table__wrapper table tbody tr td) {
+  min-width: 150px !important;
 }
 </style>
