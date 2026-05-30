@@ -249,7 +249,7 @@ onUnmounted(() => {
 
                     <div class="mt-2">
                         <v-chip 
-                        :text="selectedUserGroup.role"
+                        :text="toTitleCase(selectedUserGroup.role)"
                         :color="selectedUserGroup.role === 'member' ? 'blue-darken-2' : 'warning'"
                         variant="flat"
                         >
