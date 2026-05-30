@@ -1,7 +1,9 @@
 import moment from 'moment';
 
-function formatDate(dateString, formatString) {
+function formatDate(dateString, formatString, valueFormatString=null) {
     if(!!dateString)
+        if(!!valueFormatString)
+            return moment(dateString, valueFormatString).format(formatString)
         return moment(dateString).format(formatString)
 }
 
