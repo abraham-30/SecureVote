@@ -169,7 +169,7 @@ onUnmounted(() => {
 
                 <template v-else>
                     <v-dialog
-                    max-width="750"
+                    width="600"
                     v-for="(item, index) in combinedRequestsForSupervisor.results">
                         <template v-slot:activator="{props:activatorProps}">
                             <v-card 
