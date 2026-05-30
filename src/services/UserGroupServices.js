@@ -72,21 +72,6 @@ const userGroupListSupervisor = async (id, user_id, signal) => {
     return response
 }
 
-const userGroupDetails = async (id) => {
-    const userGroupStore = useUserGroupStore()
-
-    const response = await api.get(
-        `/user-groups-details/${id}/`,
-    )
-    
-    delete response.data.user.password
-    delete response.data.user.face_vector
-
-    // userGroupStore.setSelectedUserGroup(response.data)
-
-    return response
-}
-
 const editUserGroup = async (id, body) => {
     const response = await api.put(
         `/user-groups-details/${id}/`, body
@@ -97,11 +82,11 @@ const editUserGroup = async (id, body) => {
 
 const deleteUserGroup = async (id) => {
     const response = await api.delete(
-        `/user-groups-details/${id}/`
+        `/user-groups-details/${id}/`,
     )
 
     return response
 }
 
 
-export { userGroupList, userGroupListAdmin, userGroupListMember, userGroupListSupervisor, userGroupDetails, editUserGroup, deleteUserGroup }
+export { userGroupList, userGroupListAdmin, userGroupListMember, userGroupListSupervisor, editUserGroup, deleteUserGroup }
