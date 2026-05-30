@@ -109,7 +109,7 @@ onUnmounted(() => {
                   </v-card-text>
 
                   <v-card-actions>
-                    <div class="w-100 d-flex flex-row justify-end ga-2">
+                    <div class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
                       <v-btn 
                       variant="flat" 
                       text="Approve" 
