@@ -1,8 +1,4 @@
 import api from '@/services/BaseUrl.js'
-import { useUserStore } from '@/stores/UserStore'
-import { useUserGroupStore } from '@/stores/UserGroupStore.js'
-import { storeToRefs } from 'pinia'
-
 
 const userGroupList = async (id, size, page, signal) => {
     const response = await api.get(
@@ -39,8 +35,6 @@ const userGroupListAdmin = async (id, size, page, signal) => {
 }
 
 const userGroupListMember = async (id, size, page, signal) => {
-    const userStore = useUserStore()
-
     const response = await api.get(
         `/user-groups/`,
         {

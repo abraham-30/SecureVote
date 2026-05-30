@@ -1,9 +1,64 @@
 <script setup>
-    import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
+import { sendInvitation } from '@/services/InvitationServices';
+import { useGroupStore } from '@/stores/GroupStore';
+import { useUserStore } from '@/stores/UserStore';
+import { emailFieldCheck, fieldRequired } from '@/utils/rules';
+import { storeToRefs } from 'pinia';
+import { reactive, ref, watch } from 'vue';
+
+const emailRules = [
+    v => fieldRequired(v, 'Email is required'),
+    v => emailFieldCheck(v),
+]
+const form = reactive({
+    isValid: false,
+    email: null,
+})
+const isLoading = ref(false)
+const errorMessages = reactive({
+    message: null,
+    color: null, 
+})
+const userStore = useUserStore()
+const groupStore = useGroupStore()
+const { id } =  storeToRefs(userStore)
+const { group } = storeToRefs(groupStore)
+
+const handleSubmit = async () => {
+    try {
+        if (form.isValid) {
+            isLoading.value = true
+
+            await sendInvitation(form.email, id.value, group.value?.id)
+            .then((response) => {
+                if (!!response.data.error_code) {
+                    errorMessages.message = response.data.error
+                    errorMessages.color = "red"
+                }
+                else if (response.status == 201) {
+                    form.email = null
+                    
+                    setTimeout(() => {
+                        errorMessages.message = ["Invitation sent successfully!"]
+                        errorMessages.color = "green"
+                    }, 200)
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoading.value = false
+    }
+}
+
+watch(() => form.email, () => {
+    errorMessages.message = null
+    errorMessages.color = null
+})
 </script>
 
 <template>
-    <admin-side-navbar></admin-side-navbar>
     <div class="py-14 min-h-screen">
         <div class="d-flex flex-column ga-8">
             <v-btn variant="text" style="width: fit-content;" @click="$router.back()">
@@ -13,23 +68,47 @@
                  <span class="text-headline-medium font-weight-bold">Invite User</span>
             </div>
 
-            <div class="w-100">
+            <v-form v-model="form.isValid" :disabled="isLoading" validate-on="input lazy" class="w-100" @submit.prevent="handleSubmit()">
                 Search User by Email <br>
                 <div class="d-flex flex-column align-center ga-2">
                     <v-text-field
+                    v-model="form.email"
                     placeholder="Type Email"
                     append-inner-icon="mdi-magnify"
                     variant="outlined"
-                    class="w-100"
+                    :loading="isLoading"
+                    :rules="emailRules"
+                    :error-messages="errorMessages.message"
+                    :class="{ 'w-100': true, 'error-messages-red': errorMessages?.color === 'red', 'error-messages-green': errorMessages?.color === 'green' }"
                     ></v-text-field>
                     <v-btn 
+                    :disabled="isLoading"
+                    type="submit"
                     text="Send Invitation →"
                     class="bg-white">
                     </v-btn>
                 </div>
-            </div>
+            </v-form>
         </div>
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.v-text-field {
+    &.error-messages-red {
+        & :deep(.v-messages__message),
+        & :deep(.v-field__outline),
+        & :deep(.v-field__append-inner i) {
+            color: red;
+        }
+    }
+
+    &.error-messages-green {
+        & :deep(.v-messages__message),
+        & :deep(.v-field__outline),
+        & :deep(.v-field__append-inner i) {
+            color: green;
+        }
+    }
+}
+</style>

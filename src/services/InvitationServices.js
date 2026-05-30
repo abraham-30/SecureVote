@@ -1,5 +1,6 @@
 import api from '@/services/BaseUrl.js'
-import { useInvitationStore } from '@/stores/InvitationStore'
+import { useUserStore } from '@/stores/UserStore'
+import { getCurrentDateTime } from '@/utils/date'
 import { storeToRefs } from 'pinia'
 
 
@@ -16,9 +17,26 @@ const invitationListInvitee = async (id, size, page, signal) => {
         }
     )
 
-    // invitationStore.setInvitation(response.data)
+    return response
+}
+
+const sendInvitation = async (email, user_id, group_id) => {
+    const response = await api.post(
+        `/invitation-requests/`,
+        {
+            inviter_id: user_id,
+            group_id: group_id,
+            status: "requested",
+            created_at: getCurrentDateTime(),
+        },
+        {
+            params: {
+                email: email,
+            },
+        },
+    )
 
     return response
 }
 
-export { invitationListInvitee }
+export { invitationListInvitee, sendInvitation }

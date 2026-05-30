@@ -2,7 +2,7 @@ import api from "./BaseUrl";
 
 const combinedRequested = async (user_id, group_id, size, page, signal) => {
     const response = await api.get(
-        `combined-requests/${user_id}/${group_id}/`,
+        `/combined-requests/${user_id}/${group_id}/`,
         {
             params: {
                 size: size,
@@ -19,7 +19,7 @@ const combinedRequested = async (user_id, group_id, size, page, signal) => {
 
 const combinedRequestHistory = async (user_id, group_id,size, page, signal) => {
     const response = await api.get(
-        `combined-requests/${user_id}/${group_id}/`,
+        `/combined-requests/${user_id}/${group_id}/`,
         {
             params: {
                 size: size,
@@ -36,7 +36,7 @@ const combinedRequestHistory = async (user_id, group_id,size, page, signal) => {
 
 const combinedRequestedSpv = async (user_id, group_id,size, page, signal) => {
     const response = await api.get(
-        `combined-requests/${user_id}/${group_id}/`,
+        `/combined-requests/${user_id}/${group_id}/`,
         {
             params: {
                 size: size,

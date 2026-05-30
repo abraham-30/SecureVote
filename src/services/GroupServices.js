@@ -17,7 +17,7 @@ const groupDetails = async (id, signal) => {
 
 const updateGroupDetails = async (id, body) => {
     const response = await api.put(
-        `groups-details/${id}/`, body
+        `/groups-details/${id}/`, body
     )
 
     return response

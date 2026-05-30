@@ -3,7 +3,7 @@ import api from "./BaseUrl";
 
 const leaveRequestsForUser = async (user_id, group_id, status, size, page, signal) => {
     const response = await api.get(
-        `leave-requests/${user_id}/${group_id}/${status}/`,
+        `/leave-requests/${user_id}/${group_id}/${status}/`,
         {
             params: {
                 size: size,
@@ -20,7 +20,7 @@ const addLeaveRequest = async (user_id, group_id, request) => {
     const startDate = toDateTime(request.startDate, "YYYY-MM-DD HH:mm:ss[Z]")
     const endDate = toDateTime(request.endDate, "YYYY-MM-DD HH:mm:ss[Z]")
     const response = await api.post(
-        `leave-requests/`, {
+        `/leave-requests/`, {
             user_id: user_id,
             group_id: group_id,
             supervisor_id: request.supervisor,
@@ -38,7 +38,7 @@ const addLeaveRequest = async (user_id, group_id, request) => {
 
 const updateLeaveRequest = async (id, body) => {
     const response = await api.put(
-        `leave-requests-details/${id}/`, body
+        `/leave-requests-details/${id}/`, body
     )
 
     return response
@@ -46,7 +46,7 @@ const updateLeaveRequest = async (id, body) => {
 
 const approveLeaveRequest = async (item) => {
     const response = await api.post(
-        `approve-request/`, {
+        `/approve-request/`, {
             id: item.id,
             type: item.type,
             status: "approved",

@@ -3,7 +3,7 @@ import { getCurrentDateTime, toDateTime } from "@/utils/date";
 
 const overrideRequestsForUser = async (user_id, group_id, status, size, page, signal) => {
     const response = await api.get(
-        `override-requests/${user_id}/${group_id}/`,
+        `/override-requests/${user_id}/${group_id}/`,
         {
             params: {
                 size: size,
@@ -21,7 +21,7 @@ const addOverideRequest = async (user_id, group_id, request) => {
     const clockInDateTime = toDateTime(request.date, request.clockIn, "YYYY-MM-DD HH:mm:ss[Z]")
     const clockOutDateTime = toDateTime(request.date, request.clockOut, "YYYY-MM-DD HH:mm:ss[Z]")
     const response = await api.post(
-        `override-requests/`, {
+        `/override-requests/`, {
             user_id: user_id,
             group_id: group_id,
             supervisor_id: request.supervisor,
@@ -38,7 +38,7 @@ const addOverideRequest = async (user_id, group_id, request) => {
 
 const updateOverrideRequest = async (id, body) => {
     const response = await api.put(
-        `override-requests-details/${id}/`, body
+        `/override-requests-details/${id}/`, body
     )
 
     return response
@@ -46,7 +46,7 @@ const updateOverrideRequest = async (id, body) => {
 
 const approveOverrideRequest = async (item) => {
     const response = await api.post(
-        `approve-request/`, {
+        `/approve-request/`, {
             id: item.id,
             type: item.type,
             status: "approved",
