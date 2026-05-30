@@ -23,7 +23,7 @@ function activateSidebar(){
 </script>
 
 <template>
-    <v-navigation-drawer :width="400" class="pa-8" v-model="props.isOpen">
+    <v-navigation-drawer :width="300" class="pa-8" v-model="props.isOpen">
         <v-btn icon="mdi-close" variant="text" @click="activateSidebar"></v-btn>
         <v-list-item link title="Home" to="/home"></v-list-item>
         <v-list-item link title="Clock In / Clock Out" to="/clock"></v-list-item>
@@ -36,11 +36,9 @@ function activateSidebar(){
         </template>
 
         <template v-slot:append>
-            <div class="d-flex flex-row ga-8 align-end">
+            <div class="d-flex flex-row ga-8 align-center">
                 <div class="d-flex flex-column ga-2 w-100">
-                    <div style="height: 16px;">
-                        <img src="@/assets/icon-neutralgrey200.png" alt="" class="h-100">
-                    </div>
+                    <img src="@/assets/icon-neutralgrey200.png" alt="" class="w-100">
                 </div>
                 <div class="w-100">
                     <v-btn 

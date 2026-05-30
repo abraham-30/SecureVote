@@ -18,12 +18,16 @@ let intervalPhoto = null
 
 const startPhotoInterval = () => {
   clearInterval(intervalPhoto)
-
-  intervalPhoto = setInterval(() => {
+  
+  setTimeout(() => {
     if (!!videoEl.value && videoEl.value.readyState === 4) {
-      takePhoto()
+      setTimeout(() => {
+        intervalPhoto = setInterval(() => {
+            takePhoto()
+          }, 300)
+      }, 1000)
     }
-  }, 300)
+  }, 1000)
 }
 
 const stopPhotoInterval = () => {

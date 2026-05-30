@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
 import { attendanceTypesList } from '@/services/AttendanceTypeService';
@@ -15,6 +15,7 @@ const size = 5
 const isLoadingDays = ref(true)
 const isLoadingWorkingHours = ref(true)
 const isLoadingCategory = ref(true)
+const controller = new AbortController()
 
 const isSidebarOpen = ref(true)
 
@@ -38,13 +39,13 @@ let selectedDays = ref([])
 
 
 onMounted(async () => {
-    await attendanceTypesList(group.value?.id, false)
+    await attendanceTypesList(group.value?.id, controller.signal)
     .then((response) => {
         attendanceTypes.value = response.data.results
         isLoadingCategory.value = false
     })
     
-    await WorkingHoursList(group.value?.id, false)
+    await WorkingHoursList(group.value?.id, controller.signal)
     .then((response) => {
         workingHours.value = response.data.results
     
@@ -66,6 +67,10 @@ onMounted(async () => {
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
+
+onUnmounted(() => {
+    controller.abort()  
+})
 </script>
 
 <template>

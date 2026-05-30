@@ -6,8 +6,8 @@ const WorkingHoursList = async (group_id, signal) => {
         {
             params:{
                 group_id : group_id,
-                signal: signal,
-            }
+            },
+            signal: signal,
         },
     )
 

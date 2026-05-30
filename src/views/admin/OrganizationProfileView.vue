@@ -1,6 +1,6 @@
 <script setup>
 import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
-import { computed, reactive, ref } from 'vue';
+import { computed, onUnmounted, reactive, ref } from 'vue';
 import { useGroupStore } from '@/stores/GroupStore';
 import { storeToRefs } from 'pinia';
 import { fieldRequired } from '@/utils/rules';
@@ -10,7 +10,7 @@ const groupStore = useGroupStore();
 const { group } = storeToRefs(groupStore);
 
 const isLoadingSubmit = ref(false)
-
+const controller = new AbortController()
 const form = {
     isValid: false,
     orgName: group.value?.name,
@@ -28,7 +28,8 @@ const handleSubmit = async(name, description) => {
         if(form.isValid){
             await updateGroupDetails(group.value?.id,{
                 name: name,
-                description: description
+                description: description,
+                signal: controller.signal,
             })
         }
     } catch(error) {
@@ -50,6 +51,10 @@ const isSidebarOpen = ref(true)
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
+
+onUnmounted(() => {
+    controller.abort()  
+})
 
 </script>
 

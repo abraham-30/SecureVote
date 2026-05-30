@@ -22,11 +22,13 @@ const startPhotoInterval = () => {
   clearInterval(intervalPhoto)
 
   setTimeout(() => {
-      intervalPhoto = setInterval(() => {
-        if (!!videoEl.value && videoEl.value.readyState === 4) {
-          takePhoto()
-        }
-      }, 300)
+    if (!!videoEl.value && videoEl.value.readyState === 4) {
+      setTimeout(() => {
+        intervalPhoto = setInterval(() => {
+            takePhoto()
+          }, 300)
+      }, 1000)
+    }
   }, 1000)
 }
 

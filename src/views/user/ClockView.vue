@@ -2,7 +2,7 @@
 import { useGroupStore } from '@/stores/GroupStore';
 import { useUserStore } from '@/stores/UserStore'; 
 import { formatDate, getCurrentDateTime } from '@/utils/date';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
 import SideNavbar from '@/components/SideNavbar.vue';
 import { storeToRefs } from 'pinia';
 import { userLogsList } from '@/services/UserLogServices';
@@ -31,8 +31,33 @@ const headers = [
     { title: "Notes", value: "reason", key: "reason", width: "35%", sortable: false },
 ]
 
+const todayDate = computed(() => {
+    const log = userLogs.value?.results.find(log => {
+        const logDate = formatDate(log.start_date_time, "YYYY-MM-DD")
+        const currentDate = formatDate(getCurrentDateTime(), "YYYY-MM-DD")
+
+        if (logDate == currentDate){
+            return true
+        }
+        return false
+    })
+
+    if (!!log){
+        return {
+            start_date_time: log.start_date_time,
+            end_date_time: log.end_date_time,
+        }
+    }
+})
+
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const startTimeInterval = () => {
+    timeInterval.value = setInterval(() => {
+        currentDate.value = getCurrentDateTime()
+    }, 1000)
 }
 
 const fetchUserLogs = async () => {
@@ -47,12 +72,6 @@ const fetchUserLogs = async () => {
 
 const handleClockClick = (type) => {
     router.push({ name: 'facerecog', query: { type: type } })
-}
-
-const startTimeInterval = () => {
-    timeInterval.value = setInterval(() => {
-        currentDate.value = getCurrentDateTime()
-    }, 1000)
 }
 
 onMounted(async () => {
@@ -110,18 +129,18 @@ onUnmounted(() => {
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-row w-100 ga-4">
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock in')">
-                        <div class="d-flex flex-column ga-8 align-center">
+                        <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-subtitle-1">Registered Clock In</v-card-title>
-                            <v-card-text class="text-title-large font-weight-bold">-- : --</v-card-text>
+                            <v-card-text class="text-display-medium font-weight-bold">{{ formatDate(todayDate?.start_date_time, "HH:mm") ?? "-- : --" }}</v-card-text>
                             <v-card-actions class="w-100">
                                 <v-btn block variant="elevated" class="bg-white">Clock In →</v-btn>
                             </v-card-actions>
                         </div>
                     </v-card>
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock out')">
-                        <div class="d-flex flex-column ga-8 align-center">
+                        <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-subtitle-1">Registered Clock Out</v-card-title>
-                            <v-card-text class="text-title-large font-weight-bold">-- : --</v-card-text>
+                            <v-card-text class="text-display-medium font-weight-bold">{{ formatDate(todayDate?.end_date_time, "HH:mm") ?? "-- : --" }}</v-card-text>
                             <v-card-actions class="w-100">
                                 <v-btn block variant="elevated" class="bg-white">Clock Out →</v-btn>
                             </v-card-actions>

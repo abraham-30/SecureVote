@@ -28,7 +28,7 @@ const onOrgClick = async (item, isManagedOrg) => {
     if (isManagedOrg)
       router.push({ name: "organizationProfile" })
     else
-      router.push({ name: "clock", query: { id: id } })
+      router.push({ name: "clock", query: { id: id.value } })
 }
 
 const fetchUserGroup = async () => {
