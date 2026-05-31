@@ -98,7 +98,7 @@ onUnmounted(() => {
                         item-title="user.name"
                         item-value="user.id"
                         variant="outlined"
-                        class="w-100"
+                        class="w-100 mt-2"
                         :rules="[v => fieldRequired(v, 'Supervisor is required')]"
                         ></v-select>
                     </div>
@@ -115,7 +115,7 @@ onUnmounted(() => {
                         item-title="attendance_type.name"
                         item-value="attendance_type.id"
                         variant="outlined"
-                        class="w-100"
+                        class="w-100 mt-2"
                         :rules="[v => fieldRequired(v, 'Leave Type is required')]"
                         >
                             <template #item="{ item, props }">
@@ -137,29 +137,29 @@ onUnmounted(() => {
                             </template>
                         </v-select>
                     </div>
-                    <div class="d-flex flex-row ga-4 w-100">
-                        <div class="w-50">
+                    <div class="d-flex flex-wrap flex-sm-nowrap flex-row ga-4 w-100">
+                        <div class="w-100">
                             Start Date <br>
                             <v-date-input
                             v-model="form.startDate"
                             :rules="[v => fieldRequired(v, 'Date is required')]"
                             hide-details="auto"
                             variant="outlined"
-                            class="w-100"
+                            class="mt-2"
                             placeholder="Choose Start Date"
                             prepend-icon=""
                             clearable=""
                             >
                             </v-date-input>
                         </div>
-                        <div class="w-50">
+                        <div class="w-100">
                             End Date <br>
                             <v-date-input
                             v-model="form.endDate"
                             :rules="[v => fieldRequired(v, 'Date is required')]"
                             hide-details="auto"
                             variant="outlined"
-                            class="w-100"
+                            class="mt-2"
                             placeholder="Choose End Date"
                             prepend-icon=""
                             clearable=""
@@ -175,16 +175,24 @@ onUnmounted(() => {
                             placeholder="Reason"
                             hide-details="auto"
                             variant="outlined"
-                            class="w-100"
+                            class="w-100 mt-2"
                             :rules="[v => fieldRequired(v, 'Reason is required')]"
                         ></v-textarea>
                     </div>
-                    <v-btn 
-                    type="submit" 
-                    class="bg-white"
-                    :loading="isLoadingSubmit"
-                    >Submit Request</v-btn>
+                    <div class="d-flex justify-center w-100">
+                        <div class="w-100 w-sm-33 mt-8">
+                            <v-btn 
+                            color="white"
+                            type="submit"
+                            block 
+                            :loading="isLoadingSubmit"
+                            >Submit Request</v-btn>
+                        </div>
+                    </div>
                 </v-form>
+                <div
+                class="w-100"
+                style="height: 150px;"></div>
             </div>
         </div>
     </div>

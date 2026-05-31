@@ -106,8 +106,8 @@ onUnmounted(() => {
                         link
                         >
                             <v-card-text class="d-flex flex-column ga-1">
-                                <span class="text-title-large font-weight-bold">{{ item?.user?.name }}</span>
-                                <span class="text-body-small text-grey-lighten-1">{{ item?.user?.email }}</span>
+                                <span class="text-title-large font-weight-bold text-truncate">{{ item?.user?.name }}</span>
+                                <span class="text-body-small text-grey-lighten-1 text-truncate">{{ item?.user?.email }}</span>
                                 <div class="mt-2">
                                     <v-chip 
                                     :color="item?.role?.name === 'member' ? 'blue-darken-2' : 'warning'"

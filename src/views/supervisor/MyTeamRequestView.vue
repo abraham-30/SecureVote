@@ -169,7 +169,7 @@ onUnmounted(() => {
 
                 <template v-else>
                     <v-dialog
-                    max-width="750"
+                    width="600"
                     v-for="(item, index) in combinedRequestsForSupervisor.results">
                         <template v-slot:activator="{props:activatorProps}">
                             <v-card 
@@ -179,15 +179,15 @@ onUnmounted(() => {
                             >
                                 <v-card-text>
                                     <div class="d-flex flex-column ga-1">
-                                        <span class="text-title-large font-weight-bold" v-if="item?.type == 'override'">Override Request</span>
-                                        <span class="text-title-large font-weight-bold" v-else-if="item?.type == 'leave'">Leave Request</span>
-                                        <span class="text-body-small text-grey-lighten-1">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                        <span class="text-title-large font-weight-bold text-truncate" v-if="item?.type == 'override'">Override Request</span>
+                                        <span class="text-title-large font-weight-bold text-truncate" v-else-if="item?.type == 'leave'">Leave Request</span>
+                                        <span class="text-body-small text-grey-lighten-1 text-truncate">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                     </div>
                                 </v-card-text>
                             </v-card>
                         </template>
                         <template v-slot:default="{isActive}">
-                            <v-card class="pa-4" :disabled="isReviewLoading" :loading="isReviewLoading">
+                            <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" :disabled="isReviewLoading" :loading="isReviewLoading">
                                 <v-card-actions>
                                     <v-btn
                                     icon="mdi-close"
@@ -195,7 +195,7 @@ onUnmounted(() => {
                                     </v-btn>
                                 </v-card-actions>
                                 <v-card-title
-                                class="font-weight-bold text-headline-medium">
+                                class="font-weight-bold text-title-large">
                                     <template v-if="item?.type == 'override'">Override Request</template>
                                     <template v-else-if="item?.type == 'leave'">Leave Request</template>
                                     <v-divider class="border-opacity-50 mt-1"></v-divider>      
@@ -203,43 +203,51 @@ onUnmounted(() => {
                                 <v-card-text
                                 class="d-flex flex-column align-start ga-8">
                                     <div class="d-flex flex-column">
-                                        <span class="text-title-large font-weight-bold">Requester</span>
+                                        <span class="text-title-medium font-weight-bold">Requester</span>
                                         <span class="text-grey-lighten-1">{{ item?.user?.name }} <br>({{ item?.user?.email }})</span>
-                                        <!-- please change to name (email) -->
                                     </div>
 
                                     <template v-if="item?.type == 'leave'">
                                         <div class="d-flex flex-column">
-                                            <span class="text-title-large font-weight-bold">Leave Type</span>
+                                            <span class="text-title-medium font-weight-bold">Leave Type</span>
                                             <span class="text-grey-lighten-1">{{ item?.attendance_type?.name }}</span>
                                         </div>
                                         <div class="d-flex flex-column">
-                                            <span class="text-title-large font-weight-bold">Start Date / End Date</span>
+                                            <span class="text-title-medium font-weight-bold">Start Date / End Date</span>
                                             <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }} / {{ formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                         </div>
                                     </template>
 
                                     <template v-else-if="item?.type == 'override'">
                                         <div class="d-flex flex-column">
-                                            <span class="text-title-large font-weight-bold">Date</span>
+                                            <span class="text-title-medium font-weight-bold">Date</span>
                                             <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}</span>
                                         </div>
                                         <div class="d-flex flex-column">
-                                            <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
+                                            <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
                                             <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
                                         </div>
                                     </template>
                                     
                                     <div class="d-flex flex-column">
-                                        <span class="text-title-large font-weight-bold">Reason</span>
+                                        <span class="text-title-medium font-weight-bold">Reason</span>
                                         <span class="text-grey-lighten-1 text-justify">{{ item?.reason }}</span>
                                     </div>
                                 </v-card-text>
-                                <v-card-actions class="d-flex flex-row justify-end">
-                                    <v-btn size="large" class="w-25" variant="flat" text="Approve" color="success" @click="handleApprove(item, index, isActive)">
-                                    </v-btn>
-                                    <v-btn size="large" class="w-25" variant="flat" text="Reject" color="error" @click="handleReject(item?.id, item?.type, index, isActive)">
-                                    </v-btn>
+                                <v-card-actions>
+                                    <div class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
+                                        <v-btn variant="flat" 
+                                        text="Approve" 
+                                        color="green"
+                                        class="w-100 w-sm-33" 
+                                        @click="handleApprove(item, index, isActive)"></v-btn>
+                                        <v-btn variant="flat" 
+                                        text="Reject" 
+                                        color="red"
+                                        class="w-100 w-sm-33" 
+                                        @click="handleReject(item?.id, item?.type, index, isActive)">
+                                        </v-btn>
+                                    </div>
                                 </v-card-actions>
                             </v-card>
                         </template>

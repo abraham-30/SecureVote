@@ -113,16 +113,16 @@ onUnmounted(() => {
                 @click="activateSidebar"
                 ></v-btn>
             </div>
-            <div class="d-flex flex-row justify-space-between align-center">
+            <div class="d-flex flex-row flex-wrap justify-space-between align-center ga-4 ga-sm-0">
                 <div class="d-flex flex-column">
                     <v-icon 
                     size="60"
                     icon="mdi-clock-outline" 
                     class="text-yellow-darken-1"
                     ></v-icon>
-                    <span class="text-headline-medium font-weight-bold">Override Requests</span>
+                    <span class="text-headline-small font-weight-bold">Override Requests</span>
                 </div>
-                <div>
+                <div class="w-100 w-sm-50 d-flex justify-sm-end">
                     <v-btn to="/createoverride" class="bg-white" variant="flat">Create Request +</v-btn>
                 </div>
             </div>
@@ -143,7 +143,7 @@ onUnmounted(() => {
 
                                     <template v-else>
                                         <v-dialog
-                                            max-width="750"
+                                            max-width="600"
                                             v-for="(item, index) in overrideRequest?.results"
                                         >
                                             <template v-slot:activator="{props:activatorProps}">
@@ -152,13 +152,13 @@ onUnmounted(() => {
                                                 class="bg-blur border-sm border-opacity-75 pa-2 text-white"
                                                 v-bind="activatorProps"
                                                 >
-                                                    <v-card-text class="d-flex flex-column ga-1 align-start">
+                                                    <v-card-text class="d-flex flex-column ga-1">
                                                         <span class="text-title-large font-weight-bold">Override Request</span>
-                                                        <span class="text-body-small text-grey-lighten-1">{{ item?.reason }}</span>
-                                                        <span class="text-body-small text-grey-lighten-1">Request created at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                                        <span class="text-body-small text-grey-lighten-1 text-truncate">{{ item?.reason }}</span>
+                                                        <span class="text-body-small text-grey-lighten-1 text-truncate">Request created at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                                         <div class="mt-2" v-if="item?.status != 'requested'">
                                                             <v-chip 
-                                                            :color="item?.status === 'approved' ? 'success' : 'error'"
+                                                            :color="item?.status === 'approved' ? 'green' : 'red'"
                                                             variant="flat"
                                                             >
                                                                 <!-- Change color and role name here -->
@@ -171,7 +171,7 @@ onUnmounted(() => {
             
                                             <template v-slot:default="{isActive}">
                                                 <v-card 
-                                                class="pa-4"
+                                                class="pa-2 pb-8 pa-sm-6 pb-sm-10"
                                                 :disabled="isCancelLoading"
                                                 :loading="isCancelLoading"
                                                 >
@@ -181,16 +181,20 @@ onUnmounted(() => {
                                                         icon="mdi-close"
                                                         @click="isActive.value = false"></v-btn>
                                                     </v-card-actions>
-                                                    <v-card-title class="font-weight-bold text-headline-medium">
-                                                        Override Request
-                                                        <v-chip 
-                                                        v-if="item?.status != 'requested'"
-                                                        :color="item?.status === 'approved' ? 'success' : 'error'"
-                                                        variant="flat"
-                                                        >
-                                                        <!-- Change color and role name here -->
-                                                        {{ toTitleCase(item?.status) }}
-                                                        </v-chip>
+                                                    <v-card-title class="font-weight-bold text-title-large">
+                                                        <div class="d-flex flex-wrap flex-sm-nowrap ga-2">
+                                                            <span>
+                                                                Override Request
+                                                            </span>
+                                                            <v-chip 
+                                                            v-if="item?.status != 'requested'"
+                                                            :color="item?.status === 'approved' ? 'green' : 'red'"
+                                                            variant="flat"
+                                                            >
+                                                            <!-- Change color and role name here -->
+                                                            {{ toTitleCase(item?.status) }}
+                                                            </v-chip>
+                                                        </div>
                                                         <v-divider class="border-opacity-50 mt-1"></v-divider>      
                                                     </v-card-title>
                                                     <v-card-text class="d-flex flex-column align-start ga-8">
@@ -203,28 +207,35 @@ onUnmounted(() => {
                                                             v-if="item?.status == 'requested'"
                                                         ></v-alert>
                                                         <div class="d-flex flex-column">
-                                                            <span v-if="item?.status == 'requested'" class="text-title-large font-weight-bold">Waiting on Supervisor...</span>
-                                                            <span v-else class="text-title-large font-weight-bold">Supervisor</span>
+                                                            <span v-if="item?.status == 'requested'" class="text-title-medium font-weight-bold">Waiting on Supervisor...</span>
+                                                            <span v-else class="text-title-medium font-weight-bold">Supervisor</span>
                                                             <span class="text-grey-lighten-1">{{ item?.supervisor?.name }} <br>({{ item?.supervisor?.email }})</span>
                                                             <!-- please change to name (email) -->
                                                         </div>
                                                         <div class="d-flex flex-column">
-                                                            <span class="text-title-large font-weight-bold">Date</span>
+                                                            <span class="text-title-medium font-weight-bold">Date</span>
                                                             <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
-                                                            <span class="text-title-large font-weight-bold">Clock In / Clock Out</span>
+                                                            <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
                                                             <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
-                                                            <span class="text-title-large font-weight-bold">Reason</span>
+                                                            <span class="text-title-medium font-weight-bold">Reason</span>
                                                             <span class="text-grey-lighten-1 text-justify">{{ item?.reason }}</span>
                                                         </div>
                                                     </v-card-text>
 
-                                                    <v-card-actions v-if="item?.status == 'requested'" class="d-flex flex-row" @click="handleCancel(item?.id, index, isActive)">
-                                                        <v-btn size="large" text="Cancel" class="w-25" variant="flat" color="error">
-                                                        </v-btn>
+                                                    <v-card-actions v-if="item?.status == 'requested'">
+                                                        <div class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
+                                                            <v-btn 
+                                                            text="Cancel" 
+                                                            variant="flat" 
+                                                            color="red"
+                                                            class="w-100 w-sm-33"
+                                                            @click="handleCancel(item?.id, index, isActive)">
+                                                            </v-btn>
+                                                        </div>
                                                     </v-card-actions>
                                                 </v-card>
                                             </template>
@@ -239,6 +250,9 @@ onUnmounted(() => {
                         </v-tabs-window-item>
                     </v-tabs-window>
                 </v-sheet>
+                <div
+                class="w-100"
+                style="height: 100px;"></div>
             </div>
         </div>
     </div>
