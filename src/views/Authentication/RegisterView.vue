@@ -50,7 +50,7 @@ const handleSubmit =  async () => {
     }, 100)
 }
 
-watch(() => form.email, () => {
+watch(form.email, () => {
   emailError.value = []
 })
 </script>

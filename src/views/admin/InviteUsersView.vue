@@ -52,7 +52,7 @@ const handleSubmit = async () => {
     }
 }
 
-watch(() => form.email, () => {
+watch(form.email, () => {
     errorMessages.message = null
     errorMessages.color = null
 })

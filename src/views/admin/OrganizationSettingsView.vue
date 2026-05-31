@@ -1,11 +1,13 @@
 <script setup>
-import { ref, onMounted, reactive, onUnmounted } from 'vue';
+import { ref, onMounted, reactive, onUnmounted, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
 import { attendanceTypesList } from '@/services/AttendanceTypeService';
-import { WorkingHoursList } from '@/services/WorkingHoursService';
+import { updateWorkingDays, updateWorkingHours, WorkingHoursList } from '@/services/WorkingHoursService';
 import { useGroupStore } from '@/stores/GroupStore';
 import { formatDate } from '@/utils/date';
+import { fieldRequired } from '@/utils/rules';
+import moment from 'moment';
 
 const popupDelete = ref(false);
 const popupAddCategory = ref(false);
@@ -16,24 +18,72 @@ const isLoadingDays = ref(true)
 const isLoadingWorkingHours = ref(true)
 const isLoadingCategory = ref(true)
 const controller = new AbortController()
-
 const isSidebarOpen = ref(true)
+const formWorkingHoursRef = ref()
 
 const formWorkingHours = reactive({
-    isValid: false,
     startTime: null,
     endTime: null,
 })
 
 const formWorkingDays = reactive({
-    isValid: false,
     selectedDays: null,
+})
+
+const formWorkingHoursTemp = reactive({
+    isValid: false,
+    ...formWorkingHours
+})
+
+const formWorkingDaysTemp = reactive({
+    isValid: false,
+    ...formWorkingDays
 })
 
 const formAttendanceTypes = reactive({
     isValid: false,
     attendanceTypes: null,
 })
+
+const checkBoxRules = computed(() => {
+    if (formWorkingDaysTemp.selectedDays?.length == 0) 
+        return "Minimum 1 day is selected"
+    return null
+})
+
+const workingHoursRules = computed(() => {
+    return formWorkingHoursTemp.startTime &&
+        formWorkingHoursTemp.endTime &&
+        moment(formWorkingHoursTemp.startTime, "HH:mm:ss")
+        .isBefore(moment(formWorkingHoursTemp.endTime, "HH:mm:ss"))
+})
+
+const isWorkingDaysDirty = computed(() => {
+    const oriData = [...(formWorkingDays.selectedDays || [])].sort()
+    const tempData = [...(formWorkingDaysTemp.selectedDays || [])].sort()
+
+    return (
+        oriData.length === tempData.length &&
+        oriData.every((value, index) => value === tempData[index])
+    )
+})
+
+const isWorkingHoursDirty = computed(() => {
+    return (
+        formWorkingHours.startTime === formWorkingHoursTemp.startTime &&
+        formWorkingHours.endTime === formWorkingHoursTemp.endTime
+    )
+})
+
+const startHourRules = [
+    v => fieldRequired(v, "Start Hour is required"),
+    v => workingHoursRules.value || "Start Hour must be before End Hour"
+] 
+
+const endHourRules = [
+    v => fieldRequired(v, "End Hour is required"),
+    v => workingHoursRules.value || "End Hour must be after Start Hour"
+] 
 
 const allDays = [
     'Monday',
@@ -45,29 +95,99 @@ const allDays = [
     'Sunday'
 ]
 
+function activateSidebar(){
+    isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const resetWorkingHours = () => {
+    formWorkingHoursTemp.startTime = formWorkingHours.startTime
+    formWorkingHoursTemp.endTime = formWorkingHours.endTime
+}
+
+const resetWorkingDays = () => {
+    formWorkingDaysTemp.selectedDays = formWorkingDays.selectedDays
+}
+
+const handleSubmitWorkingHours = async () => {
+    try {
+        isLoadingWorkingHours.value = true
+
+        if(formWorkingHoursTemp.isValid) {
+            await updateWorkingHours(formWorkingHoursTemp, group.value?.id)
+            .then(response => {
+                if(response.status == 200) {
+                    formWorkingHours.startTime = formatDate(response.data.start_time, "HH:mm", "HH:mm:ss") 
+                    formWorkingHours.endTime = formatDate(response.data.end_time, "HH:mm", "HH:mm:ss") 
+    
+                    formWorkingHoursTemp.startTime = formWorkingHours.startTime
+                    formWorkingHoursTemp.endTime = formWorkingHours.endTime
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingWorkingHours.value = false
+    }
+}
+
+const handleSubmitWorkingDays = async () => {
+    try {
+        isLoadingDays.value = true
+
+        if(formWorkingDaysTemp.isValid) {
+            const oriData = [...formWorkingDays.selectedDays]
+            const tempData = [...formWorkingDaysTemp.selectedDays]
+
+            const added = tempData.filter(day => !oriData.includes(day))
+            const removed = oriData.filter(day => !tempData.includes(day))
+
+            const combined = {
+                added_days: added,
+                deleted_days: removed,
+                start_time: formWorkingHours.startTime,
+                end_time: formWorkingHours.endTime,
+            }
+
+            await updateWorkingDays(combined, group.value?.id)
+            .then(response => {
+                if(response.status == 200) {
+                    formWorkingDays.selectedDays = response.data.map(item => item.day)
+                    formWorkingDaysTemp.selectedDays = formWorkingDays.selectedDays
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingDays.value = false
+    }
+}
 
 onMounted(async () => {
     attendanceTypesList(group.value?.id, controller.signal)
     .then((response) => {
-        formAttendanceTypes.attendanceTypes = response.data.results
+        formAttendanceTypes.attendanceTypes = response.data
         isLoadingCategory.value = false
     })
     
     WorkingHoursList(group.value?.id, controller.signal)
     .then((response) => {
-        formWorkingHours.startTime = formatDate(response.data.results[0]?.start_time, "HH:mm", "HH:mm:ss") 
-        formWorkingHours.endTime = formatDate(response.data.results[0]?.end_time, "HH:mm", "HH:mm:ss") 
-        formWorkingDays.selectedDays = response.data.results.map(item => item.day)
+        formWorkingHours.startTime = formatDate(response.data[0]?.start_time, "HH:mm", "HH:mm:ss") 
+        formWorkingHours.endTime = formatDate(response.data[0]?.end_time, "HH:mm", "HH:mm:ss") 
+        formWorkingDays.selectedDays = response.data.map(item => item.day)
         
+        formWorkingDaysTemp.selectedDays = formWorkingDays.selectedDays
+        formWorkingHoursTemp.startTime = formWorkingHours.startTime
+        formWorkingHoursTemp.endTime = formWorkingHours.endTime
         isLoadingDays.value = false
         isLoadingWorkingHours.value = false
     })    
 })
 
-
-function activateSidebar(){
-    isSidebarOpen.value = !isSidebarOpen.value
-}
+watch([() => formWorkingHoursTemp.startTime, () => formWorkingHoursTemp.endTime], () => {
+    formWorkingHoursRef.value?.validate()
+})
 
 onUnmounted(() => {
     controller.abort()  
@@ -103,32 +223,34 @@ onUnmounted(() => {
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <div class="d-flex flex-column ga-2">
-                    <v-form validate-on="input eager">
+                    <v-form v-model="formWorkingDaysTemp.isValid" validate-on="input lazy" @submit.prevent="handleSubmitWorkingDays()">
                         <div class="d-flex flex-wrap ga-2">
-                            <v-card
+                            <v-checkbox
                             v-for="day in allDays"
+                            v-model="formWorkingDaysTemp.selectedDays"
                             :loading="isLoadingDays"
                             :disabled="isLoadingDays"
-                            class="bg-white flex-grow-1"
+                            :label="day"
+                            :value="day"
+                            class="bg-white flex-grow-1 rounded"
+                            hide-details="auto"
                             style="width: 20%;"
-                            >
-                                <v-checkbox
-                                :label="day"
-                                :model-value="formWorkingDays.selectedDays?.includes(day)"
-                                hide-details="auto"
-                                ></v-checkbox>
-                            </v-card>
+                            multiple
+                            ></v-checkbox>
                         </div>
+                        <p v-if="!!checkBoxRules" class="ma-0 text-error text-body-small pt-2 pl-4">{{ checkBoxRules }}</p>
                         <div class="d-flex flex-row ga-2 mt-4 justify-end">
                             <v-btn
                             text="Save Changes"
                             class="bg-white"
-                            :disabled="isLoadingDays"
+                            type="submit"
+                            :disabled="isLoadingDays || isWorkingDaysDirty"
                             ></v-btn>
                             <v-btn
                             text="Discard Changes"
                             color="red"
-                            :disabled="isLoadingDays"
+                            :disabled="isLoadingDays || isWorkingDaysDirty"
+                            @click="resetWorkingDays()"
                             ></v-btn>
                         </div>
                     </v-form>
@@ -140,40 +262,48 @@ onUnmounted(() => {
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <v-form 
-                validate-on="input eager"
-                class="d-flex flex-column align-end ga-8">
-                    <div class="d-flex flex-row w-100 ga-4">
-                        <div class="w-50">
-                            Start Hour <br>
-                            <v-text-field
-                            :loading="isLoadingWorkingHours"
-                            :disabled="isLoadingWorkingHours"
-                            type="time"
-                            v-model="formWorkingHours.startTime"
-                            hide-details="auto"
-                            variant="outlined"></v-text-field>
-                        </div>
-                        <div class="w-50">
-                            End Hour <br>
-                            <v-text-field
-                            :loading="isLoadingWorkingHours"
-                            :disabled="isLoadingWorkingHours"
-                            type="time"
-                            v-model="formWorkingHours.endTime"
-                            hide-details="auto"
-                            variant="outlined"></v-text-field>
-                        </div>
+                ref="formWorkingHoursRef"
+                v-model="formWorkingHoursTemp.isValid"
+                validate-on="input lazy"
+                class="d-flex flex-column align-end ga-8"
+                @submit.prevent=handleSubmitWorkingHours()
+                >
+                <div class="d-flex flex-row w-100 ga-4">
+                    <div class="w-50">
+                        Start Hour <br>
+                        <v-text-field
+                        v-model="formWorkingHoursTemp.startTime"
+                        :loading="isLoadingWorkingHours"
+                        :disabled="isLoadingWorkingHours"
+                        :rules="startHourRules"
+                        type="time"
+                        hide-details="auto"
+                        variant="outlined"></v-text-field>
                     </div>
-                    <div class="d-flex flex-row ga-2">
+                    <div class="w-50">
+                        End Hour <br>
+                        <v-text-field
+                        v-model="formWorkingHoursTemp.endTime"
+                        :loading="isLoadingWorkingHours"
+                        :disabled="isLoadingWorkingHours"
+                        :rules="endHourRules"
+                        type="time"
+                        hide-details="auto"
+                        variant="outlined"></v-text-field>
+                    </div>
+                </div>
+                <div class="d-flex flex-row ga-2">
                         <v-btn
                         text="Save Changes"
                         class="bg-white"
-                        :disabled="isLoadingWorkingHours"
+                        type="submit"
+                        :disabled="isLoadingWorkingHours || isWorkingHoursDirty"
                         ></v-btn>
                         <v-btn
-                        :disabled="isLoadingWorkingHours"
+                        :disabled="isLoadingWorkingHours || isWorkingHoursDirty"
                         text="Discard Changes"
                         color="red"
+                        @click="resetWorkingHours()"
                         ></v-btn>
                     </div>
                 </v-form>
@@ -390,4 +520,13 @@ onUnmounted(() => {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.v-checkbox {
+    &:deep(.v-selection-control__wrapper) {
+        height: 100%;
+    }
+    &:deep(.v-label.v-label--clickable) {
+        width: 100%;
+    }
+}
+</style>
