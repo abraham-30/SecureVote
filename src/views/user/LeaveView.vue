@@ -38,7 +38,7 @@ const fetchLeaveRequest = async () => {
     })
 }
 
-const handleCancel = async (id, index, isActive) => {
+const handleCancel = async (id, isActive) => {
     try {
         isCancelLoading.value = true
         await updateLeaveRequest(id, {
@@ -49,7 +49,7 @@ const handleCancel = async (id, index, isActive) => {
                 isActive.value = false
 
                 const currentLen = leaveRequest.value?.results.length
-                if (currentLen == 1) 
+                if (currentLen == 1 && page.value != 1) 
                     page.value -= 1 
                 await fetchLeaveRequest()
             }
@@ -140,6 +140,7 @@ onUnmounted(() => {
 
                                     <template v-else>
                                         <v-dialog
+                                            :persistent="isCancelLoading"
                                             max-width="600"
                                             v-for="(item, index) in leaveRequest?.results"
                                         >

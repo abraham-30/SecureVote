@@ -422,6 +422,7 @@ onUnmounted(() => {
                         <div class="d-flex flex-wrap ga-4">
                             <v-dialog                                
                             max-width="600"
+                            :persistent="isLoadingPopUpCategory"
                             >
                                 <template v-slot:activator="{ props: activatorProps }">
                                     <v-btn
@@ -486,6 +487,7 @@ onUnmounted(() => {
                             </v-dialog>
                             <div class="d-flex flex-wrap ga-2">
                                 <v-dialog
+                                :persistent="isLoadingPopUpCategory"
                                 max-width="600"
                                 v-for="(item, index) in formAttendanceTypes.attendanceTypes">
                                 <template v-slot:activator="{ props: activatorProps }">
@@ -595,6 +597,7 @@ onUnmounted(() => {
                 </div>
                 <v-dialog
                 v-model="popupDelete"
+                :persistent="isLoadingPopUpCategory"
                 max-width="500"
                 >
                     <v-card
@@ -645,6 +648,7 @@ onUnmounted(() => {
                 </v-dialog>
             </div>
             <v-dialog
+            :persistent="isLoadingPopUpCategory"
             max-width="450"
             v-model="popupDeleteCategory">
                 <v-card class="pa-8 d-flex flex-column align-center" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">

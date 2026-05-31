@@ -44,7 +44,7 @@ const controller = new AbortController()
 
 const headers = [
     { title: "Date", value: "start_date_time", key: "date", width: "20%", sortable: false },
-    { title: "Clock In", value: "start_date_time", key:"clockIn", width: "15%", sortable: false },
+    { title: "Clock In", value: "start_date_time", key: "clockIn", width: "15%", sortable: false },
     { title: "Clock Out", value: "end_date_time", key: "clockOut", width: "15%", sortable: false },
     { title: "", value: "type", key: "type", width: "15%", sortable: false },
     { title: "Notes", value: "reason", key: "reason", width: "35%", sortable: false },
@@ -52,91 +52,90 @@ const headers = [
 
 const fetchCombinedRequest = async () => {
     isLoadingRequestWaiting.value = true
-    
+
     await combinedRequested(selectedUserGroup.id, group.value?.id, size, pageRequestWaiting.value, controller.signal)
-    .then(response => {
-        requestWaiting.value = response.data
-        
-        isLoadingRequestWaiting.value = false
-    })
+        .then(response => {
+            requestWaiting.value = response.data
+
+            isLoadingRequestWaiting.value = false
+        })
 }
 
 const fetchCombineHistory = async () => {
     isLoadingRequestHistory.value = true
 
     await combinedRequestHistory(selectedUserGroup.id, group.value?.id, size, pageRequestHistory.value, controller.signal)
-    .then(response => {
-        requestHistory.value = response.data
-        
-        isLoadingRequestHistory.value = false
-    })
+        .then(response => {
+            requestHistory.value = response.data
+
+            isLoadingRequestHistory.value = false
+        })
 }
 
 const fetchUserLog = async () => {
     isLoadingUserLog.value = true
 
     await userLogsList(selectedUserGroup.id, group.value?.id, size, pageUserLog.value, controller.signal)
-    .then((response) => {
-        userLogs.value = response.data
-        isLoadingUserLog.value = false
-    })
+        .then((response) => {
+            userLogs.value = response.data
+            isLoadingUserLog.value = false
+        })
 }
 
 const fetchStats = async () => {
     isLoadingAttendanceReport.value = true
-    
-    userLogsStats(selectedUserGroup.id, group.value?.id, controller.signal)
-    .then((response) => {
-        attendanceReport.onTime = response.data["null"]
-        attendanceReport.late = response.data["late"]
-        attendanceReport.override = (response.data?.["override clock in"] ?? 0) + (response.data?.["override clock out"] ?? 0) + (response.data?.["override clock in and out"] ?? 0)
-        attendanceReport.leave = response.data["leave"]
 
-        isLoadingAttendanceReport.value = false
-    })
+    userLogsStats(selectedUserGroup.id, group.value?.id, controller.signal)
+        .then((response) => {
+            attendanceReport.onTime = response.data["null"]
+            attendanceReport.late = response.data["late"]
+            attendanceReport.override = (response.data?.["override clock in"] ?? 0) + (response.data?.["override clock out"] ?? 0) + (response.data?.["override clock in and out"] ?? 0)
+            attendanceReport.leave = response.data["leave"]
+
+            isLoadingAttendanceReport.value = false
+        })
 }
 
 const handleReject = async (id, type, index, isActive) => {
     try {
         isReviewLoading.value = true
 
-        if(type == "override") {
+        if (type == "override") {
             await updateOverrideRequest(id, {
                 status: "rejected",
             })
-            .then((response) => {
-                if (response.status == 200) {
-                    isReviewLoading.value = false
-                    isActive.value = false
+                .then((response) => {
+                    if (response.status == 200) {
+                        isActive.value = false
 
-                    const currentLen = combinedRequested.value?.results.length
-                    if (currentLen == 1) 
-                        page.value -= 1 
-                    
+                        const currentLen = combinedRequested.value?.results.length
+                        if (currentLen == 1 && page.value != 1)
+                            page.value -= 1
+
                         fetchStats()
                         fetchUserLog()
                         fetchCombinedRequest()
                         fetchCombineHistory()
-                }
-            }) 
+                    }
+                })
         } else if (type == "leave") {
             await updateLeaveRequest(id, {
                 status: "rejected",
             })
-            .then((response) => {
-                if (response.status == 200) {
-                    isActive.value = false
-                    
-                    const currentLen = combinedRequested.value?.results.length
-                    if (currentLen == 1) 
-                        page.value -= 1 
-                    
+                .then((response) => {
+                    if (response.status == 200) {
+                        isActive.value = false
+
+                        const currentLen = combinedRequested.value?.results.length
+                        if (currentLen == 1 && page.value != 1)
+                            page.value -= 1
+
                         fetchStats()
                         fetchUserLog()
                         fetchCombinedRequest()
                         fetchCombineHistory()
-                }
-            }) 
+                    }
+                })
         }
     } catch (error) {
         console.error(error)
@@ -149,40 +148,86 @@ const handleApprove = async (item, index, isActive) => {
     try {
         isReviewLoading.value = true
 
-        if(item.type == "override") {
+        if (item.type == "override") {
             await approveOverrideRequest(item)
-            .then((response) => {
-                if (response.status == 200) {
-                    isReviewLoading.value = false
-                    isActive.value = false
+                .then((response) => {
+                    if (response.status == 200) {
+                        isActive.value = false
 
-                    const currentLen = combinedRequested.value?.results.length
-                    if (currentLen == 1) 
-                        page.value -= 1 
-                    
+                        const currentLen = combinedRequested.value?.results.length
+                        if (currentLen == 1 && page.value != 1)
+                            page.value -= 1
+
                         fetchStats()
                         fetchUserLog()
                         fetchCombinedRequest()
                         fetchCombineHistory()
-                }
-            }) 
+                    }
+                })
         } else if (item.type == "leave") {
             await approveLeaveRequest(item)
-            .then((response) => {
-                if (response.status == 200) {
-                    isReviewLoading.value = false
-                    isActive.value = false
+                .then((response) => {
+                    if (response.status == 200) {
+                        isActive.value = false
 
-                    const currentLen = combinedRequested.value?.results.length
-                    if (currentLen == 1) 
-                        page.value -= 1 
-                    
+                        const currentLen = combinedRequested.value?.results.length
+                        if (currentLen == 1 && page.value != 1)
+                            page.value -= 1
+
                         fetchStats()
                         fetchUserLog()
                         fetchCombinedRequest()
                         fetchCombineHistory()
-                }
-            }) 
+                    }
+                })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isReviewLoading.value = false
+    }
+}
+
+const handleCancel = async (id, isActive) => {
+    try {
+        isReviewLoading.value = true
+
+        if (item.type == "override") {
+            await updateOverrideRequest(id, {
+                status: "cancelled",
+            })
+                .then(async (response) => {
+                    if (response.status == 200) {
+                        isActive.value = false
+
+                        const currentLen = combinedRequested.value?.results.length
+                        if (currentLen == 1 && page.value != 1)
+                            page.value -= 1
+
+                        fetchStats()
+                        fetchUserLog()
+                        fetchCombinedRequest()
+                        fetchCombineHistory()
+                    }
+                })
+        } else if (item.type == "leave") {
+            await updateLeaveRequest(id, {
+                status: "cancelled",
+            })
+                .then(async (response) => {
+                    if (response.status == 200) {
+                        isActive.value = false
+
+                        const currentLen = combinedRequested.value?.results.length
+                        if (currentLen == 1 && page.value != 1)
+                            page.value -= 1
+
+                        fetchStats()
+                        fetchUserLog()
+                        fetchCombinedRequest()
+                        fetchCombineHistory()
+                    }
+                })
         }
     } catch (error) {
         console.error(error)
@@ -192,7 +237,7 @@ const handleApprove = async (item, index, isActive) => {
 }
 
 onMounted(async () => {
-    try{ 
+    try {
         fetchStats()
         fetchUserLog()
         fetchCombinedRequest()
@@ -227,7 +272,7 @@ watch(pageRequestHistory, async () => {
 })
 
 onUnmounted(() => {
-    controllerAbort()
+    controller.abort()
 })
 </script>
 
@@ -241,18 +286,15 @@ onUnmounted(() => {
             </div>
 
             <div class="d-flex flex-row justify-space-between align-center">
-                 <div class="d-flex flex-column w-100">
+                <div class="d-flex flex-column w-100">
                     <span class="text-headline-medium font-weight-bold">{{ selectedUserGroup.name }}</span>
                     <div class="text-grey-lighten-1">
                         <span>{{ selectedUserGroup.email }}</span>
                     </div>
 
                     <div class="mt-2">
-                        <v-chip 
-                        :text="toTitleCase(selectedUserGroup.role)"
-                        :color="selectedUserGroup.role === 'member' ? 'blue-darken-2' : 'warning'"
-                        variant="flat"
-                        >
+                        <v-chip :text="toTitleCase(selectedUserGroup.role)"
+                            :color="selectedUserGroup.role === 'member' ? 'blue-darken-2' : 'warning'" variant="flat">
                         </v-chip>
                     </div>
                 </div>
@@ -261,131 +303,132 @@ onUnmounted(() => {
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Attendance History</span>
-                    <v-divider class="border-opacity-50"></v-divider>      
+                    <v-divider class="border-opacity-50"></v-divider>
                 </div>
 
                 <div>
                     <div class="d-flex flex-row flex-wrap flex-sm-nowrap ga-2">
-                        <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
+                        <v-card
+                            class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>On Time</v-card-title>
-                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
-                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.onTime }}</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
+                                type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.onTime
+                                }}</v-card-text>
                         </v-card>
-                        <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
+                        <v-card
+                            class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>Late</v-card-title>
-                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
-                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.late }}</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
+                                type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.late
+                                }}</v-card-text>
                         </v-card>
-                        <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
+                        <v-card
+                            class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>Override</v-card-title>
-                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
-                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.override }}</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
+                                type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{
+                                attendanceReport.override }}</v-card-text>
                         </v-card>
-                        <v-card class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
+                        <v-card
+                            class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>Leave</v-card-title>
-                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100" type="text"></v-skeleton-loader>
-                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.leave }}</v-card-text>
+                            <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
+                                type="text"></v-skeleton-loader>
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.leave
+                                }}</v-card-text>
                         </v-card>
                     </div>
                 </div>
 
                 <div class="d-flex flex-column ga-2">
-                        <v-data-table 
-                        theme="dark"
-                        striped="even"
-                        :page="pageUserLog"
-                        :headers="headers"
-                        :items="userLogs?.results"
-                        :loading="isLoadingUserLog"
-                        :items-per-page="size"
-                        hide-default-footer
-                        fixed-header
-                        >
-                            <template #loading>
-                                <tr v-for="n in size" :key="n" class="d-flex flex-row">
-                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
-                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
-                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
-                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
-                                    <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
-                                </tr>
-                            </template> 
+                    <v-data-table theme="dark" striped="even" :page="pageUserLog" :headers="headers"
+                        :items="userLogs?.results" :loading="isLoadingUserLog" :items-per-page="size"
+                        hide-default-footer fixed-header>
+                        <template #loading>
+                            <tr v-for="n in size" :key="n" class="d-flex flex-row">
+                                <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                                <td class="flex-grow-1"><v-skeleton-loader type="text" /></td>
+                            </tr>
+                        </template>
 
-                            <template #item.date="{ item }">
-                                {{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}
-                            </template>
+                        <template #item.date="{ item }">
+                            {{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}
+                        </template>
 
-                            <template #item.clockIn="{ item }">
-                                {{ item.type != "leave" ? formatDate(item?.start_date_time, "HH:mm") : "" }}
-                            </template>
+                        <template #item.clockIn="{ item }">
+                            {{ item.type != "leave" ? formatDate(item?.start_date_time, "HH:mm") : "" }}
+                        </template>
 
-                            <template #item.clockOut="{ item }">
-                                {{ item.type != "leave" ? formatDate(item?.end_date_time, "HH:mm") : "" }}
-                            </template>
+                        <template #item.clockOut="{ item }">
+                            {{ item.type != "leave" ? formatDate(item?.end_date_time, "HH:mm") : "" }}
+                        </template>
 
-                            <template #item.type="{ item }">
-                                {{ toTitleCase(item?.type) }}
-                            </template>
-                        </v-data-table>
-                        <v-pagination v-model=pageUserLog :disabled="isLoadingUserLog" :length="userLogs?.total_pages"></v-pagination>
-                    </div>
+                        <template #item.type="{ item }">
+                            {{ toTitleCase(item?.type) }}
+                        </template>
+                    </v-data-table>
+                    <v-pagination v-model=pageUserLog :disabled="isLoadingUserLog"
+                        :length="userLogs?.total_pages"></v-pagination>
+                </div>
             </div>
 
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Request Waiting for Approval</span>
-                    <v-divider class="border-opacity-50"></v-divider>      
+                    <v-divider class="border-opacity-50"></v-divider>
                 </div>
 
                 <div class="d-flex flex-column ga-4">
                     <template v-if="isLoadingRequestWaiting">
                         <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
                     </template>
-                    
+
                     <template v-else>
-                        <v-dialog
-                        width="600"
-                        v-for="(item, index) in requestWaiting?.results">
-                            <template v-slot:activator="{props:activatorProps}">
-                                <v-card 
-                                link
-                                class="bg-blur border-sm border-opacity-75 pa-2 text-white"
-                                v-bind="activatorProps"
-                                >
+                        <v-dialog :persistent="isReviewLoading" width="600"
+                            v-for="(item, index) in requestWaiting?.results">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <v-card link class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+                                    v-bind="activatorProps">
                                     <v-card-text>
                                         <div class="d-flex flex-column ga-1">
-                                            <span class="text-title-large font-weight-bold text-truncate" v-if="item?.type == 'override'">Override Request</span>
-                                            <span class="text-title-large font-weight-bold text-truncate" v-else-if="item?.type == 'leave'">Leave Request</span>
-                                            <span class="text-body-small text-grey-lighten-1 text-truncate">Requested by {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                            <span class="text-title-large font-weight-bold text-truncate"
+                                                v-if="item?.type == 'override'">Override Request</span>
+                                            <span class="text-title-large font-weight-bold text-truncate"
+                                                v-else-if="item?.type == 'leave'">Leave Request</span>
+                                            <span class="text-body-small text-grey-lighten-1 text-truncate">Requested by
+                                                {{ item?.user?.name }} at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                         </div>
                                     </v-card-text>
                                 </v-card>
                             </template>
 
-                            <template v-slot:default="{isActive}">
-                                <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" 
-                                :disabled="isReviewLoading" 
-                                :loading="isReviewLoading">
+                            <template v-slot:default="{ isActive }">
+                                <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" :disabled="isReviewLoading"
+                                    :loading="isReviewLoading">
                                     <v-card-actions>
-                                        <v-btn
-                                        variant="text"
-                                        icon="mdi-close"
-                                        @click="isActive.value = false">
+                                        <v-btn variant="text" icon="mdi-close" @click="isActive.value = false">
                                         </v-btn>
                                     </v-card-actions>
 
                                     <v-card-title class="font-weight-bold text-title-large">
                                         <span v-if="item?.type == 'override'">Override Request</span>
                                         <span v-else-if="item?.type == 'leave'">Leave Request</span>
-                                        <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                                        <v-divider class="border-opacity-50 mt-1"></v-divider>
                                     </v-card-title>
 
                                     <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Requester</span>
-                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{ item?.user.email }})</span>
+                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{
+                                                item?.user.email }})</span>
                                         </div>
-                                        
+
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Date</span>
                                             <span class="text-grey-lighten-1">{{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
@@ -394,22 +437,25 @@ onUnmounted(() => {
                                         <template v-if="item?.type == 'leave'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-medium font-weight-bold">Leave Type</span>
-                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name }}</span>
+                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name
+                                                    }}</span>
                                             </div>
 
                                             <div class="d-flex flex-column">
-                                                <span class="text-title-medium font-weight-bold">Start Date / End Date</span>
+                                                <span class="text-title-medium font-weight-bold">Start Date / End
+                                                    Date</span>
                                                 <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }} / {{ formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                             </div>
                                         </template>
 
                                         <template v-else-if="item?.type == 'override'">
                                             <div class="d-flex flex-column">
-                                                <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
+                                                <span class="text-title-medium font-weight-bold">Clock In / Clock
+                                                    Out</span>
                                                 <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
-                                            </div> 
+                                            </div>
                                         </template>
-                                        
+
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Reason</span>
                                             <span class="text-grey-lighten-1 text-justify">{{ item?.reason }}</span>
@@ -417,22 +463,22 @@ onUnmounted(() => {
                                     </v-card-text>
 
                                     <v-card-actions v-if="item?.supervisor?.id == id">
-                                        <div class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
-                                            <v-btn
-                                            color="success"
-                                            text="Approve"
-                                            variant="flat"
-                                            class="w-100 w-sm-33"
-                                            @click="handleApprove(item, index, isActive)"
-                                            ></v-btn>
-    
-                                            <v-btn
-                                            color="red"
-                                            text="Reject"
-                                            variant="flat"
-                                            class="w-100 w-sm-33"
-                                            @click="handleReject(item?.id, item?.type, index, isActive)"
-                                            ></v-btn>
+                                        <div
+                                            class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
+                                            <v-btn color="success" text="Approve" variant="flat" class="w-100 w-sm-33"
+                                                @click="handleApprove(item, index, isActive)"></v-btn>
+
+                                            <v-btn color="red" text="Reject" variant="flat" class="w-100 w-sm-33"
+                                                @click="handleReject(item?.id, item?.type, index, isActive)"></v-btn>
+                                        </div>
+                                    </v-card-actions>
+
+                                    <v-card-actions v-if="item?.status == 'requested' && item?.user?.id == id">
+                                        <div
+                                            class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
+                                            <v-btn text="Cancel" variant="flat" color="red" class="w-100 w-sm-33"
+                                                @click="handleCancel(item?.id, isActive)">
+                                            </v-btn>
                                         </div>
                                     </v-card-actions>
                                 </v-card>
@@ -440,41 +486,41 @@ onUnmounted(() => {
                         </v-dialog>
                     </template>
 
-                    <v-pagination v-model="pageRequestWaiting" :disabled="isLoadingRequestWaiting" :length="requestWaiting?.total_pages" @update:model-value="() => isLoadingRequestWaiting = isLoadingRequestWaiting"></v-pagination>
+                    <v-pagination v-model="pageRequestWaiting" :disabled="isLoadingRequestWaiting"
+                        :length="requestWaiting?.total_pages"
+                        @update:model-value="() => isLoadingRequestWaiting = isLoadingRequestWaiting"></v-pagination>
                 </div>
             </div>
 
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Request History</span>
-                    <v-divider class="border-opacity-50"></v-divider>      
+                    <v-divider class="border-opacity-50"></v-divider>
                 </div>
-                
+
                 <div class="d-flex flex-column ga-4">
                     <template v-if="isLoadingRequestHistory">
                         <v-skeleton-loader type="article" v-for="i in size"></v-skeleton-loader>
                     </template>
-                    
+
                     <template v-else>
-                        <v-dialog
-                        width="600"
-                        v-for="item in requestHistory?.results">
-                            <template v-slot:activator="{props:activatorProps}">
-                                <v-card 
-                                link
-                                class="bg-blur border-sm border-opacity-75 pa-2 text-white"
-                                v-bind="activatorProps">
+                        <v-dialog width="600" v-for="item in requestHistory?.results">
+                            <template v-slot:activator="{ props: activatorProps }">
+                                <v-card link class="bg-blur border-sm border-opacity-75 pa-2 text-white"
+                                    v-bind="activatorProps">
                                     <v-card-text>
                                         <div class="d-flex flex-column ga-1">
-                                            <span class="text-title-large font-weight-bold text-truncate" v-if="item?.type == 'override'">Override Request</span>
-                                            <span class="text-title-large font-weight-bold text-truncate" v-else-if="item?.type == 'leave'">Leave Request</span>
-                                            <span class="text-body-small text-grey-lighten-1 text-truncate">{{ item?.reason }}</span>
-                                            <span class="text-body-small text-grey-lighten-1 text-truncate">Request created at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
+                                            <span class="text-title-large font-weight-bold text-truncate"
+                                                v-if="item?.type == 'override'">Override Request</span>
+                                            <span class="text-title-large font-weight-bold text-truncate"
+                                                v-else-if="item?.type == 'leave'">Leave Request</span>
+                                            <span class="text-body-small text-grey-lighten-1 text-truncate">{{
+                                                item?.reason }}</span>
+                                            <span class="text-body-small text-grey-lighten-1 text-truncate">Request
+                                                created at {{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                             <div class="mt-2" v-if="item?.status != 'requested'">
-                                                <v-chip 
-                                                :color="item?.status === 'approved' ? 'green' : 'red'"
-                                                variant="flat"
-                                                >
+                                                <v-chip :color="item?.status === 'approved' ? 'green' : 'red'"
+                                                    variant="flat">
                                                     <!-- Change color and role name here -->
                                                     {{ toTitleCase(item?.status) }}
                                                 </v-chip>
@@ -484,13 +530,10 @@ onUnmounted(() => {
                                 </v-card>
                             </template>
 
-                            <template v-slot:default="{isActive}">
+                            <template v-slot:default="{ isActive }">
                                 <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10">
                                     <v-card-actions>
-                                        <v-btn
-                                        variant="text"
-                                        icon="mdi-close"
-                                        @click="isActive.value = false">
+                                        <v-btn variant="text" icon="mdi-close" @click="isActive.value = false">
                                         </v-btn>
                                     </v-card-actions>
 
@@ -498,24 +541,22 @@ onUnmounted(() => {
                                         <div class="d-flex flex-wrap flex-sm-nowrap ga-2">
                                             <span v-if="item?.type == 'override'">Override Request</span>
                                             <span v-else-if="item?.type == 'leave'">Leave Request</span>
-    
-                                            <v-chip 
-                                            v-if="item?.status != 'requested'"
-                                            :color="item?.status === 'approved' ? 'green' : 'red'"
-                                            variant="flat"
-                                            >
+
+                                            <v-chip v-if="item?.status != 'requested'"
+                                                :color="item?.status === 'approved' ? 'green' : 'red'" variant="flat">
                                                 {{ toTitleCase(item?.status) }}
                                             </v-chip>
                                         </div>
-                                        <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                                        <v-divider class="border-opacity-50 mt-1"></v-divider>
                                     </v-card-title>
 
                                     <v-card-text class="d-flex flex-column ga-8 mt-4">
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Requester</span>
-                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{ item?.user.email }})</span>
+                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{
+                                                item?.user.email }})</span>
                                         </div>
-                                        
+
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Date</span>
                                             <span class="text-grey-lighten-1">{{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
@@ -524,22 +565,25 @@ onUnmounted(() => {
                                         <template v-if="item?.type == 'leave'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-medium font-weight-bold">Leave Type</span>
-                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name }}</span>
+                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name
+                                                    }}</span>
                                             </div>
 
                                             <div class="d-flex flex-column">
-                                                <span class="text-title-medium font-weight-bold">Start Date / End Date</span>
+                                                <span class="text-title-medium font-weight-bold">Start Date / End
+                                                    Date</span>
                                                 <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }} / {{ formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                             </div>
                                         </template>
 
                                         <template v-else-if="item?.type == 'override'">
                                             <div class="d-flex flex-column">
-                                                <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
+                                                <span class="text-title-medium font-weight-bold">Clock In / Clock
+                                                    Out</span>
                                                 <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
                                             </div>
                                         </template>
-                                        
+
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Reason</span>
                                             <span class="text-grey-lighten-1 text-justify">{{ item?.reason }}</span>
@@ -550,15 +594,17 @@ onUnmounted(() => {
                         </v-dialog>
                     </template>
 
-                    <v-pagination v-model="pageRequestHistory" :disabled="isLoadingRequestHistory" :length="requestHistory?.total_pages" @update:model-value="() => isLoadingRequestHistory = isLoadingRequestHistory"></v-pagination>
+                    <v-pagination v-model="pageRequestHistory" :disabled="isLoadingRequestHistory"
+                        :length="requestHistory?.total_pages"
+                        @update:model-value="() => isLoadingRequestHistory = isLoadingRequestHistory"></v-pagination>
                 </div>
             </div>
         </div>
-    </div>  
+    </div>
 </template>
 
 <style lang="scss" scoped>
 :deep(.v-data-table .v-table__wrapper table tbody tr td) {
-  min-width: 150px !important;
+    min-width: 150px !important;
 }
 </style>

@@ -39,4 +39,31 @@ const sendInvitation = async (email, user_id, group_id) => {
     return response
 }
 
-export { invitationListInvitee, sendInvitation }
+const approveInvitationRequest = async (item) => {
+    const response = await api.post(
+        `/approve-request/`, {
+            type: "invitation",
+            status: "approved",
+            id: item.id,
+            user_id: item.invitee.id,
+            group_id: item.group.id,
+        }, 
+        {
+            params: {
+                group_id: item.group.id,
+            },
+        },
+    )
+    
+    return response
+}
+
+const updateInvitationRequest = async (id, body) => {
+    const response = await api.put(
+        `/invitation-requests-details/${id}/`, body
+    )
+
+    return response
+}
+
+export { invitationListInvitee, sendInvitation, approveInvitationRequest, updateInvitationRequest }

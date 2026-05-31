@@ -37,6 +37,7 @@ const todayDate = computed(() => {
         const currentDate = formatDate(getCurrentDateTime(), "YYYY-MM-DD")
 
         if (logDate == currentDate){
+            console.log(logDate)
             return true
         }
         return false
@@ -131,7 +132,7 @@ onUnmounted(() => {
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock in')">
                         <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-title-medium">Registered Clock In</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">{{ formatDate(todayDate?.start_date_time, "HH:mm") ?? "-- : --" }}</v-card-text>
+                            <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate ? formatDate(todayDate?.start_date_time, "HH:mm") : "-- : --" }}</v-card-text>
                             <v-card-actions class="w-100">
                                 <v-btn block text="Clock In →" variant="elevated" class="bg-white"></v-btn>
                             </v-card-actions>
@@ -140,7 +141,7 @@ onUnmounted(() => {
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock out')">
                         <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-title-medium">Registered Clock Out</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">{{ formatDate(todayDate?.end_date_time, "HH:mm") ?? "-- : --" }}</v-card-text>
+                            <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate ? formatDate(todayDate?.end_date_time, "HH:mm") : "-- : --" }}</v-card-text>
                             <v-card-actions class="w-100">
                                 <v-btn block text="Clock Out →" variant="elevated" class="bg-white"></v-btn>
                             </v-card-actions>

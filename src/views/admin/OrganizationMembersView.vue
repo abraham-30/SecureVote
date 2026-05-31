@@ -63,7 +63,7 @@ const handleDelete = async(userGroupId) => {
                 popUpRemove.value = false
 
                 const currentLen = userGroupMember.value?.results.length
-                if (currentLen == 1) 
+                if (currentLen == 1 && page.value != 1) 
                     page.value -= 1 
                 await fetchUserGroupMember()
             }
@@ -141,6 +141,7 @@ function activateSidebar(){
                     <template v-else>
                         <v-dialog 
                         max-width="600"
+                        :persistent="isLoadingEdit"
                         v-for="(item, index) in userGroupMember?.results"
                         >
                             <template v-slot:activator="{ props: activatorProps }">
@@ -225,6 +226,7 @@ function activateSidebar(){
 
                 <v-dialog
                 max-width="450"
+                :persistent="isLoadingDelete"
                 v-model="popUpRemove">
                     <v-card class="pa-8 d-flex flex-column align-center" :loading="isLoadingDelete" :disabled="isLoadingDelete">
                         <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
