@@ -2,11 +2,15 @@
 import { useGroupStore } from '@/stores/GroupStore';
 import { useUserStore } from '@/stores/UserStore';
 import { storeToRefs } from 'pinia';
+import { logout } from '@/services/auth'
+import router from '@/router/index.js'
+import { ref } from 'vue'
 
 const groupStore = useGroupStore()
 const userStore = useUserStore()
 const { group } = storeToRefs(groupStore)
 const { name } = storeToRefs(userStore)
+const isLoading = ref(false)
 
 const props = defineProps({
     isOpen: {
@@ -22,6 +26,23 @@ const emits = defineEmits([
 
 function activateSidebar(){
     emits('activate')
+}
+
+const handleLogout = async() => {
+    try {
+        isLoading.value = true
+        
+        await logout()
+        .then((response) => {
+            if (response.status == 200) 
+                router.push({name: "tenda"})
+        })
+
+    } catch(error) {
+        console.log(error)
+    } finally {
+        isLoading.value = false
+    }
 }
 </script>
 
@@ -47,9 +68,10 @@ function activateSidebar(){
                     </div>
                     <div class="w-100">
                         <v-btn 
+                        :loading="isLoading"
                         block 
                         class="bg-white"
-                        to="/">
+                        @click="handleLogout()">
                             Sign Out
                         </v-btn>
                     </div>

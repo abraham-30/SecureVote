@@ -2,7 +2,7 @@
 import { ref, onMounted, reactive, onUnmounted, computed, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import AdminSideNavbar from '@/components/AdminSideNavbar.vue';
-import { attendanceTypesList } from '@/services/AttendanceTypeService';
+import { addAttendanceType, attendanceTypesList, updateAttendanceType } from '@/services/AttendanceTypeService';
 import { updateWorkingDays, updateWorkingHours, WorkingHoursList } from '@/services/WorkingHoursService';
 import { useGroupStore } from '@/stores/GroupStore';
 import { formatDate } from '@/utils/date';
@@ -10,13 +10,14 @@ import { fieldRequired } from '@/utils/rules';
 import moment from 'moment';
 
 const popupDelete = ref(false);
-const popupAddCategory = ref(false);
+const popupDeleteCategory = ref(false);
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 
 const isLoadingDays = ref(true)
 const isLoadingWorkingHours = ref(true)
 const isLoadingCategory = ref(true)
+const isLoadingPopUpCategory = ref(false)
 const controller = new AbortController()
 const isSidebarOpen = ref(true)
 const formWorkingHoursRef = ref()
@@ -26,13 +27,13 @@ const formWorkingHours = reactive({
     endTime: null,
 })
 
-const formWorkingDays = reactive({
-    selectedDays: null,
-})
-
 const formWorkingHoursTemp = reactive({
     isValid: false,
     ...formWorkingHours
+})
+
+const formWorkingDays = reactive({
+    selectedDays: null,
 })
 
 const formWorkingDaysTemp = reactive({
@@ -41,9 +42,26 @@ const formWorkingDaysTemp = reactive({
 })
 
 const formAttendanceTypes = reactive({
-    isValid: false,
     attendanceTypes: null,
 })
+
+const formAttendanceTypesTemp = reactive({
+    isValid: false,
+    id: null,
+    index: null,
+    name: null,
+    quantity: null,
+})
+
+const allDays = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+]
 
 const checkBoxRules = computed(() => {
     if (formWorkingDaysTemp.selectedDays?.length == 0) 
@@ -75,6 +93,13 @@ const isWorkingHoursDirty = computed(() => {
     )
 })
 
+const isEditAttendanceTypeDirty = computed(() => {
+    return (
+        formAttendanceTypes.attendanceTypes?.[formAttendanceTypesTemp.index || 0].name === formAttendanceTypesTemp.name &&
+        formAttendanceTypes.attendanceTypes?.[formAttendanceTypesTemp.index || 0].max_days === formAttendanceTypesTemp.quantity
+    )
+})
+
 const startHourRules = [
     v => fieldRequired(v, "Start Hour is required"),
     v => workingHoursRules.value || "Start Hour must be before End Hour"
@@ -83,17 +108,17 @@ const startHourRules = [
 const endHourRules = [
     v => fieldRequired(v, "End Hour is required"),
     v => workingHoursRules.value || "End Hour must be after Start Hour"
-] 
-
-const allDays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
 ]
+
+const closePopUpCategory = (isActive) => {
+    if(!!isActive.value)
+        isActive.value = false
+
+    formAttendanceTypesTemp.name = null
+    formAttendanceTypesTemp.quantity = null
+    formAttendanceTypesTemp.id = null
+    formAttendanceTypesTemp.index = null
+}
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
@@ -105,7 +130,7 @@ const resetWorkingHours = () => {
 }
 
 const resetWorkingDays = () => {
-    formWorkingDaysTemp.selectedDays = formWorkingDays.selectedDays
+    formWorkingDaysTemp.selectedDays = [...formWorkingDays.selectedDays]
 }
 
 const handleSubmitWorkingHours = async () => {
@@ -153,7 +178,7 @@ const handleSubmitWorkingDays = async () => {
             .then(response => {
                 if(response.status == 200) {
                     formWorkingDays.selectedDays = response.data.map(item => item.day)
-                    formWorkingDaysTemp.selectedDays = formWorkingDays.selectedDays
+                    formWorkingDaysTemp.selectedDays = [...formWorkingDays.selectedDays]
                 }
             })
         }
@@ -164,10 +189,84 @@ const handleSubmitWorkingDays = async () => {
     }
 }
 
+const handleSubmitAddAttendanceType = async (isActive) => {
+    try {
+        isLoadingPopUpCategory.value = true
+
+        if(formAttendanceTypesTemp.isValid) {
+            await addAttendanceType({
+                name: formAttendanceTypesTemp.name,
+                group_id: group.value.id,
+                max_days: parseInt(formAttendanceTypesTemp.quantity),
+            }, group.value.id)
+            .then((response) => {
+                if (response.status == 201) {
+                    formAttendanceTypes.attendanceTypes.push(response.data)
+                    
+                    closePopUpCategory(isActive)
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingPopUpCategory.value = false
+    }
+}
+
+const handleSubmitEditAttendanceType = async (isActive) => {
+    try {
+        isLoadingPopUpCategory.value = true
+
+        if(formAttendanceTypesTemp.isValid) {
+            await updateAttendanceType({
+                name: formAttendanceTypesTemp.name,
+                max_days: parseInt(formAttendanceTypesTemp.quantity),
+            }, formAttendanceTypesTemp.id, group.value.id)
+            .then((response) => {
+                if (response.status == 200) {
+                    formAttendanceTypes.attendanceTypes[formAttendanceTypesTemp.index].name = response.data.name
+                    formAttendanceTypes.attendanceTypes[formAttendanceTypesTemp.index].max_days = response.data.max_days
+                    
+                    closePopUpCategory(isActive)
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingPopUpCategory.value = false
+    }
+}
+
+const handleSubmitDeleteAttendanceType = async () => {
+    try {
+        isLoadingPopUpCategory.value = true
+
+        if(formAttendanceTypesTemp.isValid) {
+            await updateAttendanceType({
+                is_deleted: true,
+            }, formAttendanceTypesTemp.id, group.value.id)
+            .then((response) => {
+                if (response.status == 200) {
+                    formAttendanceTypes.attendanceTypes.splice(formAttendanceTypesTemp.index, 1)
+
+                    popupDeleteCategory.value = false
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingPopUpCategory.value = false
+    }
+}
+
 onMounted(async () => {
     attendanceTypesList(group.value?.id, controller.signal)
     .then((response) => {
         formAttendanceTypes.attendanceTypes = response.data
+
         isLoadingCategory.value = false
     })
     
@@ -177,7 +276,7 @@ onMounted(async () => {
         formWorkingHours.endTime = formatDate(response.data[0]?.end_time, "HH:mm", "HH:mm:ss") 
         formWorkingDays.selectedDays = response.data.map(item => item.day)
         
-        formWorkingDaysTemp.selectedDays = formWorkingDays.selectedDays
+        formWorkingDaysTemp.selectedDays = [...formWorkingDays.selectedDays]
         formWorkingHoursTemp.startTime = formWorkingHours.startTime
         formWorkingHoursTemp.endTime = formWorkingHours.endTime
         isLoadingDays.value = false
@@ -321,23 +420,25 @@ onUnmounted(() => {
                     </template>
                     <template v-else>
                         <div class="d-flex flex-wrap ga-4">
-                            <v-btn
-                                text="Add Category +"
-                                class="bg-white"
-                                style="max-width: 150px;"
-                                :disabled="isLoadingCategory"
-                                @click = "popupAddCategory=true"
-                            ></v-btn>
-                            <div class="d-flex flex-wrap ga-2">
-                                <v-dialog
-                                v-model="popupAddCategory"
-                                max-width="600">
-                                    <v-card class="pa-4">
+                            <v-dialog                                
+                            max-width="600"
+                            >
+                                <template v-slot:activator="{ props: activatorProps }">
+                                    <v-btn
+                                        text="Add Category +"
+                                        class="bg-white"
+                                        style="max-width: 150px;"
+                                        v-bind="activatorProps"
+                                    ></v-btn>
+                                </template>
+
+                                <template #default="{ isActive }">
+                                    <v-card class="pa-4" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
                                         <v-card-actions>
                                             <v-btn
                                             variant="text"
                                             icon="mdi-close"
-                                            @click="popupAddCategory = false"></v-btn>
+                                            @click="closePopUpCategory(isActive)"></v-btn>
                                         </v-card-actions>
                                         <v-card-title class="font-weight-bold text-headline-medium">
                                             Add Category
@@ -347,11 +448,16 @@ onUnmounted(() => {
                                         </v-card-subtitle>
                                         <v-card-text class="d-flex flex-column align-start ga-4">
                                             <v-form 
+                                            v-model="formAttendanceTypesTemp.isValid"
                                             validate-on="input lazy"
-                                            class="d-flex flex-column ga-8 w-100 align-start">
+                                            class="d-flex flex-column ga-8 w-100 align-end"
+                                            @submit.prevent="handleSubmitAddAttendanceType(isActive)"
+                                            >
                                                 <div class="w-100">
                                                     Name <br>
                                                     <v-text-field
+                                                    v-model="formAttendanceTypesTemp.name"
+                                                    :rules="[v => fieldRequired(v, 'Name is required')]"
                                                     placeholder="Type Name"
                                                     hide-details="auto"
                                                     variant="outlined"
@@ -360,23 +466,28 @@ onUnmounted(() => {
             
                                                 <div class="w-100">
                                                     Quantity <br>
-                                                    <v-text-field
+                                                    <v-number-input
+                                                    v-model="formAttendanceTypesTemp.quantity"
+                                                    :rules="[v => v !== null || 'Quantity is required', v => v !== 0 || 'Quantity must be >0']"
                                                     placeholder="Type Quantity"
                                                     hide-details="auto"
-                                                    type="number"
                                                     variant="outlined"
-                                                    class="w-100"></v-text-field>
+                                                    control-variant="hidden"
+                                                    class="w-100"></v-number-input>
                                                 </div>
                                                 <v-btn
+                                                type="submit"
                                                 text="Save Changes"
                                                 class="bg-white"></v-btn>
                                             </v-form>
                                         </v-card-text>
                                     </v-card>
-                                </v-dialog>
+                                </template>
+                            </v-dialog>
+                            <div class="d-flex flex-wrap ga-2">
                                 <v-dialog
                                 max-width="600"
-                                v-for="item in formAttendanceTypes.attendanceTypes">
+                                v-for="(item, index) in formAttendanceTypes.attendanceTypes">
                                 <template v-slot:activator="{ props: activatorProps }">
                                     <!-- Iterate Here -->
                                     <v-card 
@@ -385,7 +496,14 @@ onUnmounted(() => {
                                     :title="item?.name"
                                     color="white"
                                     link
-                                    v-bind="activatorProps">
+                                    v-bind="activatorProps"
+                                    @click="() => {
+                                        formAttendanceTypesTemp.id = item?.id
+                                        formAttendanceTypesTemp.name = item?.name
+                                        formAttendanceTypesTemp.quantity = item?.max_days
+                                        formAttendanceTypesTemp.index = index
+                                    }"
+                                    >
                                         <v-card-text>
                                             <v-chip
                                             :text="item?.max_days"
@@ -395,12 +513,12 @@ onUnmounted(() => {
                                     </v-card>
                                 </template>
                                 <template v-slot:default="{ isActive }">
-                                    <v-card class="pa-4">
+                                    <v-card class="pa-4" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
                                         <v-card-actions>
                                             <v-btn
                                             variant="text"
                                             icon="mdi-close"
-                                            @click="() => isActive.value = false"></v-btn>
+                                            @click="closePopUpCategory(isActive)"></v-btn>
                                         </v-card-actions>
                                         <v-card-title class="font-weight-bold text-headline-medium">
                                             Edit Category
@@ -412,33 +530,43 @@ onUnmounted(() => {
                                             <v-btn
                                             color="red"
                                             text="Delete Category"
-                                            @click = "popupReject = true"
+                                            @click = "() => {
+                                                popupDeleteCategory = true
+                                                isActive.value = false
+                                            }"
                                             ></v-btn>
                                             <v-form
+                                            v-model="formAttendanceTypesTemp.isValid"
                                             validate-on="input eager"
-                                            class="d-flex flex-column ga-8 w-100 align-end">
+                                            class="d-flex flex-column ga-8 w-100 align-end"
+                                            @submit.prevent="handleSubmitEditAttendanceType(isActive)"
+                                            >
                                                 <div class="w-100">
                                                     Name <br>
                                                     <v-text-field
+                                                    v-model="formAttendanceTypesTemp.name"
+                                                    :rules="[v => fieldRequired(v, 'Name is required')]"
                                                     placeholder="Type Name"
                                                     hide-details="auto"
                                                     variant="outlined"
-                                                    :model-value="item.name"
                                                     class="w-100"></v-text-field>
                                                 </div>
             
                                                 <div class="w-100">
                                                     Quantity <br>
-                                                    <v-text-field
+                                                    <v-number-input
+                                                    v-model="formAttendanceTypesTemp.quantity"
+                                                    :rules="[v => v !== null || 'Quantity is required', v => v !== 0 || 'Quantity must be >0']"
                                                     placeholder="Type Quantity"
                                                     hide-details="auto"
-                                                    type="number"
                                                     variant="outlined"
-                                                    :model-value="item.max_days"
-                                                    class="w-100"></v-text-field>
+                                                    control-variant="hidden"
+                                                    class="w-100"></v-number-input>
                                                 </div>
                                                 <v-btn
+                                                type="submit"
                                                 text="Save Changes"
+                                                :disabled="isEditAttendanceTypeDirty"
                                                 class="bg-white"></v-btn>
                                             </v-form>
                                         </v-card-text>
@@ -516,6 +644,34 @@ onUnmounted(() => {
                     </v-card>
                 </v-dialog>
             </div>
+            <v-dialog
+            max-width="450"
+            v-model="popupDeleteCategory">
+                <v-card class="pa-8 d-flex flex-column align-center" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
+                    <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
+                        <v-icon
+                        size="72"
+                        color="warning"
+                        icon="mdi-alert"></v-icon>
+                        Are You Sure?
+                    </v-card-title>
+                    <v-card-text class="text-center text-grey-lighten-1">This action cannot be reverted</v-card-text>
+                    <v-card-actions class="w-100">
+                        <v-btn
+                        text="Cancel"
+                        class="bg-white w-50"
+                        @click="() => popupDeleteCategory = false"
+                        ></v-btn>
+                        <v-btn
+                        class="w-50"
+                        color="red"
+                        variant="flat"
+                        text="Remove Member"
+                        @click = "handleSubmitDeleteAttendanceType()" 
+                        ></v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </div>
     </div>
 </template>
@@ -528,5 +684,11 @@ onUnmounted(() => {
     &:deep(.v-label.v-label--clickable) {
         width: 100%;
     }
+}
+
+.v-text-field.no-spinner:deep(input) {
+    -webkit-appearance: none;
+    margin: 0;
+    -moz-appearance: textfield;
 }
 </style>

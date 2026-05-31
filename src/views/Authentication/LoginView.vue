@@ -7,6 +7,7 @@ import { fieldRequired, emailFieldCheck, passwordFieldCheck } from '@/utils/rule
 
 const email = ref()
 const password = ref()
+const isLoading = ref(false)
 const isValid = ref(false)
 const emailRules = [
     v => fieldRequired(v, 'Email is required'),
@@ -24,6 +25,7 @@ const passwordError = ref([])
 const handleSubmit = async () => {
     emailError.value = []
     passwordError.value = []
+    isLoading.value = true
 
     setTimeout(async () => {
         if(isValid.value) {
@@ -38,6 +40,8 @@ const handleSubmit = async () => {
                 }
             } catch (error) {
                 console.log(error)
+            } finally {
+                isLoading.value = false
             }
         }
     }, 100)
@@ -100,6 +104,7 @@ watch(password, () => {
                     </div>
                     <div class="w-100 d-flex justify-center mt-4">
                         <v-btn 
+                            :loading="isLoading"
                             type="submit"
                             text="Sign In →"
                             class="w-66 w-lg-50 bg-white"

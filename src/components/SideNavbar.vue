@@ -1,9 +1,13 @@
 <script setup>
 import { useUserStore } from '@/stores/UserStore';
 import { storeToRefs } from 'pinia';
+import { logout } from '@/services/auth'
+import router from '@/router/index.js'
+import { ref } from 'vue'
 
 const userStore = useUserStore()
 const { role } = storeToRefs(userStore)
+const isLoading = ref(false)
 
 const props = defineProps({
     isOpen: {
@@ -19,6 +23,23 @@ const emits = defineEmits([
 
 function activateSidebar(){
     emits('activate')
+}
+
+const handleLogout = async() => {
+    try {
+        isLoading.value = true
+        
+        await logout()
+        .then((response) => {
+            if (response.status == 200) 
+                router.push({name: "tenda"})
+        })
+
+    } catch(error) {
+        console.log(error)
+    } finally {
+        isLoading.value = false
+    }
 }
 </script>
 
@@ -42,9 +63,10 @@ function activateSidebar(){
                 </div>
                 <div class="w-100">
                     <v-btn 
+                    :loading="isLoading"
                     block 
                     class="bg-white"
-                    to="/">
+                    @click="handleLogout()">
                         Sign Out
                     </v-btn>
                 </div>

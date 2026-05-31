@@ -1,23 +1,31 @@
 <script setup>
-    import iconUrl from '@/assets/icon-neutralgrey200.png'
-    import { logout } from '@/services/auth'
-    import router from '@/router/index.js'
-    import { useUserStore } from '@/stores/UserStore.js'
-    import { storeToRefs } from 'pinia'
+import iconUrl from '@/assets/icon-neutralgrey200.png'
+import { logout } from '@/services/auth'
+import router from '@/router/index.js'
+import { useUserStore } from '@/stores/UserStore.js'
+import { storeToRefs } from 'pinia'
+import { ref } from 'vue'
 
-    const handleLogout = async() => {
-        try {
-            const response = await logout()
+const isLoading = ref(false)
+const store = useUserStore()
+const { name } = storeToRefs(store)
 
+const handleLogout = async() => {
+    try {
+        isLoading.value = true
+
+        await logout()
+        .then((response) => {
             if (response.status == 200) 
                 router.push({name: "tenda"})
-        } catch(error) {
-            console.log(error)
-        }
-    }
+        })
 
-    const store = useUserStore()
-    const { name } = storeToRefs(store)
+    } catch(error) {
+        console.log(error)
+    } finally {
+        isLoading.value = false
+    }
+}
 </script>
 
 <template>
@@ -28,6 +36,7 @@
         <div class="d-flex flex-row align-center ga-4">
             <span>Hi, {{ name }}</span>
             <v-btn
+            :loading="isLoading"
             class="bg-white"
             @click="handleLogout()">
               Sign Out

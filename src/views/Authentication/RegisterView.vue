@@ -27,9 +27,11 @@ const form = reactive({
 })
 
 const emailError = ref([])
+const isLoading = ref(false)
 
 const handleSubmit =  async () => {
     emailError.value = []
+    isLoading.value = false
 
     setTimeout(async () => {
         if(form.isValid) {
@@ -45,6 +47,8 @@ const handleSubmit =  async () => {
                 })
             } catch (error) {
                 console.error(error)
+            } finally {
+                isLoading.value = true
             }
         }
     }, 100)
@@ -117,6 +121,7 @@ watch(form.email, () => {
                     </div>
                     <div class="w-100 d-flex justify-center mt-4">
                         <v-btn 
+                        :loading="isLoading"
                         type="submit"
                         text="Continue →"
                         class="w-66 w-lg-50 bg-white" 
