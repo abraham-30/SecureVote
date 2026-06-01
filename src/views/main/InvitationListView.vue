@@ -164,10 +164,10 @@ onUnmounted(() => {
                                 <v-card-actions>
                                     <div
                                         class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
-                                        <v-btn variant="flat" text="Approve" color="green" class="w-33"
+                                        <v-btn variant="flat" text="Accept" color="green" class="w-33"
                                             @click="handleApprove(item, isActive)">
                                         </v-btn>
-                                        <v-btn variant="flat" text="Reject" color="red" class="w-33"
+                                        <v-btn variant="flat" text="Decline" color="red" class="w-33"
                                             @click="handleReject(item?.id, isActive)">
                                         </v-btn>
                                     </div>
