@@ -55,7 +55,7 @@ onMounted(async() => {
             isLoadingSpv.value = false
         }) 
 
-        leaveRemainingsList(id.value, group.value?.id, id.value, controller.signal)
+        leaveRemainingsList(id.value, group.value?.id, controller.signal)
         .then((response) => {
             leaveRemainingItems.value = response.data
             isLoadingLeaveRemaining.value = false

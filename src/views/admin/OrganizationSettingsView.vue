@@ -6,18 +6,24 @@ import { addAttendanceType, attendanceTypesList, updateAttendanceType } from '@/
 import { updateWorkingDays, updateWorkingHours, WorkingHoursList } from '@/services/WorkingHoursService';
 import { useGroupStore } from '@/stores/GroupStore';
 import { formatDate } from '@/utils/date';
-import { fieldRequired } from '@/utils/rules';
+import { fieldRequired, passwordFieldCheck } from '@/utils/rules';
 import moment from 'moment';
+import { deleteGroup } from '@/services/GroupServices';
+import router from '@/router';
+import { useUserStore } from '@/stores/UserStore';
 
 const popupDelete = ref(false);
 const popupDeleteCategory = ref(false);
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
+const userStore = useUserStore()
+const { email } = storeToRefs(userStore)
 
 const isLoadingDays = ref(true)
 const isLoadingWorkingHours = ref(true)
 const isLoadingCategory = ref(true)
 const isLoadingPopUpCategory = ref(false)
+const isLoadingDeleteOrganization = ref(false)
 const controller = new AbortController()
 const isSidebarOpen = ref(true)
 const formWorkingHoursRef = ref()
@@ -53,6 +59,11 @@ const formAttendanceTypesTemp = reactive({
     quantity: null,
 })
 
+const formDeleteOrg = reactive({
+    isValid: false,
+    password: null,
+})
+
 const allDays = [
     'Monday',
     'Tuesday',
@@ -62,6 +73,13 @@ const allDays = [
     'Saturday',
     'Sunday'
 ]
+
+const passwordRules = [
+    v => fieldRequired(v, 'Password is required'),
+    v => passwordFieldCheck(v)
+]
+
+const passwordError = ref([])
 
 const checkBoxRules = computed(() => {
     if (formWorkingDaysTemp.selectedDays?.length == 0) 
@@ -262,6 +280,30 @@ const handleSubmitDeleteAttendanceType = async () => {
     }
 }
 
+const handleDeleteOrganization = async () => {
+    isLoadingDeleteOrganization.value = true
+
+    try {
+        await deleteGroup({
+            data: {
+                email: email.value, 
+                password: formDeleteOrg.password
+            }
+        }, group.value.id)
+        .then((response) => {
+            if (response.status == 204 && !response.data.error_code)
+                    router.push({name: 'home'})
+                else if(response.data.error_code == 6) {
+                    passwordError.value = ['Invalid password']
+                }
+        })
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingDeleteOrganization.value = false
+    }
+}
+
 onMounted(async () => {
     attendanceTypesList(group.value?.id, controller.signal)
     .then((response) => {
@@ -281,11 +323,15 @@ onMounted(async () => {
         formWorkingHoursTemp.endTime = formWorkingHours.endTime
         isLoadingDays.value = false
         isLoadingWorkingHours.value = false
-    })    
+    })
 })
 
 watch([() => formWorkingHoursTemp.startTime, () => formWorkingHoursTemp.endTime], () => {
     formWorkingHoursRef.value?.validate()
+})
+
+watch(() => formDeleteOrg.password, () => {
+    passwordError.value = []
 })
 
 onUnmounted(() => {
@@ -410,7 +456,7 @@ onUnmounted(() => {
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Leave Categories</span>
-                    <v-divider class="border-opacity-50"></v-divider>      
+                    <v-divider  class="border-opacity-50"></v-divider>      
                 </div>
                 <div class="d-flex flex-column ga-2">
                     <template v-if="isLoadingCategory">
@@ -419,7 +465,7 @@ onUnmounted(() => {
                         </div>
                     </template>
                     <template v-else>
-                        <div class="d-flex flex-wrap ga-4">
+                        <div class="d-flex flex-column ga-4">
                             <v-dialog                                
                             max-width="600"
                             :persistent="isLoadingPopUpCategory"
@@ -578,7 +624,7 @@ onUnmounted(() => {
                             </div>
                         </div>
                     </template>
-                </div class="d-flex flex-column ga-4">
+                </div>
             </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-column ga-1">
@@ -592,7 +638,10 @@ onUnmounted(() => {
                     color="red"
                     style="min-width: 150px;"
                     :disabled="isLoadingDays || isLoadingWorkingHours || isLoadingCategory"
-                    @click = "popupDelete = true"
+                    @click = "() => {
+                        popupDelete = true
+                        formDeleteOrg.password = ''
+                    }"
                     ></v-btn>
                 </div>
                 <v-dialog
@@ -601,7 +650,7 @@ onUnmounted(() => {
                 max-width="500"
                 >
                     <v-card
-                    class="d-flex flex-column align-center pa-8 w-100">
+                    class="d-flex flex-column align-center pa-8 w-100" :disabled="isLoadingDeleteOrganization" :loading="isLoadingDeleteOrganization">
                         <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
                             <v-icon
                             size="72"
@@ -612,18 +661,24 @@ onUnmounted(() => {
                         <v-card-text class="text-center text-grey-lighten-1">
                             By clicking the “Delete” button, this whole organization is going to be deleted forever
                         </v-card-text>
-                        <v-card-actions class="d-flex flex-column w-100 align-center">
+                        <v-card-actions class="d-flex flex-column w-100 align-center" >
                             <v-form
+                            v-model="formDeleteOrg.isValid"
                             validate-on="input lazy"
-                            class="d-flex flex-column align-center ga-8 w-100">
+                            class="d-flex flex-column align-center ga-8 w-100"
+                            @submit.prevent="handleDeleteOrganization()"
+                            >
                                 <div class="w-100">
                                     Please enter your password to continue <br>
-                                    <v-text-field
-                                    placeholder=""
-                                    hide-details="auto"
-                                    variant="outlined"
-                                    type="password"
-                                    class="w-100">
+                                    <v-text-field 
+                                        v-model="formDeleteOrg.password"
+                                        :rules = "passwordRules"
+                                        :error-messages="passwordError"
+                                        hide-details="auto"
+                                        type="password"
+                                        variant="outlined"
+                                        class="w-100 mt-2"
+                                    >
                                     </v-text-field>
                                 </div>    
                             
@@ -635,11 +690,11 @@ onUnmounted(() => {
                                     @click = "popupDelete = false"
                                     ></v-btn>
                                     <v-btn
+                                    type="submit"
                                     class="w-50"
                                     color="red"
                                     variant="flat"
                                     text="Delete"
-                                    @click = ""
                                     ></v-btn>  <!-- Please add delete action -->
                                 </div>
                             </v-form>
@@ -688,11 +743,5 @@ onUnmounted(() => {
     &:deep(.v-label.v-label--clickable) {
         width: 100%;
     }
-}
-
-.v-text-field.no-spinner:deep(input) {
-    -webkit-appearance: none;
-    margin: 0;
-    -moz-appearance: textfield;
 }
 </style>

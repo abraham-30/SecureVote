@@ -15,6 +15,7 @@ const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
 const combinedRequestsForSupervisor = ref()
 const controller = new AbortController()
+const isErrorRemainingDays = ref(false)
 
 const page = ref(1)
 const size = 5
@@ -80,6 +81,7 @@ const handleReject = async (id, type, index, isActive) => {
 const handleApprove = async (item, index, isActive) => {
     try {
         isReviewLoading.value = true
+        isErrorRemainingDays.value = false
 
         if (item.type == "override") {
             await approveOverrideRequest(item)
@@ -96,7 +98,9 @@ const handleApprove = async (item, index, isActive) => {
         } else if (item.type == "leave") {
             await approveLeaveRequest(item)
                 .then(async (response) => {
-                    if (response.status == 200) {
+                    if (!!response.data.error_code) 
+                        isErrorRemainingDays.value = true
+                    else {
                         isActive.value = false
 
                         const currentLen = combinedRequestsForSupervisor.value?.results.length
@@ -153,7 +157,7 @@ onUnmounted(() => {
                 </template>
 
                 <template v-else>
-                    <v-dialog :persistent="isReviewLoading" width="600"
+                    <v-dialog :persistent="isReviewLoading" width="600" @after-leave="isErrorRemainingDays = true"
                         v-for="(item, index) in combinedRequestsForSupervisor.results">
                         <template v-slot:activator="{ props: activatorProps }">
                             <v-card link class="bg-blur border-sm border-opacity-75 pa-2 text-white"
@@ -184,6 +188,13 @@ onUnmounted(() => {
                                     <v-divider class="border-opacity-50 mt-1"></v-divider>
                                 </v-card-title>
                                 <v-card-text class="d-flex flex-column align-start ga-8">
+                                    <v-alert
+                                        v-if="isErrorRemainingDays"
+                                        density="compact"
+                                        text="Insufficient remaining days for the requester."
+                                        type="error"
+                                        class="w-100"
+                                    ></v-alert>
                                     <div class="d-flex flex-column">
                                         <span class="text-title-medium font-weight-bold">Requester</span>
                                         <span class="text-grey-lighten-1">{{ item?.user?.name }} <br>({{

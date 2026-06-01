@@ -1,37 +1,126 @@
 <script setup>
-import { ref } from 'vue';
+import { fieldRequired } from '@/utils/rules';
+import { computed, reactive, ref, watch } from 'vue';
+import moment from 'moment';
+import { addGroup } from '@/services/GroupServices';
+import { useUserStore } from '@/stores/UserStore';
+import { useGroupStore } from '@/stores/GroupStore';
+import router from '@/router';
 
-    const allDays = [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-    ]
+const allDays = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday'
+]
 
-    const popupAddCategory = ref(false)
-    const popupConfirmation = ref(false)
+const userStore = useUserStore()
+const groupStore = useGroupStore()
+const formStartTimeRef = ref()
+const formEndTimeRef = ref()
+const isLoadingSubmit = ref(false)
 
-    const dummyCategory = [
-        {
-            name : 'Cuti Tahunan',
-            quantity : 2
-        },
-        {
-            name : 'Sick Leave',
-            quantity : 999
-        },
-        {
-            name : 'Sick Leave',
-            quantity : 999
-        },
-        {
-            name : 'Sick Leave',
-            quantity : 999
-        },
-    ]
+const form = reactive({
+    isValid: false,
+    isWorkingDaysDirty: false,
+    workingDays: [],
+    workingHours: {
+        startTime: null,
+        endTime: null,
+    },
+    group: {
+        name: null,
+        description: null,
+    },
+    attendanceTypes: [],
+    tempName: null,
+    tempMaxDays: null,
+    tempIndex: null,
+})
+
+const checkBoxRules = computed(() => {
+    if (form.isWorkingDaysDirty && form.workingDays?.length == 0) 
+        return "Minimum 1 day is selected"
+    return null
+})
+
+const workingHoursRules = computed(() => {
+    return form.workingHours.startTime &&
+        form.workingHours.endTime &&
+        moment(form.workingHours.startTime, "HH:mm:ss")
+        .isBefore(moment(form.workingHours.endTime, "HH:mm:ss"))
+})
+
+const startHourRules = [
+    v => fieldRequired(v, "Start Hour is required"),
+    v => workingHoursRules.value || "Start Hour must be before End Hour"
+] 
+
+const endHourRules = [
+    v => fieldRequired(v, "End Hour is required"),
+    v => workingHoursRules.value || "End Hour must be after Start Hour"
+]
+
+const closePopUpCategory = (isActive) => {
+    if(!!isActive.value)
+        isActive.value = false
+
+    form.tempName = null
+    form.tempMaxDays = null
+    form.tempIndex = null
+}
+
+const handleAddAttendanceType = (isActive) => {
+    form.attendanceTypes.push({
+        name: form.tempName,
+        max_days: form.tempMaxDays,
+    })
+
+    closePopUpCategory(isActive)
+}
+
+const handleDeleteAttendanceType = (isActive) => {
+    form.attendanceTypes.splice(form.tempIndex, 1)
+
+    closePopUpCategory(isActive)
+}
+
+const handleEditAttendanceType = (isActive) => {
+    form.attendanceTypes[form.tempIndex].name = form.tempName,
+    form.attendanceTypes[form.tempIndex].max_days = form.tempMaxDays,
+
+    closePopUpCategory(isActive)
+}
+
+const handleSubmit = async () => {
+    try {
+        isLoadingSubmit.value = true
+
+        if(form.isValid) {
+            await addGroup(form)
+            .then((response) => {
+                if(response.status == 201) {
+                    userStore.setRole("admin")
+                    groupStore.setGroup(response.data)
+
+                    router.push({ name: "organizationProfile" })
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error)
+    } finally {
+        isLoadingSubmit.value = false
+    }
+}
+
+watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () => {
+    formStartTimeRef.value?.validate()
+    formEndTimeRef.value?.validate()
+})
 </script>
 
 <template>
@@ -43,7 +132,7 @@ import { ref } from 'vue';
             <div class="d-flex flex-column">
                 <span class="text-headline-medium font-weight-bold">Register Organization</span>
             </div>
-            <v-form validate-on="input lazy" class="d-flex flex-column ga-8">
+            <v-form v-model="form.isValid" validate-on="input lazy" class="d-flex flex-column ga-8" @submit.prevent="handleSubmit()">
                 <div class="d-flex flex-column ga-1">
                     <span class="text-title-medium font-weight-bold">Organization Details</span>
                     <v-divider class="border-opacity-50"></v-divider>    
@@ -51,6 +140,10 @@ import { ref } from 'vue';
                 <div class="w-100">
                     Name<br>
                     <v-text-field
+                    v-model="form.group.name"
+                    :disabled="isLoadingSubmit"
+                    :rules = "[v => fieldRequired(v, 'Organization Name is required')]"
+                    placeholder="Type Name"
                     variant="outlined"
                     hide-details="auto"
                     class="w-100 mt-2"></v-text-field>  
@@ -58,6 +151,10 @@ import { ref } from 'vue';
                 <div class="w-100">
                     Description<br>
                     <v-textarea
+                    v-model="form.group.description"
+                    :disabled="isLoadingSubmit"
+                    :rules = "[v => fieldRequired(v, 'Organization Description is required')]"
+                    placeholder="Type Description"
                     variant="outlined"
                     hide-details="auto"
                     class="w-100 mt-2"></v-textarea>
@@ -67,18 +164,23 @@ import { ref } from 'vue';
                     <span class="text-title-medium font-weight-bold">Working Days</span>
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
-                <div class="d-flex flex-wrap justify-center ga-2">
-                    <v-card
-                    v-for="day in allDays"
-                    class="bg-white w-100"
-                    style="max-width: 310px;"
-                    >
+                <div>
+                    <div class="d-flex flex-wrap justify-center ga-2">
                         <v-checkbox
+                        v-for="day in allDays"
+                        v-model="form.workingDays"
+                        :loading="isLoadingSubmit"
+                        :disabled="isLoadingSubmit"
                         :label="day"
                         :value="day"
+                        class="bg-white flex-grow-1 rounded"
                         hide-details="auto"
+                        style="width: 20%;"
+                        multiple
+                        @click="form.isWorkingDaysDirty = true"
                         ></v-checkbox>
-                    </v-card>
+                    </div>
+                    <p v-if="!!checkBoxRules" class="ma-0 text-error text-body-small pt-2 pl-4">{{ checkBoxRules }}</p>
                 </div>
 
                 <div class="d-flex flex-column ga-1">
@@ -86,189 +188,188 @@ import { ref } from 'vue';
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
                 <div class="d-flex flex-wrap flex-sm-nowrap flex-row ga-4">
-                    <div class="w-100">
+                    <div class="w-50">
                         Start Hour <br>
-                        <v-text-field 
-                        type="time" 
-                        variant="outlined" 
+                        <v-text-field
+                        ref="formStartTimeRef"
+                        v-model="form.workingHours.startTime"
+                        :loading="isLoadingSubmit"
+                        :disabled="isLoadingSubmit"
+                        :rules="startHourRules"
+                        type="time"
                         hide-details="auto"
-                        class="mt-2"></v-text-field>
+                        variant="outlined"></v-text-field>
                     </div>
-
-                    <div class="w-100">
+                    <div class="w-50">
                         End Hour <br>
-                        <v-text-field 
-                        type="time" 
-                        variant="outlined" 
+                        <v-text-field
+                        ref="formEndTimeRef"
+                        v-model="form.workingHours.endTime"
+                        :loading="isLoadingSubmit"
+                        :disabled="isLoadingSubmit"
+                        :rules="endHourRules"
+                        type="time"
                         hide-details="auto"
-                        class="mt-2"></v-text-field>
+                        variant="outlined"></v-text-field>
                     </div>
                 </div>
-                <div class="d-flex flex-column ga-1">
-                    <span class="text-title-medium font-weight-bold">Leave Categories</span>
-                    <v-divider class="border-opacity-50"></v-divider>      
-                </div>
-                <div class="d-flex flex-column ga-2">
-                    <v-btn 
-                    text="Add Categories +"
-                    class="bg-white"
-                    style="max-width: 150px;"
-                    @click="popupAddCategory = true">
-                    </v-btn>
-                    <div class="d-flex flex-wrap ga-2 mt-4">
-                        <v-dialog
-                        v-model="popupAddCategory"
-                        width="600">
-                            <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10">
-                                <v-card-actions>
+                <div class="d-flex flex-column ga-4">
+                    <div class="d-flex flex-column ga-1">
+                        <span class="text-title-medium font-weight-bold">Leave Categories</span>
+                        <v-divider class="border-opacity-50"></v-divider>      
+                    </div>
+                    <div class="d-flex flex-column ga-2">
+                        <div class="d-flex flex-column ga-4">
+                            <v-dialog                                
+                            max-width="600"
+                            >
+                                <template v-slot:activator="{ props: activatorProps }">
                                     <v-btn
-                                    variant="text"
-                                    icon="mdi-close"
-                                    @click="popupAddCategory = false"></v-btn>
-                                </v-card-actions>
-                                <v-card-title class="font-weight-bold text-title-large">
-                                    Add Category
-                                </v-card-title>
-                                <v-card-subtitle class="text-grey-lighten-1">
-                                    <v-divider class="border-opacity-50 mt-1"></v-divider>      
-                                </v-card-subtitle>
-                                <v-card-text class="d-flex flex-column align-start ga-4">
-                                    <v-form 
-                                    class="d-flex flex-column ga-8 w-100">
-                                        <div class="w-100">
-                                            Name <br>
-                                            <v-text-field
-                                            hide-details="auto"
-                                            variant="outlined"
-                                            class="w-100 mt-2"></v-text-field>
-                                        </div>
+                                        :disabled="isLoadingSubmit"
+                                        text="Add Category +"
+                                        class="bg-white"
+                                        style="max-width: 150px;"
+                                        v-bind="activatorProps"
+                                    ></v-btn>
+                                </template>
     
-                                        <div class="w-100">
-                                            Quantity <br>
-                                            <v-text-field
-                                            hide-details="auto"
-                                            type="number"
-                                            variant="outlined"
-                                            class="w-100 mt-2"></v-text-field>
-                                        </div>
-                                        <div class="w-100 d-flex justify-end">
+                                <template #default="{ isActive }">
+                                    <v-card class="pa-4" :disabled="isLoadingSubmit">
+                                        <v-card-actions>
                                             <v-btn
-                                            text="Create"
-                                            class="bg-white w-100 w-sm-33"
-                                            ></v-btn>
-                                        </div>
-                                    </v-form>
-                                </v-card-text>
-                            </v-card>
-                        </v-dialog>
-                        <v-dialog
-                        width="600"
-                        v-for="item in dummyCategory">
-                        <template v-slot:activator="{ props: activatorProps }">
-                            <v-card 
-                            class="w-100"
-                            :title="item?.name"
-                            color="white"
-                            link
-                            style="max-width:300px"
-                            v-bind="activatorProps">
-                                <v-card-text>
-                                    <v-chip
-                                    :text="item?.quantity"
-                                    color="blue-darken-2"
-                                    variant="flat"></v-chip>
-                                </v-card-text>
-                            </v-card>
-                        </template>
-                        <template v-slot:default="{ isActive }">
-                            <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10">
-                                <v-card-actions>
-                                    <v-btn
-                                    variant="text"
-                                    icon="mdi-close"
-                                    @click="() => isActive.value = false"></v-btn>
-                                </v-card-actions>
-                                <v-card-title class="font-weight-bold text-title-large">
-                                    Edit Category
-                                </v-card-title>
-                                <v-card-subtitle class="text-grey-lighten-1">
-                                    <v-divider class="border-opacity-50 mt-1"></v-divider>      
-                                </v-card-subtitle>
-                                <v-card-text class="d-flex flex-column align-start ga-4">
-                                    <v-btn
-                                    variant="flat"
-                                    text="Delete Category"
-                                    color="red">
-                                    </v-btn>
-                                    <v-form 
-                                    class="d-flex flex-column ga-8 w-100 mt-2">
-                                        <div class="w-100">
-                                            Name <br>
-                                            <v-text-field
-                                            hide-details="auto"
-                                            variant="outlined"
-                                            :model-value="item.name"
-                                            class="w-100 mt-2"></v-text-field>
-                                        </div>
-    
-                                        <div class="w-100">
-                                            Quantity <br>
-                                            <v-text-field
-                                            hide-details="auto"
-                                            type="number"
-                                            variant="outlined"
-                                            :model-value="item.quantity"
-                                            class="w-100 mt-2"></v-text-field>
-                                        </div>
-                                        <div class="w-100 d-flex justify-end">
-                                            <v-btn
-                                            text="Create"
-                                            class="bg-white w-100 w-sm-33"
-                                            ></v-btn>
-                                        </div>
-                                    </v-form>
-                                </v-card-text>
-                            </v-card>
-                        </template>
-                        </v-dialog>
-                        <v-dialog
-                        width="400"
-                        v-model="popupConfirmation">
-                           <v-card class="pa-2 pb-6 pa-sm-6 pb-sm-8">
-                                <v-card-item class=" d-flex justify-center">
-                                    <v-card-title class="d-flex flex-column align-center font-weight-bold text-title-large">
-                                        <v-icon
-                                        icon="mdi-alert"
-                                        color="warning"
-                                        size="100"
-                                        ></v-icon>
-                                        <br>
-                                        Are You Sure?
-                                    </v-card-title>
-                                    <v-card-subtitle class="text-grey-lighten-1">
-                                        This action cannot be reverted
-                                    </v-card-subtitle>
-                                </v-card-item>
-                                <v-card-text class="d-flex flex-row flex-wrap-reverse flex-sm-nowrap justify-center ga-2">
-                                    <v-btn
-                                    text="Cancel"
+                                            variant="text"
+                                            icon="mdi-close"
+                                            @click="closePopUpCategory(isActive)"></v-btn>
+                                        </v-card-actions>
+                                        <v-card-title class="font-weight-bold text-headline-medium">
+                                            Add Category
+                                        </v-card-title>
+                                        <v-card-subtitle class="text-grey-lighten-1">
+                                            <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                                        </v-card-subtitle>
+                                        <v-card-text class="d-flex flex-column align-start ga-4">
+                                            <div class="d-flex flex-column ga-8 w-100 align-end">
+                                                <div class="w-100">
+                                                    Name <br>
+                                                    <v-text-field
+                                                    v-model="form.tempName"
+                                                    :rules="[v => fieldRequired(v, 'Name is required')]"
+                                                    placeholder="Type Name"
+                                                    hide-details="auto"
+                                                    variant="outlined"
+                                                    class="w-100"></v-text-field>
+                                                </div>
+            
+                                                <div class="w-100">
+                                                    Quantity <br>
+                                                    <v-number-input
+                                                    v-model="form.tempMaxDays"
+                                                    :rules="[v => v !== null || 'Quantity is required', v => v !== 0 || 'Quantity must be >0']"
+                                                    placeholder="Type Quantity"
+                                                    hide-details="auto"
+                                                    variant="outlined"
+                                                    control-variant="hidden"
+                                                    class="w-100"></v-number-input>
+                                                </div>
+                                                <v-btn
+                                                text="Save Changes"
+                                                class="bg-white"
+                                                @click="handleAddAttendanceType(isActive)"
+                                                ></v-btn>
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                </template>
+                            </v-dialog>
+                            <div class="d-flex flex-wrap ga-2">
+                                <v-dialog
+                                max-width="600"
+                                v-for="(item, index) in form.attendanceTypes">
+                                <template v-slot:activator="{ props: activatorProps }">
+                                    <!-- Iterate Here -->
+                                    <v-card 
+                                    :disabled="isLoadingSubmit"
+                                    :title="item?.name"
+                                    class="w-100 flex-grow-1"
+                                    style="width: 20%;"
                                     color="white"
-                                    class="w-100 w-sm-50"
-                                    @click="popupConfirmation=false"
-                                    ></v-btn>
-                                    <v-btn
-                                    text="Delete Category"
-                                    color="red"
-                                    class="w-100 w-sm-50"
-                                    ></v-btn>
-                                </v-card-text>
-                            </v-card>
-                        </v-dialog>
+                                    link
+                                    v-bind="activatorProps"
+                                    @click="() => {
+                                        form.tempName = item?.name
+                                        form.tempMaxDays = item?.max_days
+                                        form.tempIndex = index
+                                    }"
+                                    >
+                                        <v-card-text>
+                                            <v-chip
+                                            :text="item?.max_days"
+                                            color="blue-darken-2"
+                                            variant="flat"></v-chip>
+                                        </v-card-text>
+                                    </v-card>
+                                </template>
+                                <template v-slot:default="{ isActive }">
+                                    <v-card class="pa-4">
+                                        <v-card-actions>
+                                            <v-btn
+                                            variant="text"
+                                            icon="mdi-close"
+                                            @click="closePopUpCategory(isActive)"></v-btn>
+                                        </v-card-actions>
+                                        <v-card-title class="font-weight-bold text-headline-medium">
+                                            Edit Category
+                                        </v-card-title>
+                                        <v-card-subtitle class="text-grey-lighten-1">
+                                            <v-divider class="border-opacity-50 mt-1"></v-divider>      
+                                        </v-card-subtitle>
+                                        <v-card-text class="d-flex flex-column align-start ga-4">
+                                            <v-btn
+                                            color="red"
+                                            text="Delete Category"
+                                            @click = "handleDeleteAttendanceType(isActive)"
+                                            ></v-btn>
+                                            <div class="d-flex flex-column ga-8 w-100 align-end">
+                                                <div class="w-100">
+                                                    Name <br>
+                                                    <v-text-field
+                                                    v-model="form.tempName"
+                                                    :rules="[v => fieldRequired(v, 'Name is required')]"
+                                                    placeholder="Type Name"
+                                                    hide-details="auto"
+                                                    variant="outlined"
+                                                    class="w-100"></v-text-field>
+                                                </div>
+            
+                                                <div class="w-100">
+                                                    Quantity <br>
+                                                    <v-number-input
+                                                    v-model="form.tempMaxDays"
+                                                    :rules="[v => v !== null || 'Quantity is required', v => v !== 0 || 'Quantity must be >0']"
+                                                    placeholder="Type Quantity"
+                                                    hide-details="auto"
+                                                    variant="outlined"
+                                                    control-variant="hidden"
+                                                    class="w-100"></v-number-input>
+                                                </div>
+                                                <v-btn
+                                                type="submit"
+                                                text="Save Changes"
+                                                @click="handleEditAttendanceType(isActive)"
+                                                class="bg-white"></v-btn>
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                </template>
+                                </v-dialog>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="d-flex justify-center">
                     <div class="w-100 w-sm-33 mt-8">
                         <v-btn
+                        :loading="isLoadingSubmit"
                         text="Save and Register"
                         type="submit"
                         class="bg-white"
@@ -281,5 +382,12 @@ import { ref } from 'vue';
 </template>
 
 <style scoped>
-    
+.v-checkbox {
+    &:deep(.v-selection-control__wrapper) {
+        height: 100%;
+    }
+    &:deep(.v-label.v-label--clickable) {
+        width: 100%;
+    }
+}
 </style>
