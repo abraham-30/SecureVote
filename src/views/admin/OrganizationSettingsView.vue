@@ -25,7 +25,7 @@ const isLoadingCategory = ref(true)
 const isLoadingPopUpCategory = ref(false)
 const isLoadingDeleteOrganization = ref(false)
 const controller = new AbortController()
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 const formWorkingHoursRef = ref()
 
 const formWorkingHours = reactive({
@@ -665,7 +665,7 @@ onUnmounted(() => {
                             icon="mdi-alert"></v-icon>
                             Are You Sure?
                         </v-card-title>
-                        <v-card-text class="text-center text-grey-lighten-1">
+                        <v-card-text class="text-center text-body-medium text-sm-body-large text-grey-lighten-1">
                             By clicking the “Delete” button, this whole organization is going to be deleted forever
                         </v-card-text>
                         <v-card-actions class="d-flex flex-column w-100 align-center" >
@@ -714,7 +714,7 @@ onUnmounted(() => {
             :persistent="isLoadingPopUpCategory"
             max-width="450"
             v-model="popupDeleteCategory">
-                <v-card class="pa-8 d-flex flex-column align-center" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
+                <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10 d-flex flex-column align-center" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
                     <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
                         <v-icon
                         size="72"
@@ -724,19 +724,22 @@ onUnmounted(() => {
                     </v-card-title>
                     <v-card-text class="text-center text-grey-lighten-1">This action cannot be reverted</v-card-text>
                     <v-card-actions class="w-100">
-                        <v-btn
-                        color="white"
-                        text="Cancel"
-                        class="w-50"
-                        @click="() => popupDeleteCategory = false"
-                        ></v-btn>
-                        <v-btn
-                        class="w-50"
-                        color="red"
-                        variant="flat"
-                        text="Remove Member"
-                        @click = "handleSubmitDeleteAttendanceType()" 
-                        ></v-btn>
+                        <div class="w-100 d-flex flex-wrap-reverse flex-sm-nowrap justify-center ga-2">
+                            <v-btn
+                            color="white"
+                            variant="flat"
+                            text="Cancel"
+                            class="w-100 w-sm-50"
+                            @click="() => popupDeleteCategory = false"
+                            ></v-btn>
+                            <v-btn
+                            color="red"
+                            variant="flat"
+                            text="Remove Category"
+                            class="w-100 w-sm-50"
+                            @click = "handleSubmitDeleteAttendanceType()" 
+                            ></v-btn>
+                        </div>
                     </v-card-actions>
                 </v-card>
             </v-dialog>

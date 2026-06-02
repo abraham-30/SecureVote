@@ -52,7 +52,7 @@ const isChanged = computed(()=>{
     return JSON.stringify(form) !== JSON.stringify(formTemp)
 })
 
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
@@ -114,7 +114,7 @@ function activateSidebar(){
                                 color="white"
                                 :disabled="!isChanged || isLoadingSubmit"
                                 :loading="isLoadingSubmit"
-                                class="w-100 w-sm-33"
+                                class="w-100 w-sm-25"
                             >    
                             </v-btn>
                             <v-btn
@@ -122,7 +122,7 @@ function activateSidebar(){
                                 text="Discard Changes"
                                 :disabled="!isChanged || isLoadingSubmit"
                                 @click="resetForm"
-                                class="w-100 w-sm-33"
+                                class="w-100 w-sm-25"
                             >
                             </v-btn>
                         </div>

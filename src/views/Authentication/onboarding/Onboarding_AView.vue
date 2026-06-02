@@ -10,7 +10,12 @@
             </svg>
             <span class="text-headline-large font-weight-bold">One More Step,</span>
             <span class="text-grey-lighten-1">verify your face and get started.</span>
-            <v-btn class="bg-white" to="/facecheck2">Register Face →</v-btn>
+            <v-btn 
+            text="Register Face →"
+            color="white"
+            variant="flat"
+            class="w-100 w-sm-33"
+            to="/facecheck2"></v-btn>
         </div>
     </div>
 </template>

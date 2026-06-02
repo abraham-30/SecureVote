@@ -19,7 +19,7 @@ const page = ref(1)
 const size = 5
 const tabValue = ["requested", "approved", "rejected", "cancelled"]
 
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 const tab = ref('requested')
 const isLoading = ref(true)
 const isCancelLoading = ref(false)

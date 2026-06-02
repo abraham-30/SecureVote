@@ -14,7 +14,7 @@ const userGroupMember = ref()
 const isLoading = ref(true)
 const page = ref(1)
 const size = 5
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 const controller = new AbortController()
 
 function activateSidebar(){

@@ -21,7 +21,7 @@ const userLogs = ref()
 const controller = new AbortController()
 const timeInterval = ref()
 const currentDate = ref(getCurrentDateTime())
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 
 const headers = [
     { title: "Date", value: "start_date_time", key: "date", width: "20%", sortable: false },

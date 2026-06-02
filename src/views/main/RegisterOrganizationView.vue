@@ -396,6 +396,38 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                     </v-card>
                                 </template>
                                 </v-dialog>
+                                <v-dialog
+                                max-width="450"
+                                v-model="popupDeleteCategory">
+                                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10 d-flex flex-column align-center" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
+                                        <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
+                                            <v-icon
+                                            size="72"
+                                            color="warning"
+                                            icon="mdi-alert"></v-icon>
+                                            Are You Sure?
+                                        </v-card-title>
+                                        <v-card-text class="text-center text-grey-lighten-1">This action cannot be reverted</v-card-text>
+                                        <v-card-actions class="w-100">
+                                            <div class="w-100 d-flex flex-wrap-reverse flex-sm-nowrap justify-center ga-2">
+                                                <v-btn
+                                                color="white"
+                                                variant="flat"
+                                                text="Cancel"
+                                                class="w-100 w-sm-50"
+                                                @click="() => popupDeleteCategory = false"
+                                                ></v-btn>
+                                                <v-btn
+                                                color="red"
+                                                variant="flat"
+                                                text="Remove Category"
+                                                class="w-100 w-sm-50"
+                                                @click = "" 
+                                                ></v-btn>
+                                            </div>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-dialog>
                             </div>
                         </div>
                     </div>

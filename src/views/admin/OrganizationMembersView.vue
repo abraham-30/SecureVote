@@ -87,7 +87,7 @@ watch (page, async() => {
     })
 })
 
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
@@ -118,7 +118,7 @@ function activateSidebar(){
                     ></v-icon>
                     <span class="text-headline-medium font-weight-bold">Organization Members</span>
                 </div>
-                <div class="w-100 w-sm-50 d-flex justify-sm-end">
+                <div class="w-100 w-sm-33 d-flex justify-sm-end">
                     <v-btn
                     color="white"
                     text="Invite User +"
@@ -243,7 +243,7 @@ function activateSidebar(){
                         </v-card-title>
                         <v-card-text class="text-center text-grey-lighten-1">This action cannot be reverted</v-card-text>
                         <v-card-actions class="w-100">
-                            <div class="w-100 d-flex flex-wrap flex-sm-nowrap justify-center ga-2">
+                            <div class="w-100 d-flex flex-wrap-reverse flex-sm-nowrap justify-center ga-2">
                                 <v-btn
                                 color="white"
                                 text="Cancel"

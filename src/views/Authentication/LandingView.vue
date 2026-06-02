@@ -23,7 +23,7 @@ onUnmounted(() => {
 <template>
     <v-sheet 
     class="parent-container min-h-screen d-flex flex-row flex-lg-nowrap flex-wrap-reverse ga-12 align-center">
-        <v-sheet class="d-flex flex-column ga-8 ga-lg-12 w-lg-50">
+        <v-sheet class="d-flex flex-column ga-8 ga-lg-12 w-100 w-lg-50">
             <v-img :src="iconUrl" alt="" width="125"></v-img>
             <v-sheet class="d-flex flex-column ga-4">
                 <span class="text-headline-medium text-lg-headline-large font-weight-bold">

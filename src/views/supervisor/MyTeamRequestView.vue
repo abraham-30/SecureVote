@@ -20,7 +20,7 @@ const isErrorRemainingDays = ref(false)
 const page = ref(1)
 const size = 5
 
-const isSidebarOpen = ref(true)
+const isSidebarOpen = ref(false)
 const isLoading = ref(true)
 const isReviewLoading = ref(false)
 
