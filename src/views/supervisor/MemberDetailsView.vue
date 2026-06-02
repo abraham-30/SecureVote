@@ -280,7 +280,7 @@ onUnmounted(() => {
     <div class="py-8 min-h-screen">
         <div class="d-flex flex-column ga-8">
             <div>
-                <v-btn variant="text" style="width: fit-content;" @click="$route.back()">
+                <v-btn variant="text" style="width: fit-content;" @click="$router.back()">
                     ← Back
                 </v-btn>
             </div>

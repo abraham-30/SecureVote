@@ -14,6 +14,7 @@ const form = reactive({
     isValid: false,
     email: null,
 })
+
 const isLoading = ref(false)
 const errorMessages = reactive({
     message: null,
@@ -28,23 +29,23 @@ const handleSubmit = async () => {
     try {
         if (form.isValid) {
             isLoading.value = true
-
             await sendInvitation(form.email, id.value, group.value?.id)
             .then((response) => {
                 if (!!response.data.error_code) {
                     errorMessages.message = response.data.error
-                    errorMessages.color = "red"
+                    errorMessages.color = "error"
                 }
                 else if (response.status == 201) {
                     form.email = null
                     
                     setTimeout(() => {
                         errorMessages.message = ["Invitation sent successfully!"]
-                        errorMessages.color = "green"
+                        errorMessages.color = "success"
                     }, 200)
                 }
             })
         }
+
     } catch (error) {
         console.error(error)
     } finally {

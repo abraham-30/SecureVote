@@ -43,8 +43,11 @@ const handleSubmit = async () => {
             } finally {
                 isLoading.value = false
             }
+        } else {
+            isLoading.value = false
         }
     }, 100)
+    
 }
 
 watch(email, () => {

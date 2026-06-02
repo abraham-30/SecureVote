@@ -40,7 +40,7 @@ const fetchOverrideRequest = async () => {
     })
 }
 
-const handleCancel = async (id, isActive) => {
+const handleCancel = async (id, index, isActive) => {
     try {
         isCancelLoading.value = true
         await updateOverrideRequest(id, {
@@ -54,6 +54,8 @@ const handleCancel = async (id, isActive) => {
                 if (currentLen == 1 && page.value != 1) 
                     page.value -= 1 
                 await fetchOverrideRequest()
+
+                console.log("test2")
             }
         }) 
     } catch (error) {

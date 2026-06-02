@@ -31,7 +31,7 @@ const isLoading = ref(false)
 
 const handleSubmit =  async () => {
     emailError.value = []
-    isLoading.value = false
+    isLoading.value = true
 
     setTimeout(async () => {
         if(form.isValid) {
@@ -48,8 +48,10 @@ const handleSubmit =  async () => {
             } catch (error) {
                 console.error(error)
             } finally {
-                isLoading.value = true
+                isLoading.value = false
             }
+        } else {
+            isLoading.value = false
         }
     }, 100)
 }

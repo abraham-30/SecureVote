@@ -7,6 +7,7 @@ import { storeToRefs } from 'pinia';
 import { addOverideRequest } from '@/services/OverrideServices';
 import { useUserStore } from '@/stores/UserStore';
 import router from '@/router';
+import { getCurrentDateTime } from '@/utils/date';
 
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
@@ -26,7 +27,18 @@ const isLoadingSpv = ref(true)
 const isLoadingSubmit = ref(false)
 
 const clockInOutRules = [
-    v => !!form.clockIn || !!form.clockOut || "Clock In or Clock Out is required"
+    v => !!form.clockIn || !!form.clockOut || "Clock In or Clock Out is required",
+    v => !form.clockIn || !form.clockOut || form.clockIn < form.clockOut || "Clock out cannot be smaller than clock in",
+]
+
+const dateRules = [
+    v => fieldRequired(v, 'Date is required'),
+    v => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        return new Date(v) <= today || 'Date cannot be larger than today';
+    }
 ]
 
 const handleSubmit = async() => {
@@ -102,7 +114,7 @@ onUnmounted(() => {
                         Date <br>
                         <v-date-input
                         v-model="form.date"
-                        :rules="[v => fieldRequired(v, 'Date is required')]"
+                        :rules="dateRules"
                         hide-details="auto"
                         variant="outlined"
                         class="w-100 mt-2"

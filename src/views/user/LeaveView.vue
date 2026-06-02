@@ -38,7 +38,7 @@ const fetchLeaveRequest = async () => {
     })
 }
 
-const handleCancel = async (id, isActive) => {
+const handleCancel = async (id, index, isActive) => {
     try {
         isCancelLoading.value = true
         await updateLeaveRequest(id, {

@@ -28,6 +28,11 @@ const form = reactive({
 })
 const controller = new AbortController()
 
+const dateRules = [
+    v => fieldRequired(v, 'Date is required'),
+    v => form.startDate <= form.endDate || "End date cannot be smaller than start date"
+]
+
 const handleSubmit = async() => {
     try {
         isLoadingSubmit.value = true
@@ -142,7 +147,7 @@ onUnmounted(() => {
                             Start Date <br>
                             <v-date-input
                             v-model="form.startDate"
-                            :rules="[v => fieldRequired(v, 'Date is required')]"
+                            :rules="dateRules"
                             hide-details="auto"
                             variant="outlined"
                             class="mt-2"
@@ -156,7 +161,7 @@ onUnmounted(() => {
                             End Date <br>
                             <v-date-input
                             v-model="form.endDate"
-                            :rules="[v => fieldRequired(v, 'Date is required')]"
+                            :rules="dateRules"
                             hide-details="auto"
                             variant="outlined"
                             class="mt-2"
