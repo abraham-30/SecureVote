@@ -24,12 +24,12 @@ onUnmounted(() => {
     <v-sheet 
     class="parent-container min-h-screen d-flex flex-row flex-lg-nowrap flex-wrap-reverse ga-12 align-center">
         <v-sheet class="d-flex flex-column ga-8 ga-lg-12 w-lg-50">
-            <img :src="iconUrl" alt="" width="150">
+            <v-img :src="iconUrl" alt="" width="125"></v-img>
             <v-sheet class="d-flex flex-column ga-4">
-                <span class="text-headline-large font-weight-bold">
+                <span class="text-headline-medium text-lg-headline-large font-weight-bold">
                     Absensi Digital, Kerja Lebih Cerdas.
                 </span>
-                <span class="text-title-large text-grey-lighten-1">
+                <span class="text-title-medium text-lg-title-large text-grey-lighten-1">
                     Hadirkan pengalaman absensi yang lebih cerdas, praktis, dan efisien bersama Tenda.
                 </span>
             </v-sheet>
@@ -40,15 +40,16 @@ onUnmounted(() => {
                     Sign In →
                 </v-btn>
             </div>
-            <div class="d-lg-none w-100" style="height: 125px;">
-
+            <div 
+            class="d-lg-none w-100" 
+            style="height: 125px;">
             </div>
         </v-sheet>
         <v-sheet class="child-container-2 d-flex flex-column w-100 w-lg-50">
             <div class="d-flex flex-column align-end">
                 <span>{{ formatDate(currentDate, "hh:mm A") }}</span>
             </div>
-            <div class="image-container mt-2">
+            <div class="image-container mt-2 justify-lg-center">
                 <v-img 
                 :src="dummyImgUrl" 
                 alt="" 

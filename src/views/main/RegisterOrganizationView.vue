@@ -17,6 +17,37 @@ const allDays = [
     'Sunday'
 ]
 
+const tempData = [
+    {
+        name:"Lorem Ipsum",
+        max_days: 1
+    },
+    {
+        name:"Lorem Ipsum 2",
+        max_days: 2
+    },
+    {
+        name:"Lorem Ipsum 3",
+        max_days: 3
+    },
+    {
+        name:"Lorem Ipsum 4",
+        max_days: 4
+    },
+    {
+        name:"Lorem Ipsum 5",
+        max_days: 5
+    },
+    {
+        name:"Lorem Ipsum 6",
+        max_days: 6
+    },
+    {
+        name:"Lorem Ipsum 7",
+        max_days: 7
+    },
+]
+
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const formStartTimeRef = ref()
@@ -173,10 +204,9 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                         :disabled="isLoadingSubmit"
                         :label="day"
                         :value="day"
-                        class="bg-white flex-grow-1 rounded"
                         hide-details="auto"
-                        style="width: 20%;"
                         multiple
+                        class="bg-white rounded w-100 w-sm-25 flex-grow-1"
                         @click="form.isWorkingDaysDirty = true"
                         ></v-checkbox>
                     </div>
@@ -187,8 +217,8 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                     <span class="text-title-medium font-weight-bold">Working Hours</span>
                     <v-divider class="border-opacity-50"></v-divider>      
                 </div>
-                <div class="d-flex flex-wrap flex-sm-nowrap flex-row ga-4">
-                    <div class="w-50">
+                <div class="d-flex flex-wrap flex-sm-nowrap flex-row w-100 ga-4">
+                    <div class="w-100">
                         Start Hour <br>
                         <v-text-field
                         ref="formStartTimeRef"
@@ -198,9 +228,10 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                         :rules="startHourRules"
                         type="time"
                         hide-details="auto"
-                        variant="outlined"></v-text-field>
+                        variant="outlined"
+                        class="mt-2"></v-text-field>
                     </div>
-                    <div class="w-50">
+                    <div class="w-100">
                         End Hour <br>
                         <v-text-field
                         ref="formEndTimeRef"
@@ -210,7 +241,8 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                         :rules="endHourRules"
                         type="time"
                         hide-details="auto"
-                        variant="outlined"></v-text-field>
+                        variant="outlined"
+                        class="mt-2"></v-text-field>
                     </div>
                 </div>
                 <div class="d-flex flex-column ga-4">
@@ -225,16 +257,16 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                             >
                                 <template v-slot:activator="{ props: activatorProps }">
                                     <v-btn
+                                        color="white"
                                         :disabled="isLoadingSubmit"
                                         text="Add Category +"
-                                        class="bg-white"
-                                        style="max-width: 150px;"
+                                        class="w-100 w-sm-33"
                                         v-bind="activatorProps"
                                     ></v-btn>
                                 </template>
     
                                 <template #default="{ isActive }">
-                                    <v-card class="pa-4" :disabled="isLoadingSubmit">
+                                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" :disabled="isLoadingSubmit">
                                         <v-card-actions>
                                             <v-btn
                                             variant="text"
@@ -257,7 +289,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                     placeholder="Type Name"
                                                     hide-details="auto"
                                                     variant="outlined"
-                                                    class="w-100"></v-text-field>
+                                                    class="w-100 mt-2"></v-text-field>
                                                 </div>
             
                                                 <div class="w-100">
@@ -269,11 +301,12 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                     hide-details="auto"
                                                     variant="outlined"
                                                     control-variant="hidden"
-                                                    class="w-100"></v-number-input>
+                                                    class="w-100 mt-2"></v-number-input>
                                                 </div>
                                                 <v-btn
+                                                color="white"
                                                 text="Save Changes"
-                                                class="bg-white"
+                                                class="w-100 w-sm-33"
                                                 @click="handleAddAttendanceType(isActive)"
                                                 ></v-btn>
                                             </div>
@@ -290,8 +323,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                     <v-card 
                                     :disabled="isLoadingSubmit"
                                     :title="item?.name"
-                                    class="w-100 flex-grow-1"
-                                    style="width: 20%;"
+                                    class="rounded w-100 w-sm-25 flex-grow-1"
                                     color="white"
                                     link
                                     v-bind="activatorProps"
@@ -310,7 +342,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                     </v-card>
                                 </template>
                                 <template v-slot:default="{ isActive }">
-                                    <v-card class="pa-4">
+                                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10">
                                         <v-card-actions>
                                             <v-btn
                                             variant="text"
@@ -327,6 +359,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                             <v-btn
                                             color="red"
                                             text="Delete Category"
+                                            class="w-100 w-sm-33"
                                             @click = "handleDeleteAttendanceType(isActive)"
                                             ></v-btn>
                                             <div class="d-flex flex-column ga-8 w-100 align-end">
@@ -338,7 +371,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                     placeholder="Type Name"
                                                     hide-details="auto"
                                                     variant="outlined"
-                                                    class="w-100"></v-text-field>
+                                                    class="w-100 mt-2"></v-text-field>
                                                 </div>
             
                                                 <div class="w-100">
@@ -350,13 +383,14 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                     hide-details="auto"
                                                     variant="outlined"
                                                     control-variant="hidden"
-                                                    class="w-100"></v-number-input>
+                                                    class="w-100 mt-2"></v-number-input>
                                                 </div>
                                                 <v-btn
+                                                color="white"
                                                 type="submit"
                                                 text="Save Changes"
                                                 @click="handleEditAttendanceType(isActive)"
-                                                class="bg-white"></v-btn>
+                                                class="w-100 w-sm-33"></v-btn>
                                             </div>
                                         </v-card-text>
                                     </v-card>

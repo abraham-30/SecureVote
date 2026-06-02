@@ -91,6 +91,7 @@ function activateSidebar(){
                             hide-details="auto"
                             :disabled="isLoadingSubmit"
                             :rules = "[v => fieldRequired(v, 'Organization Name is required')]"
+                            class="mt-2"
                         ></v-text-field>
                     </div>
 
@@ -102,16 +103,18 @@ function activateSidebar(){
                             hide-details="auto"
                             :disabled="isLoadingSubmit"
                             :rules = "[v => fieldRequired(v, 'Organization Description is required')]"
+                            class="mt-2"
                         ></v-textarea>
                     </div>
                     <div class="d-flex justify-end w-100">
-                        <div class="d-flex flex-row ga-2">
+                        <div class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
                             <v-btn
                                 type="submit"
                                 text="Save Changes"
+                                color="white"
                                 :disabled="!isChanged || isLoadingSubmit"
                                 :loading="isLoadingSubmit"
-                                class="bg-white"
+                                class="w-100 w-sm-33"
                             >    
                             </v-btn>
                             <v-btn
@@ -119,6 +122,7 @@ function activateSidebar(){
                                 text="Discard Changes"
                                 :disabled="!isChanged || isLoadingSubmit"
                                 @click="resetForm"
+                                class="w-100 w-sm-33"
                             >
                             </v-btn>
                         </div>

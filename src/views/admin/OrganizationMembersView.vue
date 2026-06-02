@@ -109,7 +109,7 @@ function activateSidebar(){
                 @click="activateSidebar"
                 ></v-btn>
             </div>
-            <div class="d-flex flex-row align-center justify-space-between">
+            <div class="d-flex flex-row flex-wrap justify-space-between align-center ga-4 ga-sm-0">
                 <div class="d-flex flex-column">
                     <v-icon 
                         size="60"
@@ -118,11 +118,14 @@ function activateSidebar(){
                     ></v-icon>
                     <span class="text-headline-medium font-weight-bold">Organization Members</span>
                 </div>
-                <v-btn
-                text="Invite User +"
-                to="/InviteUser"
-                class="bg-white">
-                </v-btn>
+                <div class="w-100 w-sm-50 d-flex justify-sm-end">
+                    <v-btn
+                    color="white"
+                    text="Invite User +"
+                    to="/InviteUser"
+                    variant="flat"
+                    ></v-btn>
+                </div>
             </div>
             <div>
                 <template v-if="isLoading">
@@ -168,7 +171,7 @@ function activateSidebar(){
                             </template>
     
                             <template v-slot:default="{ isActive }">
-                                <v-card :loading="isLoadingEdit" :disabled="isLoadingEdit" class="pa-4">
+                                <v-card :loading="isLoadingEdit" :disabled="isLoadingEdit" class="pa-2 pb-8 pa-sm-6 pb-sm-10">
                                     <v-card-actions>
                                         <v-btn
                                         variant="text"
@@ -187,6 +190,7 @@ function activateSidebar(){
                                         <v-btn
                                         color="red"
                                         text="Remove Member"
+                                        class="w-100 w-sm-33"
                                         @click="() => {
                                             popUpRemove = true
                                             isActive.value = false
@@ -211,10 +215,11 @@ function activateSidebar(){
                                                 ></v-select>
                                             </div>
                                             <v-btn
+                                            color="white"
                                             :disabled="formTemp.role == item?.role?.id"
                                             type="submit"
                                             text="Save Changes"
-                                            class="bg-white"></v-btn>
+                                            class="w-100 w-sm-33"></v-btn>
                                         </v-form>
                                     </v-card-text>
                                     
@@ -228,7 +233,7 @@ function activateSidebar(){
                 max-width="450"
                 :persistent="isLoadingDelete"
                 v-model="popUpRemove">
-                    <v-card class="pa-8 d-flex flex-column align-center" :loading="isLoadingDelete" :disabled="isLoadingDelete">
+                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10 d-flex flex-column align-center" :loading="isLoadingDelete" :disabled="isLoadingDelete">
                         <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
                             <v-icon
                             size="72"
@@ -238,18 +243,22 @@ function activateSidebar(){
                         </v-card-title>
                         <v-card-text class="text-center text-grey-lighten-1">This action cannot be reverted</v-card-text>
                         <v-card-actions class="w-100">
-                            <v-btn
-                            text="Cancel"
-                            class="bg-white w-50"
-                            @click="() => popUpRemove = false"
-                            ></v-btn>
-                            <v-btn
-                            class="w-50"
-                            color="red"
-                            variant="flat"
-                            text="Remove Member"
-                            @click = "handleDelete(formTemp.id)" 
-                            ></v-btn>
+                            <div class="w-100 d-flex flex-wrap flex-sm-nowrap justify-center ga-2">
+                                <v-btn
+                                color="white"
+                                text="Cancel"
+                                variant="flat"
+                                class="w-100 w-sm-33"
+                                @click="() => popUpRemove = false"
+                                ></v-btn>
+                                <v-btn
+                                color="red"
+                                text="Remove Member"
+                                variant="flat"
+                                class="w-100 w-sm-33"
+                                @click = "handleDelete(formTemp.id)" 
+                                ></v-btn>
+                            </div>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>

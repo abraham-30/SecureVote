@@ -369,7 +369,7 @@ onUnmounted(() => {
                 </div>
                 <div class="d-flex flex-column ga-2">
                     <v-form v-model="formWorkingDaysTemp.isValid" validate-on="input lazy" @submit.prevent="handleSubmitWorkingDays()">
-                        <div class="d-flex flex-wrap ga-2">
+                        <div class="d-flex flex-wrap justify-center ga-2">
                             <v-checkbox
                             v-for="day in allDays"
                             v-model="formWorkingDaysTemp.selectedDays"
@@ -377,23 +377,24 @@ onUnmounted(() => {
                             :disabled="isLoadingDays"
                             :label="day"
                             :value="day"
-                            class="bg-white flex-grow-1 rounded"
                             hide-details="auto"
-                            style="width: 20%;"
                             multiple
+                            class="bg-white rounded w-100 w-sm-25 flex-grow-1"
                             ></v-checkbox>
                         </div>
                         <p v-if="!!checkBoxRules" class="ma-0 text-error text-body-small pt-2 pl-4">{{ checkBoxRules }}</p>
-                        <div class="d-flex flex-row ga-2 mt-4 justify-end">
+                        <div class="d-flex flex-wrap flex-sm-nowrap flex-row ga-2 mt-8 justify-end">
                             <v-btn
+                            color="white"
                             text="Save Changes"
-                            class="bg-white"
                             type="submit"
+                            class="w-100 w-sm-25"
                             :disabled="isLoadingDays || isWorkingDaysDirty"
                             ></v-btn>
                             <v-btn
                             text="Discard Changes"
                             color="red"
+                            class="w-100 w-sm-25"
                             :disabled="isLoadingDays || isWorkingDaysDirty"
                             @click="resetWorkingDays()"
                             ></v-btn>
@@ -410,11 +411,11 @@ onUnmounted(() => {
                 ref="formWorkingHoursRef"
                 v-model="formWorkingHoursTemp.isValid"
                 validate-on="input lazy"
-                class="d-flex flex-column align-end ga-8"
+                class="d-flex flex-column ga-8"
                 @submit.prevent=handleSubmitWorkingHours()
                 >
-                <div class="d-flex flex-row w-100 ga-4">
-                    <div class="w-50">
+                <div class="d-flex flex-row flex-wrap flex-sm-nowrap w-100 ga-4">
+                    <div class="w-100">
                         Start Hour <br>
                         <v-text-field
                         v-model="formWorkingHoursTemp.startTime"
@@ -423,9 +424,10 @@ onUnmounted(() => {
                         :rules="startHourRules"
                         type="time"
                         hide-details="auto"
-                        variant="outlined"></v-text-field>
+                        variant="outlined"
+                        class="mt-2"></v-text-field>
                     </div>
-                    <div class="w-50">
+                    <div class="w-100">
                         End Hour <br>
                         <v-text-field
                         v-model="formWorkingHoursTemp.endTime"
@@ -434,20 +436,23 @@ onUnmounted(() => {
                         :rules="endHourRules"
                         type="time"
                         hide-details="auto"
-                        variant="outlined"></v-text-field>
+                        variant="outlined"
+                        class="mt-2"></v-text-field>
                     </div>
                 </div>
-                <div class="d-flex flex-row ga-2">
+                <div class="d-flex flex-wrap flex-sm-nowrap flex-row ga-2 justify-end">
                         <v-btn
+                        color="white"
                         text="Save Changes"
-                        class="bg-white"
                         type="submit"
+                        class="w-100 w-sm-25"
                         :disabled="isLoadingWorkingHours || isWorkingHoursDirty"
                         ></v-btn>
                         <v-btn
                         :disabled="isLoadingWorkingHours || isWorkingHoursDirty"
                         text="Discard Changes"
                         color="red"
+                        class="w-100 w-sm-25"
                         @click="resetWorkingHours()"
                         ></v-btn>
                     </div>
@@ -472,9 +477,9 @@ onUnmounted(() => {
                             >
                                 <template v-slot:activator="{ props: activatorProps }">
                                     <v-btn
+                                        color="white"
                                         text="Add Category +"
-                                        class="bg-white"
-                                        style="max-width: 150px;"
+                                        class="w-100 w-sm-33"
                                         v-bind="activatorProps"
                                     ></v-btn>
                                 </template>
@@ -508,7 +513,7 @@ onUnmounted(() => {
                                                     placeholder="Type Name"
                                                     hide-details="auto"
                                                     variant="outlined"
-                                                    class="w-100"></v-text-field>
+                                                    class="w-100 mt-2"></v-text-field>
                                                 </div>
             
                                                 <div class="w-100">
@@ -520,12 +525,13 @@ onUnmounted(() => {
                                                     hide-details="auto"
                                                     variant="outlined"
                                                     control-variant="hidden"
-                                                    class="w-100"></v-number-input>
+                                                    class="w-100 mt-2"></v-number-input>
                                                 </div>
                                                 <v-btn
+                                                color="white"
                                                 type="submit"
                                                 text="Save Changes"
-                                                class="bg-white"></v-btn>
+                                                class="w-100 w-sm-33"></v-btn>
                                             </v-form>
                                         </v-card-text>
                                     </v-card>
@@ -539,8 +545,7 @@ onUnmounted(() => {
                                 <template v-slot:activator="{ props: activatorProps }">
                                     <!-- Iterate Here -->
                                     <v-card 
-                                    class="w-100 flex-grow-1"
-                                    style="width: 20%;"
+                                    class="rounded w-100 w-sm-25 flex-grow-1"
                                     :title="item?.name"
                                     color="white"
                                     link
@@ -561,7 +566,7 @@ onUnmounted(() => {
                                     </v-card>
                                 </template>
                                 <template v-slot:default="{ isActive }">
-                                    <v-card class="pa-4" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
+                                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
                                         <v-card-actions>
                                             <v-btn
                                             variant="text"
@@ -578,6 +583,7 @@ onUnmounted(() => {
                                             <v-btn
                                             color="red"
                                             text="Delete Category"
+                                            class="w-100 w-sm-33"
                                             @click = "() => {
                                                 popupDeleteCategory = true
                                                 isActive.value = false
@@ -597,7 +603,7 @@ onUnmounted(() => {
                                                     placeholder="Type Name"
                                                     hide-details="auto"
                                                     variant="outlined"
-                                                    class="w-100"></v-text-field>
+                                                    class="w-100 mt-2"></v-text-field>
                                                 </div>
             
                                                 <div class="w-100">
@@ -609,13 +615,14 @@ onUnmounted(() => {
                                                     hide-details="auto"
                                                     variant="outlined"
                                                     control-variant="hidden"
-                                                    class="w-100"></v-number-input>
+                                                    class="w-100 mt-2"></v-number-input>
                                                 </div>
                                                 <v-btn
+                                                color="white"
                                                 type="submit"
                                                 text="Save Changes"
                                                 :disabled="isEditAttendanceTypeDirty"
-                                                class="bg-white"></v-btn>
+                                                class="w-100 w-sm-33"></v-btn>
                                             </v-form>
                                         </v-card-text>
                                     </v-card>
@@ -636,7 +643,7 @@ onUnmounted(() => {
                     <v-btn
                     text="Delete"
                     color="red"
-                    style="min-width: 150px;"
+                    class="w-100 w-sm-33"
                     :disabled="isLoadingDays || isLoadingWorkingHours || isLoadingCategory"
                     @click = "() => {
                         popupDelete = true
@@ -647,10 +654,10 @@ onUnmounted(() => {
                 <v-dialog
                 v-model="popupDelete"
                 :persistent="isLoadingPopUpCategory"
-                max-width="500"
+                max-width="450"
                 >
                     <v-card
-                    class="d-flex flex-column align-center pa-8 w-100" :disabled="isLoadingDeleteOrganization" :loading="isLoadingDeleteOrganization">
+                    class="pa-2 pb-8 pa-sm-6 pb-sm-10 d-flex flex-column align-center" :disabled="isLoadingDeleteOrganization" :loading="isLoadingDeleteOrganization">
                         <v-card-title class="d-flex flex-column ga-2 align-center font-weight-bold">
                             <v-icon
                             size="72"
@@ -682,16 +689,17 @@ onUnmounted(() => {
                                     </v-text-field>
                                 </div>    
                             
-                                <div class="d-flex flex-row ga-2 w-100">
+                                <div class="w-100 d-flex flex-wrap-reverse flex-sm-nowrap justify-center ga-2">
                                     <v-btn
+                                    color="white"
                                     variant="flat"
                                     text="Cancel"
-                                    class="bg-white w-50"
+                                    class="w-100 w-sm-33"
                                     @click = "popupDelete = false"
                                     ></v-btn>
                                     <v-btn
                                     type="submit"
-                                    class="w-50"
+                                    class="w-100 w-sm-33"
                                     color="red"
                                     variant="flat"
                                     text="Delete"
@@ -717,8 +725,9 @@ onUnmounted(() => {
                     <v-card-text class="text-center text-grey-lighten-1">This action cannot be reverted</v-card-text>
                     <v-card-actions class="w-100">
                         <v-btn
+                        color="white"
                         text="Cancel"
-                        class="bg-white w-50"
+                        class="w-50"
                         @click="() => popupDeleteCategory = false"
                         ></v-btn>
                         <v-btn

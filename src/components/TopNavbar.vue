@@ -31,10 +31,15 @@ const handleLogout = async() => {
 <template>
     <div class="d-flex flex-row justify-space-between align-center border-b border-opacity-75 bg-blur py-4 px-8 position-fixed w-100 z-index-3000">
         <div>
-            <img :src="iconUrl" alt="" style="height: 16px;">
+            <v-img 
+            :src="iconUrl" 
+            alt=""
+            width="108"
+            ></v-img>
         </div>
         <div class="d-flex flex-row align-center ga-4">
-            <span>Hi, {{ name }}</span>
+            <span
+            class="d-none d-sm-block">Hi, {{ name }}</span>
             <v-btn
             :loading="isLoading"
             class="bg-white"

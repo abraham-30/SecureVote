@@ -79,14 +79,19 @@ watch(form.email, () => {
                     :loading="isLoading"
                     :rules="emailRules"
                     :error-messages="errorMessages.message"
-                    :class="{ 'w-100': true, 'error-messages-red': errorMessages?.color === 'red', 'error-messages-green': errorMessages?.color === 'green' }"
+                    :class="{ 'w-100 mt-2': true, 'error-messages-red': errorMessages?.color === 'red', 'error-messages-green': errorMessages?.color === 'green' }"
                     ></v-text-field>
-                    <v-btn 
-                    :disabled="isLoading"
-                    type="submit"
-                    text="Send Invitation →"
-                    class="bg-white">
-                    </v-btn>
+                    <div class="d-flex justify-center w-100">
+                        <div class="w-100 w-sm-33 mt-8">
+                            <v-btn 
+                            :disabled="isLoading"
+                            type="submit"
+                            text="Send Invitation →"
+                            class="bg-white"
+                            block>
+                            </v-btn>
+                        </div>
+                    </div>
                 </div>
             </v-form>
         </div>
