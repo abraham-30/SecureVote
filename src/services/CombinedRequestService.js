@@ -1,4 +1,4 @@
-import api from "./BaseUrl";
+import api from ".baseUrl";
 
 const combinedRequested = async (user_id, group_id, size, page, signal) => {
     const response = await api.get(

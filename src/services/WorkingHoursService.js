@@ -1,4 +1,4 @@
-import api from "./BaseUrl";
+import api from ".baseUrl";
 
 const WorkingHoursList = async (group_id, signal) => {
     const response = await api.get(
