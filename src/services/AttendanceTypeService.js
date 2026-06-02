@@ -1,4 +1,4 @@
-import api from ".baseUrl"
+import api from "@/services/BaseUrl.js"
 
 const attendanceTypesList = async (group_id, signal) => {
     const response = await api.get(

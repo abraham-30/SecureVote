@@ -1,4 +1,4 @@
-import api from ".baseUrl";
+import api from "@/services/BaseUrl.js";
 
 const LeaveTypesList = async (group_id, size, page, signal) => {
     const response = await api.get(

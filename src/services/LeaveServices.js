@@ -1,5 +1,5 @@
 import { getCurrentDateTime, toDateTime } from "@/utils/date";
-import api from ".baseUrl";
+import api from "@/services/BaseUrl.js";
 
 const leaveRequestsForUser = async (user_id, group_id, status, size, page, signal) => {
     const response = await api.get(
