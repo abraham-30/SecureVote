@@ -14,6 +14,7 @@ const form = reactive({
     isValid: false,
     email: null,
 })
+const formRef = ref(null)
 
 const isLoading = ref(false)
 const errorMessages = reactive({
@@ -26,8 +27,10 @@ const { id } =  storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
 
 const handleSubmit = async () => {
+    const { valid } = await formRef.value.validate()
+
     try {
-        if (form.isValid) {
+        if (valid) {
             isLoading.value = true
             await sendInvitation(form.email, id.value, group.value?.id)
             .then((response) => {
@@ -37,10 +40,11 @@ const handleSubmit = async () => {
                 }
                 else if (response.status == 201) {
                     form.email = null
-                    
+                    console.log("test1")
                     setTimeout(() => {
                         errorMessages.message = ["Invitation sent successfully!"]
                         errorMessages.color = "success"
+                        console.log("test2")
                     }, 200)
                 }
             })
@@ -69,7 +73,13 @@ watch(form.email, () => {
                  <span class="text-headline-medium font-weight-bold">Invite User</span>
             </div>
 
-            <v-form v-model="form.isValid" :disabled="isLoading" validate-on="input lazy" class="w-100" @submit.prevent="handleSubmit()">
+            <v-form 
+            ref="formRef"
+            v-model="form.isValid" 
+            :disabled="isLoading" 
+            validate-on="input lazy" 
+            class="w-100" 
+            @submit.prevent="handleSubmit()">
                 Search User by Email <br>
                 <div class="d-flex flex-column align-center ga-2">
                     <v-text-field
@@ -80,7 +90,7 @@ watch(form.email, () => {
                     :loading="isLoading"
                     :rules="emailRules"
                     :error-messages="errorMessages.message"
-                    :class="{ 'w-100 mt-2': true, 'error-messages-red': errorMessages?.color === 'red', 'error-messages-green': errorMessages?.color === 'green' }"
+                    :class="{ 'w-100 mt-2': true, 'error-messages-red': errorMessages?.color === 'error', 'error-messages-green': errorMessages?.color === 'success' }"
                     ></v-text-field>
                     <div class="d-flex justify-center w-100">
                         <div class="w-100 w-sm-33 mt-8">
@@ -105,7 +115,7 @@ watch(form.email, () => {
         & :deep(.v-messages__message),
         & :deep(.v-field__outline),
         & :deep(.v-field__append-inner i) {
-            color: red;
+            color: #B00020;
         }
     }
 
@@ -113,7 +123,7 @@ watch(form.email, () => {
         & :deep(.v-messages__message),
         & :deep(.v-field__outline),
         & :deep(.v-field__append-inner i) {
-            color: green;
+            color: #4CAF50;
         }
     }
 }

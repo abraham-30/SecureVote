@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { fieldRequired } from '@/utils/rules';
 import { userGroupListSupervisor } from '@/services/UserGroupServices';
 import { useGroupStore } from '@/stores/GroupStore';
@@ -7,7 +7,7 @@ import { storeToRefs } from 'pinia';
 import { addOverideRequest } from '@/services/OverrideServices';
 import { useUserStore } from '@/stores/UserStore';
 import router from '@/router';
-import { getCurrentDateTime } from '@/utils/date';
+import moment from 'moment';
 
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
@@ -26,9 +26,25 @@ const form = reactive({
 const isLoadingSpv = ref(true)
 const isLoadingSubmit = ref(false)
 
+const compareClockTime = computed(() => {
+    return form.clockIn &&
+        form.clockOut &&
+        moment(form.clockIn, "HH:mm:ss")
+        .isBefore(moment(form.clockOut, "HH:mm:ss"))
+})
+
 const clockInOutRules = [
-    v => !!form.clockIn || !!form.clockOut || "Clock In or Clock Out is required",
-    v => !form.clockIn || !form.clockOut || form.clockIn < form.clockOut || "Clock out cannot be smaller than clock in",
+    () => {
+        const hasAny = form.clockIn || form.clockOut
+        if (!hasAny) return "Clock In or Clock Out is required"
+
+        const isValidRange =
+            !form.clockIn ||
+            !form.clockOut ||
+            compareClockTime.value
+
+        return isValidRange ? true : "Clock Out must be after Clock In"
+    }
 ]
 
 const dateRules = [

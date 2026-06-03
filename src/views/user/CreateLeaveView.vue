@@ -1,10 +1,12 @@
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { fieldRequired } from '@/utils/rules';
 import { useGroupStore } from '@/stores/GroupStore';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/UserStore';
 import router from '@/router';
+import moment from 'moment';
+
 import { addLeaveRequest } from '@/services/LeaveServices';
 import { userGroupListSupervisor } from '@/services/UserGroupServices';
 import { leaveRemainingsList } from '@/services/LeaveRemainingService';
@@ -28,9 +30,27 @@ const form = reactive({
 })
 const controller = new AbortController()
 
+const compareDateTime = computed(() => {
+        return form.startDate &&
+        form.endDate &&
+        moment(form.startDate)
+        .isSameOrBefore(moment(form.endDate), 'day')
+})
+
 const dateRules = [
     v => fieldRequired(v, 'Date is required'),
-    v => form.startDate <= form.endDate || "End date cannot be smaller than start date"
+
+    () => {
+        const hasAny = form.startDate || form.endDate
+        if (!hasAny) return "Clock In or Clock Out is required"
+
+        const isValidRange =
+            !form.startDate ||
+            !form.endDate ||
+            compareDateTime.value
+
+        return isValidRange ? true : "End Date must be the same or after Start Date"
+    }
 ]
 
 const handleSubmit = async() => {
