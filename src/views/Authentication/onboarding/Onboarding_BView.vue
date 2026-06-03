@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
   stopCamera()
 })
 
-watch(totalPhoto.value, (newVal) => {
+watch(totalPhoto, (newVal) => {
   if (newVal >= 10) {
     stopPhotoInterval()
 

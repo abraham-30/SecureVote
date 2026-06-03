@@ -17,42 +17,13 @@ const allDays = [
     'Sunday'
 ]
 
-const tempData = [
-    {
-        name:"Lorem Ipsum",
-        max_days: 1
-    },
-    {
-        name:"Lorem Ipsum 2",
-        max_days: 2
-    },
-    {
-        name:"Lorem Ipsum 3",
-        max_days: 3
-    },
-    {
-        name:"Lorem Ipsum 4",
-        max_days: 4
-    },
-    {
-        name:"Lorem Ipsum 5",
-        max_days: 5
-    },
-    {
-        name:"Lorem Ipsum 6",
-        max_days: 6
-    },
-    {
-        name:"Lorem Ipsum 7",
-        max_days: 7
-    },
-]
-
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const formStartTimeRef = ref()
 const formEndTimeRef = ref()
 const isLoadingSubmit = ref(false)
+const isLoadingPopUpCategory = ref(false)
+const popupDeleteCategory = ref(false)
 
 const form = reactive({
     isValid: false,
@@ -98,37 +69,71 @@ const endHourRules = [
 const closePopUpCategory = (isActive) => {
     if(!!isActive.value)
         isActive.value = false
-
-    form.tempName = null
-    form.tempMaxDays = null
-    form.tempIndex = null
+    setTimeout(()=>{
+        form.tempName = null
+        form.tempMaxDays = null
+        form.tempIndex = null
+    }, 50)
 }
 
-const handleAddAttendanceType = (isActive) => {
-    form.attendanceTypes.push({
-        name: form.tempName,
-        max_days: form.tempMaxDays,
-    })
+const handleAddAttendanceType = async(isActive) => {
+    try{
+        isLoadingPopUpCategory.value = true
 
-    closePopUpCategory(isActive)
+        if(form.isValid){
+            form.attendanceTypes.push({
+                name: form.tempName,
+                max_days: form.tempMaxDays,
+            })
+            
+            closePopUpCategory(isActive)
+        }
+    } catch(error) {
+        console.error(error)
+    } finally {
+        isLoadingPopUpCategory.value = false
+    }
 }
 
-const handleDeleteAttendanceType = (isActive) => {
-    form.attendanceTypes.splice(form.tempIndex, 1)
+const handleDeleteAttendanceType = async() => {
+    try{
+        isLoadingPopUpCategory.value = true
 
-    closePopUpCategory(isActive)
+        form.attendanceTypes.splice(form.tempIndex, 1)
+
+        popupDeleteCategory.value = false
+    } catch(error) {
+        console.error(error)
+    } finally {
+        isLoadingPopUpCategory.value = false
+    }
 }
 
-const handleEditAttendanceType = (isActive) => {
-    form.attendanceTypes[form.tempIndex].name = form.tempName,
-    form.attendanceTypes[form.tempIndex].max_days = form.tempMaxDays,
+const handleEditAttendanceType = async(isActive) => {
+    try{
+        isLoadingPopUpCategory.value = true
 
-    closePopUpCategory(isActive)
+        if(form.isValid){
+            form.attendanceTypes[form.tempIndex].name = form.tempName,
+            form.attendanceTypes[form.tempIndex].max_days = form.tempMaxDays
+
+            closePopUpCategory(isActive)
+        }
+    } catch(error) {
+        console.error(error)
+    } finally {
+        isLoadingPopUpCategory.value = false
+    }
 }
 
 const handleSubmit = async () => {
     try {
         isLoadingSubmit.value = true
+
+        if (form.attendanceTypes.length === 0 || (form.isWorkingDaysDirty && form.workingDays?.length === 0)) {
+            alert("Please select at least one working day and one attendace type.")
+            return
+        }
 
         if(form.isValid) {
             await addGroup(form)
@@ -254,6 +259,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                         <div class="d-flex flex-column ga-4">
                             <v-dialog                                
                             max-width="600"
+                            :persistent="isLoadingPopUpCategory"
                             >
                                 <template v-slot:activator="{ props: activatorProps }">
                                     <v-btn
@@ -266,7 +272,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                 </template>
     
                                 <template #default="{ isActive }">
-                                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" :disabled="isLoadingSubmit">
+                                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" :loading="isLoadingPopUpCategory" :disabled="isLoadingSubmit">
                                         <v-card-actions>
                                             <v-btn
                                             variant="text"
@@ -280,7 +286,11 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                             <v-divider class="border-opacity-50 mt-1"></v-divider>      
                                         </v-card-subtitle>
                                         <v-card-text class="d-flex flex-column align-start ga-4">
-                                            <div class="d-flex flex-column ga-8 w-100 align-end">
+                                            <v-form 
+                                            v-model="form.isValid"
+                                            validate-on="input lazy"
+                                            class="d-flex flex-column ga-8 w-100 align-end"
+                                            @submit.prevent="handleAddAttendanceType(isActive)">
                                                 <div class="w-100">
                                                     Name <br>
                                                     <v-text-field
@@ -296,7 +306,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                     Quantity <br>
                                                     <v-number-input
                                                     v-model="form.tempMaxDays"
-                                                    :rules="[v => v !== null || 'Quantity is required', v => v !== 0 || 'Quantity must be >0']"
+                                                    :rules="[v => v !== null || 'Quantity is required', v => v > 0 || 'Quantity must be >0']"
                                                     placeholder="Type Quantity"
                                                     hide-details="auto"
                                                     variant="outlined"
@@ -304,12 +314,12 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                     class="w-100 mt-2"></v-number-input>
                                                 </div>
                                                 <v-btn
+                                                type="submit"
                                                 color="white"
                                                 text="Save Changes"
                                                 class="w-100 w-sm-33"
-                                                @click="handleAddAttendanceType(isActive)"
                                                 ></v-btn>
-                                            </div>
+                                            </v-form>
                                         </v-card-text>
                                     </v-card>
                                 </template>
@@ -360,9 +370,17 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                             color="red"
                                             text="Delete Category"
                                             class="w-100 w-sm-33"
-                                            @click = "handleDeleteAttendanceType(isActive)"
+                                            @click = "() => {
+                                                popupDeleteCategory = true
+                                                isActive.value = false
+                                            }"
                                             ></v-btn>
-                                            <div class="d-flex flex-column ga-8 w-100 align-end">
+                                            <!-- @click = "handleDeleteAttendanceType(isActive)" -->
+                                            <v-form                                             
+                                            v-model="form.isValid"
+                                            validate-on="input eager"
+                                            class="d-flex flex-column ga-8 w-100 align-end"
+                                            @submit.prevent="handleEditAttendanceType(isActive)"?>
                                                 <div class="w-100">
                                                     Name <br>
                                                     <v-text-field
@@ -378,7 +396,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                     Quantity <br>
                                                     <v-number-input
                                                     v-model="form.tempMaxDays"
-                                                    :rules="[v => v !== null || 'Quantity is required', v => v !== 0 || 'Quantity must be >0']"
+                                                    :rules="[v => v !== null || 'Quantity is required', v => v > 0 || 'Quantity must be >0']"
                                                     placeholder="Type Quantity"
                                                     hide-details="auto"
                                                     variant="outlined"
@@ -391,7 +409,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                 text="Save Changes"
                                                 @click="handleEditAttendanceType(isActive)"
                                                 class="w-100 w-sm-33"></v-btn>
-                                            </div>
+                                            </v-form>
                                         </v-card-text>
                                     </v-card>
                                 </template>
@@ -422,7 +440,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                                 variant="flat"
                                                 text="Remove Category"
                                                 class="w-100 w-sm-50"
-                                                @click = "" 
+                                                @click = "handleDeleteAttendanceType()" 
                                                 ></v-btn>
                                             </div>
                                         </v-card-actions>

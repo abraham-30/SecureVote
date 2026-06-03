@@ -59,6 +59,9 @@ const takePhoto = () => {
   canvasRef.value.height = videoEl.value.videoHeight;
   canvasRef.value.getContext('2d').drawImage(videoEl.value, 0, 0);
   canvasRef.value.toBlob((blob) => form.photo.push(blob))
+
+  // console.log(form.photo) //DEBUG
+  // console.log(totalPhoto.value) //DEBUG
 }
 
 const handleSubmit = async () => {
@@ -94,10 +97,9 @@ onBeforeUnmount(() => {
   stopCamera()
 })
 
-watch(totalPhoto.value, (newVal) => {
-  if (newVal >= 1) {
+watch(totalPhoto, (newVal) => {
+  if (newVal >= 10) {
     stopPhotoInterval()
-
     handleSubmit()
   }
 })

@@ -485,7 +485,7 @@ onUnmounted(() => {
                                 </template>
 
                                 <template #default="{ isActive }">
-                                    <v-card class="pa-4" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
+                                    <v-card class="pa-2 pb-8 pa-sm-6 pb-sm-10" :loading="isLoadingPopUpCategory" :disabled="isLoadingPopUpCategory">
                                         <v-card-actions>
                                             <v-btn
                                             variant="text"
@@ -520,7 +520,7 @@ onUnmounted(() => {
                                                     Quantity <br>
                                                     <v-number-input
                                                     v-model="formAttendanceTypesTemp.quantity"
-                                                    :rules="[v => v !== null || 'Quantity is required', v => v !== 0 || 'Quantity must be >0']"
+                                                    :rules="[v => v !== null || 'Quantity is required', v => v > 0 || 'Quantity must be >0']"
                                                     placeholder="Type Quantity"
                                                     hide-details="auto"
                                                     variant="outlined"
