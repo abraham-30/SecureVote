@@ -108,6 +108,12 @@ watch(totalPhoto, (newVal) => {
 </script>
 
 <template>
+  <div class="" style="height: 5vh; background-color: #1E1E1E; border-bottom: 1px solid #B5B5B5">
+    <div class="w-25 h-100 d-flex flex-column justify-center align-center">
+
+    </div>
+  </div>
+
   <div class="app">
     <!-- Main Camera Area -->
     <main class="main">
