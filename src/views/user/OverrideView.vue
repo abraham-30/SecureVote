@@ -36,6 +36,9 @@ const fetchOverrideRequest = async () => {
     await overrideRequestsForUser(user_id.value, group.value.id, tab.value, size, page.value, controller.signal)
     .then((response) => {
         overrideRequest.value = response.data
+
+        console.log(response.data)
+
         isLoading.value = false
     })
 }
@@ -54,8 +57,6 @@ const handleCancel = async (id, index, isActive) => {
                 if (currentLen == 1 && page.value != 1) 
                     page.value -= 1 
                 await fetchOverrideRequest()
-
-                console.log("test2")
             }
         }) 
     } catch (error) {
@@ -217,11 +218,11 @@ onUnmounted(() => {
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-medium font-weight-bold">Date</span>
-                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}</span>
+                                                            <span class="text-grey-lighten-1">{{item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY")}}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
-                                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
+                                                            <span class="text-grey-lighten-1">{{item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "--:--" }} / {{item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "--:--" }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-medium font-weight-bold">Reason</span>

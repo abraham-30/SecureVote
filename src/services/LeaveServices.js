@@ -1,4 +1,4 @@
-import { getCurrentDateTime, toDateTime } from "@/utils/date";
+import { getCurrentDateTime, dateUTC } from "@/utils/date";
 import api from "@/services/BaseUrl.js";
 
 const leaveRequestsForUser = async (user_id, group_id, status, size, page, signal) => {
@@ -17,8 +17,15 @@ const leaveRequestsForUser = async (user_id, group_id, status, size, page, signa
 } 
 
 const addLeaveRequest = async (user_id, group_id, request) => {
-    const startDate = toDateTime(request.startDate, "YYYY-MM-DD HH:mm:ss[Z]")
-    const endDate = toDateTime(request.endDate, "YYYY-MM-DD HH:mm:ss[Z]")
+    // const startDate = toDateTime(request.startDate, "YYYY-MM-DD HH:mm:ss[Z]")
+    // const endDate = toDateTime(request.endDate, "YYYY-MM-DD HH:mm:ss[Z]")
+
+    const startDate = dateUTC(request.startDate)
+    const endDate = dateUTC(request.endDate)
+
+    // console.log(startDate) // DEBUG
+    // console.log(endDate) // DEBUG
+
     const response = await api.post(
         `/leave-requests/`, {
             user_id: user_id,

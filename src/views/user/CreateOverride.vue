@@ -62,6 +62,7 @@ const handleSubmit = async() => {
         isLoadingSubmit.value = true
 
         if(form.isValid) {
+            console.log(form)
             await addOverideRequest(id.value, group.value?.id, form)
             .then((response) => {
                 if (response.status == 201) {

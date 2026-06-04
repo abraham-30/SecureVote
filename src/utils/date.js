@@ -1,4 +1,5 @@
-import moment from 'moment';
+// import moment from 'moment';
+import moment from "moment-timezone";
 
 function formatDate(dateString, formatString, valueFormatString=null) {
     if(!!dateString)
@@ -16,5 +17,17 @@ function toDateTime(dateString, timeString, formatString) {
     const [ hour, minute ] = timeString.split(":")
     return moment(date).set({ hour, minute,second: 0 }).format(formatString)
 }
+
+function dateTimeUTC(dateString, timeString) {
+    const date = moment(dateString).format("YYYY-MM-DD")
+
+    return moment.tz(`${date} ${timeString}`,"YYYY-MM-DD HH:mm","Asia/Jakarta").utc().toDate();
+}
+
+function dateUTC(dateString) {
+    const date = moment(dateString).format("YYYY-MM-DD")
+
+    return moment.tz(date,"YYYY-MM-DD","Asia/Jakarta").utc().toDate();
+}
                                                                                                                                                              
-export { formatDate, getCurrentDateTime, toDateTime }
+export { formatDate, getCurrentDateTime, toDateTime, dateTimeUTC, dateUTC }

@@ -217,11 +217,11 @@ onUnmounted(() => {
                                     <template v-else-if="item?.type == 'override'">
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Date</span>
-                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "DD MMMM YYYY") }}</span>
+                                            <span class="text-grey-lighten-1">{{ item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                         </div>
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
-                                            <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
+                                            <span class="text-grey-lighten-1">{{ item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "--:--" }} / {{item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "--:--" }}</span>
                                         </div>
                                     </template>
 

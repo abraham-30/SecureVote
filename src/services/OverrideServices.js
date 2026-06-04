@@ -1,5 +1,6 @@
 import api from "@/services/BaseUrl.js";
-import { getCurrentDateTime, toDateTime } from "@/utils/date";
+import { getCurrentDateTime, dateTimeUTC } from "@/utils/date";
+import moment from "moment-timezone";
 
 const overrideRequestsForUser = async (user_id, group_id, status, size, page, signal) => {
     const response = await api.get(
@@ -17,9 +18,19 @@ const overrideRequestsForUser = async (user_id, group_id, status, size, page, si
     return response
 } 
 
+
+
 const addOverideRequest = async (user_id, group_id, request) => {
-    const clockInDateTime = toDateTime(request.date, request.clockIn, "YYYY-MM-DD HH:mm:ss[Z]")
-    const clockOutDateTime = toDateTime(request.date, request.clockOut, "YYYY-MM-DD HH:mm:ss[Z]")
+    if(!request.clockIn && !request.clockOut){
+        return false
+    }
+
+    const clockInDateTime = request.clockIn ? dateTimeUTC(request.date, request.clockIn) : null
+    const clockOutDateTime = request.clockOut ? dateTimeUTC(request.date, request.clockOut) : null
+
+    // console.log(clockInDateTime) // DEBUG
+    // console.log(clockOutDateTime) // DEBUG
+
     const response = await api.post(
         `/override-requests/`, {
             user_id: user_id,
