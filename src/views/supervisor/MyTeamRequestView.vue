@@ -189,7 +189,7 @@ onUnmounted(() => {
                                 </v-card-title>
                                 <v-card-text class="d-flex flex-column align-start ga-8">
                                     <v-alert
-                                        v-if="isErrorRemainingDays"
+                                        v-if="isErrorRemainingDays && item?.type == 'leave'"
                                         density="compact"
                                         text="Insufficient remaining days for the requester."
                                         type="error"

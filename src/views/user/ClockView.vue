@@ -37,12 +37,12 @@ const todayDate = computed(() => {
         const currentDate = formatDate(getCurrentDateTime(), "YYYY-MM-DD")
 
         if (logDate == currentDate){
-            console.log(logDate)
+            // console.log(logDate) // DEBUG
             return true
         }
         return false
     })
-
+    
     if (!!log){
         return {
             start_date_time: log.start_date_time,
@@ -132,7 +132,7 @@ onUnmounted(() => {
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock in')">
                         <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-title-medium">Registered Clock In</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate ? formatDate(todayDate?.start_date_time, "HH:mm") : "-- : --" }}</v-card-text>
+                            <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate?.start_date_time ? formatDate(todayDate?.start_date_time, "HH:mm") : "-- : --" }}</v-card-text>
                             <v-card-actions class="w-100">
                                 <v-btn block text="Clock In →" variant="elevated" class="bg-white"></v-btn>
                             </v-card-actions>
@@ -141,7 +141,7 @@ onUnmounted(() => {
                     <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock out')">
                         <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-title-medium">Registered Clock Out</v-card-title>
-                            <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate ? formatDate(todayDate?.end_date_time, "HH:mm") : "-- : --" }}</v-card-text>
+                            <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate?.end_date_time ? formatDate(todayDate?.end_date_time, "HH:mm") : "-- : --" }}</v-card-text>
                             <v-card-actions class="w-100">
                                 <v-btn block text="Clock Out →" variant="elevated" class="bg-white"></v-btn>
                             </v-card-actions>
@@ -183,11 +183,11 @@ onUnmounted(() => {
                             </template>
 
                             <template #item.clockIn="{ item }">
-                                {{ item.type != "leave" ? formatDate(item?.start_date_time, "HH:mm") : "" }}
+                                {{ item.type != "leave" && item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "" }}
                             </template>
 
                             <template #item.clockOut="{ item }">
-                                {{ item.type != "leave" ? formatDate(item?.end_date_time, "HH:mm") : "" }}
+                                {{ item.type != "leave" && item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "" }}
                             </template>
 
                             <template #item.type="{ item }">
