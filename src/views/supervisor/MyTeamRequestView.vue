@@ -157,7 +157,7 @@ onUnmounted(() => {
                 </template>
 
                 <template v-else>
-                    <v-dialog :persistent="isReviewLoading" width="600" @after-leave="isErrorRemainingDays = true"
+                    <v-dialog :persistent="isReviewLoading" width="600" @after-leave="isErrorRemainingDays = false"
                         v-for="(item, index) in combinedRequestsForSupervisor.results">
                         <template v-slot:activator="{ props: activatorProps }">
                             <v-card link class="bg-blur border-sm border-opacity-75 pa-2 text-white"

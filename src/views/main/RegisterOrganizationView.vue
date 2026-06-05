@@ -28,6 +28,7 @@ const popupDeleteCategory = ref(false)
 const form = reactive({
     isValid: false,
     isWorkingDaysDirty: false,
+    isAttendanceTypeDirty: false,
     workingDays: [],
     workingHours: {
         startTime: null,
@@ -44,10 +45,12 @@ const form = reactive({
 })
 
 const checkBoxRules = computed(() => {
-    if (form.isWorkingDaysDirty && form.workingDays?.length == 0) 
+    // console.log(`${form.isWorkingDaysDirty} ${" "} ${form.workingDays}`) // DEBUG
+    if ((form.isWorkingDaysDirty && form.workingDays?.length == 0)) 
         return "Minimum 1 day is selected"
     return null
 })
+
 
 const workingHoursRules = computed(() => {
     return form.workingHours.startTime &&
@@ -65,6 +68,13 @@ const endHourRules = [
     v => fieldRequired(v, "End Hour is required"),
     v => workingHoursRules.value || "End Hour must be after Start Hour"
 ]
+
+const attendanceTypeRules = computed(() => {
+    if (form.isAttendanceTypeDirty && form.attendanceTypes.length === 0){
+        return "Minimum 1 leave category is created"
+    }
+    return null
+})
 
 const closePopUpCategory = (isActive) => {
     if(!!isActive.value)
@@ -129,10 +139,12 @@ const handleEditAttendanceType = async(isActive) => {
 const handleSubmit = async () => {
     try {
         isLoadingSubmit.value = true
+        form.isWorkingDaysDirty = true
+        form.isAttendanceTypeDirty = true
 
-        if (form.attendanceTypes.length === 0 || (form.isWorkingDaysDirty && form.workingDays?.length === 0)) {
-            alert("Please select at least one working day and one attendace type.")
-            return
+        if (form.attendanceTypes.length === 0 || form.workingDays?.length === 0) {
+            form.isValid = false
+            // console.log(`${attendanceTypeRules} ${checkBoxRules} ${form.isValid}`) // DEBUG
         }
 
         if(form.isValid) {
@@ -277,7 +289,10 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                             <v-btn
                                             variant="text"
                                             icon="mdi-close"
-                                            @click="closePopUpCategory(isActive)"></v-btn>
+                                            @click="
+                                                closePopUpCategory(isActive),
+                                                form.isAttendanceTypeDirty = true
+                                                "></v-btn>
                                         </v-card-actions>
                                         <v-card-title class="font-weight-bold text-headline-medium">
                                             Add Category
@@ -448,6 +463,7 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                                 </v-dialog>
                             </div>
                         </div>
+                        <p v-if="!!attendanceTypeRules" class="ma-0 text-error text-body-small pt-2 pl-4">{{ attendanceTypeRules }}</p>
                     </div>
                 </div>
                 <div class="d-flex justify-center">
