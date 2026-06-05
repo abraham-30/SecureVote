@@ -42,6 +42,8 @@ const isReviewLoading = ref(false)
 const userLogs = ref()
 const controller = new AbortController()
 
+const isErrorRemainingDays = ref(false)
+
 const headers = [
     { title: "Date", value: "start_date_time", key: "date", width: "20%", sortable: false },
     { title: "Clock In", value: "start_date_time", key: "clockIn", width: "15%", sortable: false },
@@ -94,6 +96,8 @@ const fetchStats = async () => {
 
             isLoadingAttendanceReport.value = false
         })
+
+    console.log(attendanceReport)
 }
 
 const handleReject = async (id, type, index, isActive) => {
@@ -147,6 +151,7 @@ const handleReject = async (id, type, index, isActive) => {
 const handleApprove = async (item, index, isActive) => {
     try {
         isReviewLoading.value = true
+        isErrorRemainingDays.value = false
 
         if (item.type == "override") {
             await approveOverrideRequest(item)
@@ -167,7 +172,9 @@ const handleApprove = async (item, index, isActive) => {
         } else if (item.type == "leave") {
             await approveLeaveRequest(item)
                 .then((response) => {
-                    if (response.status == 200) {
+                    if (!!response.data.error_code){
+                        isErrorRemainingDays.value = true
+                    } else {
                         isActive.value = false
 
                         const currentLen = combinedRequested.value?.results.length
@@ -313,7 +320,7 @@ onUnmounted(() => {
                             <v-card-title>On Time</v-card-title>
                             <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
                                 type="text"></v-skeleton-loader>
-                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.onTime
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.onTime ?? "0"
                                 }}</v-card-text>
                         </v-card>
                         <v-card
@@ -321,7 +328,7 @@ onUnmounted(() => {
                             <v-card-title>Late</v-card-title>
                             <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
                                 type="text"></v-skeleton-loader>
-                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.late
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.late ?? "0"
                                 }}</v-card-text>
                         </v-card>
                         <v-card
@@ -330,14 +337,14 @@ onUnmounted(() => {
                             <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
                                 type="text"></v-skeleton-loader>
                             <v-card-text v-else class="text-display-medium font-weight-bold">{{
-                                attendanceReport.override }}</v-card-text>
+                                attendanceReport.override ?? "0" }}</v-card-text>
                         </v-card>
                         <v-card
                             class="d-flex flex-column align-center w-100 pa-4 bg-blur text-white border-sm border-opacity-100">
                             <v-card-title>Leave</v-card-title>
                             <v-skeleton-loader v-if="isLoadingAttendanceReport" class="w-100"
                                 type="text"></v-skeleton-loader>
-                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.leave
+                            <v-card-text v-else class="text-display-medium font-weight-bold">{{ attendanceReport.leave ?? "0"
                                 }}</v-card-text>
                         </v-card>
                     </div>
@@ -362,11 +369,11 @@ onUnmounted(() => {
                         </template>
 
                         <template #item.clockIn="{ item }">
-                            {{ item.type != "leave" ? formatDate(item?.start_date_time, "HH:mm") : "" }}
+                            {{ item.type != "leave" && item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "" }}
                         </template>
 
                         <template #item.clockOut="{ item }">
-                            {{ item.type != "leave" ? formatDate(item?.end_date_time, "HH:mm") : "" }}
+                            {{ item.type != "leave" && item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "" }}
                         </template>
 
                         <template #item.type="{ item }">
@@ -390,7 +397,7 @@ onUnmounted(() => {
                     </template>
 
                     <template v-else>
-                        <v-dialog :persistent="isReviewLoading" width="600"
+                        <v-dialog :persistent="isReviewLoading" width="600" @after-leave="isErrorRemainingDays = false"
                             v-for="(item, index) in requestWaiting?.results">
                             <template v-slot:activator="{ props: activatorProps }">
                                 <v-card link class="bg-blur border-sm border-opacity-75 pa-2 text-white"
@@ -423,15 +430,17 @@ onUnmounted(() => {
                                     </v-card-title>
 
                                     <v-card-text class="d-flex flex-column align-start ga-8 mt-4">
+                                        <v-alert
+                                            v-if="isErrorRemainingDays && item?.type == 'leave'"
+                                            density="compact"
+                                            text="Insufficient remaining days for the requester."
+                                            type="error"
+                                            class="w-100"
+                                        ></v-alert>
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Requester</span>
                                             <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{
                                                 item?.user.email }})</span>
-                                        </div>
-
-                                        <div class="d-flex flex-column">
-                                            <span class="text-title-medium font-weight-bold">Date</span>
-                                            <span class="text-grey-lighten-1">{{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
                                         </div>
 
                                         <template v-if="item?.type == 'leave'">
@@ -449,6 +458,11 @@ onUnmounted(() => {
                                         </template>
 
                                         <template v-else-if="item?.type == 'override'">
+                                            <div class="d-flex flex-column">
+                                                <span class="text-title-medium font-weight-bold">Date</span>
+                                                <span class="text-grey-lighten-1">{{ item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
+                                            </div>
+
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-medium font-weight-bold">Clock In / Clock
                                                     Out</span>
@@ -557,11 +571,6 @@ onUnmounted(() => {
                                                 item?.user.email }})</span>
                                         </div>
 
-                                        <div class="d-flex flex-column">
-                                            <span class="text-title-medium font-weight-bold">Date</span>
-                                            <span class="text-grey-lighten-1">{{ formatDate(item?.created_at, "DD MMMM YYYY") }}</span>
-                                        </div>
-
                                         <template v-if="item?.type == 'leave'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-medium font-weight-bold">Leave Type</span>
@@ -577,6 +586,10 @@ onUnmounted(() => {
                                         </template>
 
                                         <template v-else-if="item?.type == 'override'">
+                                            <div class="d-flex flex-column">
+                                                <span class="text-title-medium font-weight-bold">Date</span>
+                                                <span class="text-grey-lighten-1">{{ item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
+                                            </div>
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-medium font-weight-bold">Clock In / Clock
                                                     Out</span>
