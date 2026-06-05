@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
 })
 
 watch(totalPhoto, (newVal) => {
-  if (newVal >= 10) {
+  if (newVal >= 1) {
     stopPhotoInterval()
     handleSubmit()
   }
