@@ -40,11 +40,9 @@ const handleSubmit = async () => {
                 }
                 else if (response.status == 201) {
                     form.email = null
-                    console.log("test1")
                     setTimeout(() => {
                         errorMessages.message = ["Invitation sent successfully!"]
                         errorMessages.color = "success"
-                        console.log("test2")
                     }, 200)
                 }
             })

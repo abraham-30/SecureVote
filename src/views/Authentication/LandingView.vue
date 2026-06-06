@@ -17,6 +17,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     clearInterval(timeInterval.value)
+
 })
 </script>
 

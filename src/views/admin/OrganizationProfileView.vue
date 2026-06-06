@@ -5,9 +5,11 @@ import { useGroupStore } from '@/stores/GroupStore';
 import { storeToRefs } from 'pinia';
 import { fieldRequired } from '@/utils/rules';
 import { updateGroupDetails } from '@/services/GroupServices';
+import { useDisplay } from 'vuetify';
 
 const groupStore = useGroupStore();
 const { group } = storeToRefs(groupStore);
+const { mdAndDown } = useDisplay();
 
 const isLoadingSubmit = ref(false)
 const form = {
@@ -38,7 +40,7 @@ const handleSubmit = async() => {
             })
         }
     } catch(error) {
-        console.log(error)
+        console.error(error)
     } finally {
         isLoadingSubmit.value = false;
     }
@@ -52,7 +54,7 @@ const isChanged = computed(()=>{
     return JSON.stringify(form) !== JSON.stringify(formTemp)
 })
 
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(!mdAndDown.value)
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
 }
@@ -61,7 +63,7 @@ function activateSidebar(){
 
 <template>
     <admin-side-navbar
-    :is-open = isSidebarOpen
+    v-model="isSidebarOpen"
     @activate="activateSidebar"
     ></admin-side-navbar>
     <div class="py-14 min-h-screen">

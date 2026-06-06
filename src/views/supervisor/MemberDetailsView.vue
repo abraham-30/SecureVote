@@ -96,11 +96,9 @@ const fetchStats = async () => {
 
             isLoadingAttendanceReport.value = false
         })
-
-    console.log(attendanceReport)
 }
 
-const handleReject = async (id, type, index, isActive) => {
+const handleReject = async (id, type, isActive) => {
     try {
         isReviewLoading.value = true
 
@@ -148,7 +146,7 @@ const handleReject = async (id, type, index, isActive) => {
     }
 }
 
-const handleApprove = async (item, index, isActive) => {
+const handleApprove = async (item, isActive) => {
     try {
         isReviewLoading.value = true
         isErrorRemainingDays.value = false
@@ -439,15 +437,13 @@ onUnmounted(() => {
                                         ></v-alert>
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Requester</span>
-                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{
-                                                item?.user.email }})</span>
+                                            <span class="text-grey-lighten-1">{{ item?.user.name }} <br>({{ item?.user.email }})</span>
                                         </div>
 
                                         <template v-if="item?.type == 'leave'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-medium font-weight-bold">Leave Type</span>
-                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name
-                                                    }}</span>
+                                                <span class="text-grey-lighten-1">{{ item?.attendance_type.name }}</span>
                                             </div>
 
                                             <div class="d-flex flex-column">
@@ -460,13 +456,12 @@ onUnmounted(() => {
                                         <template v-else-if="item?.type == 'override'">
                                             <div class="d-flex flex-column">
                                                 <span class="text-title-medium font-weight-bold">Date</span>
-                                                <span class="text-grey-lighten-1">{{ item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
+                                                <span class="text-grey-lighten-1">{{ !!item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                             </div>
 
                                             <div class="d-flex flex-column">
-                                                <span class="text-title-medium font-weight-bold">Clock In / Clock
-                                                    Out</span>
-                                                <span class="text-grey-lighten-1">{{ formatDate(item?.start_date_time, "HH:mm") ?? "--:--" }} / {{ formatDate(item?.end_date_time, "HH:mm") ?? "--:--" }}</span>
+                                                <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
+                                                <span class="text-grey-lighten-1">{{ !!item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "--:--" }} / {{ !!item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "--:--" }}</span>
                                             </div>
                                         </template>
 
@@ -480,10 +475,10 @@ onUnmounted(() => {
                                         <div
                                             class="w-100 d-flex flex-row flex-wrap flex-sm-nowrap justify-end ga-4 ga-sm-2">
                                             <v-btn color="success" text="Approve" variant="flat" class="w-100 w-sm-33"
-                                                @click="handleApprove(item, index, isActive)"></v-btn>
+                                                @click="handleApprove(item, isActive)"></v-btn>
 
                                             <v-btn color="red" text="Reject" variant="flat" class="w-100 w-sm-33"
-                                                @click="handleReject(item?.id, item?.type, index, isActive)"></v-btn>
+                                                @click="handleReject(item?.id, item?.type, isActive)"></v-btn>
                                         </div>
                                     </v-card-actions>
 

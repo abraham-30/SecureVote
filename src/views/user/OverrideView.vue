@@ -3,25 +3,26 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { useUserStore } from '@/stores/UserStore';
 import { useGroupStore } from '@/stores/GroupStore';
-import { useOverrideStore } from '@/stores/OverrideStore';
 import { updateOverrideRequest, overrideRequestsForUser } from '@/services/OverrideServices';
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 import { toTitleCase } from '@/utils/utils';
+import { useDisplay } from 'vuetify';
+
 
 const userStore = useUserStore()
-const overrideStore = useOverrideStore()
 const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
 const { group } = storeToRefs(groupStore)
 const overrideRequest = ref()
 const controller = new AbortController()
+const { mdAndDown } = useDisplay()
 
 const page = ref(1)
 const size = 5
 const tabValue = ["requested", "approved", "rejected", "cancelled"]
 
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(!mdAndDown.value)
 const tab = ref('requested')
 const isLoading = ref(true)
 const isCancelLoading = ref(false)
@@ -37,13 +38,11 @@ const fetchOverrideRequest = async () => {
     .then((response) => {
         overrideRequest.value = response.data
 
-        console.log(response.data)
-
         isLoading.value = false
     })
 }
 
-const handleCancel = async (id, index, isActive) => {
+const handleCancel = async (id, isActive) => {
     try {
         isCancelLoading.value = true
         await updateOverrideRequest(id, {
@@ -103,7 +102,7 @@ onUnmounted(() => {
 
 <template>
     <side-navbar
-    :is-open="isSidebarOpen"
+    v-model="isSidebarOpen"
     @activate="activateSidebar"
     />
     <div class="py-8 min-h-screen">
@@ -218,11 +217,11 @@ onUnmounted(() => {
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-medium font-weight-bold">Date</span>
-                                                            <span class="text-grey-lighten-1">{{item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY")}}</span>
+                                                            <span class="text-grey-lighten-1">{{ !!item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY")}}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
-                                                            <span class="text-grey-lighten-1">{{item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "--:--" }} / {{item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "--:--" }}</span>
+                                                            <span class="text-grey-lighten-1">{{ !!item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "--:--" }} / {{ !!item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "--:--" }}</span>
                                                         </div>
                                                         <div class="d-flex flex-column">
                                                             <span class="text-title-medium font-weight-bold">Reason</span>
@@ -237,7 +236,7 @@ onUnmounted(() => {
                                                             variant="flat" 
                                                             color="red"
                                                             class="w-100 w-sm-33"
-                                                            @click="handleCancel(item?.id, index, isActive)">
+                                                            @click="handleCancel(item?.id, isActive)">
                                                             </v-btn>
                                                         </div>
                                                     </v-card-actions>

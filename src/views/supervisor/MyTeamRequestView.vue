@@ -8,7 +8,9 @@ import { formatDate } from '@/utils/date';
 import { combinedRequestedSpv } from '@/services/CombinedRequestService';
 import { approveOverrideRequest, updateOverrideRequest } from '@/services/OverrideServices';
 import { approveLeaveRequest, updateLeaveRequest } from '@/services/LeaveServices';
+import { useDisplay } from 'vuetify';
 
+const { mdAndDown } = useDisplay()
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
@@ -20,7 +22,7 @@ const isErrorRemainingDays = ref(false)
 const page = ref(1)
 const size = 5
 
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(!mdAndDown.value)
 const isLoading = ref(true)
 const isReviewLoading = ref(false)
 
@@ -141,7 +143,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <side-navbar :is-open="isSidebarOpen" @activate="activateSidebar" />
+    <side-navbar
+    v-model="isSidebarOpen"
+    @activate="activateSidebar" />
     <div class="py-8 min-h-screen">
         <div class="d-flex flex-column ga-8">
             <div>
@@ -217,11 +221,11 @@ onUnmounted(() => {
                                     <template v-else-if="item?.type == 'override'">
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Date</span>
-                                            <span class="text-grey-lighten-1">{{ item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
+                                            <span class="text-grey-lighten-1">{{ !!item?.start_date_time ? formatDate(item?.start_date_time, "DD MMMM YYYY") : formatDate(item?.end_date_time, "DD MMMM YYYY") }}</span>
                                         </div>
                                         <div class="d-flex flex-column">
                                             <span class="text-title-medium font-weight-bold">Clock In / Clock Out</span>
-                                            <span class="text-grey-lighten-1">{{ item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "--:--" }} / {{item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "--:--" }}</span>
+                                            <span class="text-grey-lighten-1">{{ !!item?.start_date_time ? formatDate(item?.start_date_time, "HH:mm") : "--:--" }} / {{ !!item?.end_date_time ? formatDate(item?.end_date_time, "HH:mm") : "--:--" }}</span>
                                         </div>
                                     </template>
 

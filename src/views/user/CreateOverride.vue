@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { fieldRequired } from '@/utils/rules';
 import { userGroupListSupervisor } from '@/services/UserGroupServices';
 import { useGroupStore } from '@/stores/GroupStore';
@@ -25,6 +25,8 @@ const form = reactive({
 })
 const isLoadingSpv = ref(true)
 const isLoadingSubmit = ref(false)
+const clockInRef = ref()
+const clockOutRef = ref()
 
 const compareClockTime = computed(() => {
     return form.clockIn &&
@@ -47,22 +49,11 @@ const clockInOutRules = [
     }
 ]
 
-const dateRules = [
-    v => fieldRequired(v, 'Date is required'),
-    v => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        return new Date(v) <= today || 'Date cannot be larger than today';
-    }
-]
-
 const handleSubmit = async() => {
     try {
         isLoadingSubmit.value = true
 
         if(form.isValid) {
-            console.log(form)
             await addOverideRequest(id.value, group.value?.id, form)
             .then((response) => {
                 if (response.status == 201) {
@@ -85,12 +76,17 @@ onMounted(async() => {
             isLoadingSpv.value = false
         }) 
     } catch (error) {
-        console.log(error)
+        console.error(error)
     }
 })
 
 onUnmounted(() => {
     controller.abort()
+})
+
+watch([() => form.clockIn, () => form.clockOut], () => {
+    clockOutRef.value.validate()
+    clockInRef.value.validate()
 })
 </script>
 
@@ -131,7 +127,8 @@ onUnmounted(() => {
                         Date <br>
                         <v-date-input
                         v-model="form.date"
-                        :rules="dateRules"
+                        :rules="[v => fieldRequired(v, 'Date is required')]"
+                        :max="moment().format('YYYY-MM-DD')"
                         hide-details="auto"
                         variant="outlined"
                         class="w-100 mt-2"
@@ -146,6 +143,7 @@ onUnmounted(() => {
                         <div class="w-100">
                             Clock In <br>
                             <v-text-field 
+                            ref="clockInRef"
                             v-model="form.clockIn"
                             type="time"
                             hide-details="auto"
@@ -158,6 +156,7 @@ onUnmounted(() => {
                         <div class="w-100">
                             Clock Out <br>
                             <v-text-field 
+                            ref="clockOutRef"
                             v-model="form.clockOut"
                             type="time"
                             hide-details="auto"

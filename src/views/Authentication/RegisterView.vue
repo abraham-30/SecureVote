@@ -34,23 +34,20 @@ const handleSubmit =  async () => {
     isLoading.value = true
 
     setTimeout(async () => {
-        if(form.isValid) {
-            try {
+        try {
+            if(form.isValid) {
                 await register(form)
                 .then((response) => {
-                    console.log(response.data)
                     if(response.status === 201 && !response.data.error_code) {
                         router.push({ name: 'facecheck1' })
                     } else if (response.data.error_code === 3) {
                         emailError.value = ['Email already exists']
                     }
                 })
-            } catch (error) {
-                console.error(error)
-            } finally {
-                isLoading.value = false
-            }
-        } else {
+            } 
+        } catch (error) {
+            console.error(error)
+        } finally {
             isLoading.value = false
         }
     }, 100)

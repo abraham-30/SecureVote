@@ -28,9 +28,6 @@ const addOverideRequest = async (user_id, group_id, request) => {
     const clockInDateTime = request.clockIn ? dateTimeUTC(request.date, request.clockIn) : null
     const clockOutDateTime = request.clockOut ? dateTimeUTC(request.date, request.clockOut) : null
 
-    // console.log(clockInDateTime) // DEBUG
-    // console.log(clockOutDateTime) // DEBUG
-
     const response = await api.post(
         `/override-requests/`, {
             user_id: user_id,

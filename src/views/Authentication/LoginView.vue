@@ -28,8 +28,8 @@ const handleSubmit = async () => {
     isLoading.value = true
 
     setTimeout(async () => {
-        if(isValid.value) {
-            try {
+        try {
+            if(isValid.value) {
                 const response = await login(email.value, password.value)
                 
                 if (response.status == 200 && !response.data.error_code)
@@ -38,12 +38,10 @@ const handleSubmit = async () => {
                     emailError.value = ['Incorrect email or password']
                     passwordError.value = ['Incorrect email or password']
                 }
-            } catch (error) {
-                console.log(error)
-            } finally {
-                isLoading.value = false
-            }
-        } else {
+            } 
+        } catch (error) {
+            console.error(error)
+        } finally {
             isLoading.value = false
         }
     }, 100)
@@ -52,10 +50,12 @@ const handleSubmit = async () => {
 
 watch(email, () => {
     emailError.value = []
+    passwordError.value = []
 })
 
 watch(password, () => {
     passwordError.value = []
+    emailError.value = []
 })
 </script>
 

@@ -7,14 +7,16 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 import SideNavbar from '@/components/SideNavbar.vue';
 import { toTitleCase } from '@/utils/utils';
 import router from '@/router';
+import { useDisplay } from 'vuetify';
 
+const { mdAndDown } = useDisplay()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const userGroupMember = ref()
 const isLoading = ref(true)
 const page = ref(1)
 const size = 5
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(!mdAndDown.value)
 const controller = new AbortController()
 
 function activateSidebar(){
@@ -69,7 +71,7 @@ onUnmounted(() => {
 
 <template>
     <side-navbar
-    :is-open="isSidebarOpen"
+    v-model="isSidebarOpen"
     @activate="activateSidebar"
     />
     <div class="py-8 min-h-screen">

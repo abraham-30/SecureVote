@@ -7,7 +7,9 @@ import { updateLeaveRequest, leaveRequestsForUser } from '@/services/LeaveServic
 import { storeToRefs } from 'pinia';
 import { formatDate } from '@/utils/date';
 import { toTitleCase } from '@/utils/utils';
+import { useDisplay } from 'vuetify';
 
+const { mdAndDown } = useDisplay()
 const userStore = useUserStore()
 const groupStore = useGroupStore()
 const { id: user_id } = storeToRefs(userStore)
@@ -19,7 +21,7 @@ const page = ref(1)
 const size = 5
 const tabValue = ["requested", "approved", "rejected", "cancelled"]
 
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(!mdAndDown.value)
 const tab = ref('requested')
 const isLoading = ref(true)
 const isCancelLoading = ref(false)
@@ -38,7 +40,7 @@ const fetchLeaveRequest = async () => {
     })
 }
 
-const handleCancel = async (id, index, isActive) => {
+const handleCancel = async (id, isActive) => {
     try {
         isCancelLoading.value = true
         await updateLeaveRequest(id, {
@@ -97,7 +99,7 @@ onUnmounted(() => {
 
 <template>
     <side-navbar
-    :is-open="isSidebarOpen"
+    v-model="isSidebarOpen"
     @activate="activateSidebar"
     />
     <div class="py-8 min-h-screen">
@@ -232,7 +234,7 @@ onUnmounted(() => {
                                                             variant="flat" 
                                                             color="red"
                                                             class="w-100 w-sm-33"
-                                                            @click="handleCancel(item?.id, index, isActive)">
+                                                            @click="handleCancel(item?.id, isActive)">
                                                             </v-btn>
                                                         </div>
                                                     </v-card-actions>

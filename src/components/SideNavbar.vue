@@ -9,14 +9,6 @@ const userStore = useUserStore()
 const { role } = storeToRefs(userStore)
 const isLoading = ref(false)
 
-const props = defineProps({
-    isOpen: {
-        type: Boolean,
-        required: true,
-        default: false,
-    },
-})
-
 const emits = defineEmits([
     'activate'
 ])
@@ -36,7 +28,7 @@ const handleLogout = async() => {
         })
 
     } catch(error) {
-        console.log(error)
+        console.error(error)
     } finally {
         isLoading.value = false
     }
@@ -44,7 +36,7 @@ const handleLogout = async() => {
 </script>
 
 <template>
-    <v-navigation-drawer :width="300" class="pa-8" v-model="props.isOpen">
+    <v-navigation-drawer :width="300" class="pa-8">
         <v-btn icon="mdi-close" variant="text" @click="activateSidebar"></v-btn>
         <v-list-item link title="Home" to="/home"></v-list-item>
         <v-list-item link title="Clock In / Clock Out" to="/clock"></v-list-item>

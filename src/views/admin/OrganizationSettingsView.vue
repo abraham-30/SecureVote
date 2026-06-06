@@ -11,7 +11,9 @@ import moment from 'moment';
 import { deleteGroup } from '@/services/GroupServices';
 import router from '@/router';
 import { useUserStore } from '@/stores/UserStore';
+import { useDisplay } from 'vuetify';
 
+const { mdAndDown } = useDisplay()
 const popupDelete = ref(false);
 const popupDeleteCategory = ref(false);
 const groupStore = useGroupStore()
@@ -25,7 +27,7 @@ const isLoadingCategory = ref(true)
 const isLoadingPopUpCategory = ref(false)
 const isLoadingDeleteOrganization = ref(false)
 const controller = new AbortController()
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(!mdAndDown.value)
 const formWorkingHoursRef = ref()
 
 const formWorkingHours = reactive({
@@ -341,7 +343,7 @@ onUnmounted(() => {
 
 <template>
     <admin-side-navbar
-    :is-open = isSidebarOpen
+    v-model="isSidebarOpen"
     @activate="activateSidebar"
     ></admin-side-navbar>    
     <div class="py-14 min-h-screen">
@@ -403,9 +405,12 @@ onUnmounted(() => {
                 </div>
             </div>
             <div class="d-flex flex-column ga-4">
-                <div class="d-flex flex-column ga-1">
-                    <span class="text-title-medium font-weight-bold">Working Hours</span>
-                    <v-divider class="border-opacity-50"></v-divider>      
+                <div class="">
+                    <div class="d-flex flex-column ga-1">
+                        <span class="text-title-medium font-weight-bold">Working Hours</span>
+                        <v-divider class="border-opacity-50"></v-divider>      
+                    </div>
+                    <p class="text-label-medium ma-0 mt-2">Full-day shift (00:00–23:59) means late status will not be applied.</p>
                 </div>
                 <v-form 
                 ref="formWorkingHoursRef"

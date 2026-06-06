@@ -45,7 +45,6 @@ const form = reactive({
 })
 
 const checkBoxRules = computed(() => {
-    // console.log(`${form.isWorkingDaysDirty} ${" "} ${form.workingDays}`) // DEBUG
     if ((form.isWorkingDaysDirty && form.workingDays?.length == 0)) 
         return "Minimum 1 day is selected"
     return null
@@ -144,7 +143,6 @@ const handleSubmit = async () => {
 
         if (form.attendanceTypes.length === 0 || form.workingDays?.length === 0) {
             form.isValid = false
-            // console.log(`${attendanceTypeRules} ${checkBoxRules} ${form.isValid}`) // DEBUG
         }
 
         if(form.isValid) {
@@ -230,9 +228,12 @@ watch([() => form.workingHours.startTime, () => form.workingHours.endTime], () =
                     <p v-if="!!checkBoxRules" class="ma-0 text-error text-body-small pt-2 pl-4">{{ checkBoxRules }}</p>
                 </div>
 
-                <div class="d-flex flex-column ga-1">
-                    <span class="text-title-medium font-weight-bold">Working Hours</span>
-                    <v-divider class="border-opacity-50"></v-divider>      
+                <div class="">
+                    <div class="d-flex flex-column ga-1">
+                        <span class="text-title-medium font-weight-bold">Working Hours</span>
+                        <v-divider class="border-opacity-50"></v-divider>      
+                    </div>
+                    <p class="text-label-medium ma-0 mt-2">Full-day shift (00:00–23:59) means late status will not be applied.</p>
                 </div>
                 <div class="d-flex flex-wrap flex-sm-nowrap flex-row w-100 ga-4">
                     <div class="w-100">

@@ -5,6 +5,9 @@ import { deleteUserGroup, editUserGroup, userGroupListMember } from '@/services/
 import { storeToRefs } from 'pinia';
 import { onMounted, reactive, ref, watch } from 'vue'
 import { toTitleCase } from '@/utils/utils';
+import { useDisplay } from 'vuetify';
+
+const { mdAndDown } = useDisplay()
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
 const userGroupMember = ref()
@@ -48,7 +51,7 @@ const handleEdit = async(userGroupId, index, isActive) => {
             }
         })
     } catch (error) {
-        console.log(error)
+        console.error(error)
     } finally {
         isLoadingEdit.value = false
     }
@@ -69,7 +72,7 @@ const handleDelete = async(userGroupId) => {
             }
         })
     } catch (error){
-        console.log(error)
+        console.error(error)
     } finally {
         isLoadingDelete.value = false
     }
@@ -86,9 +89,9 @@ watch (page, async() => {
         isLoading.value = false
     })
 })
+const isSidebarOpen = ref(!mdAndDown.value)
 
-const isSidebarOpen = ref(false)
-function activateSidebar(){
+function activateSidebar() {
     isSidebarOpen.value = !isSidebarOpen.value
 }
 
@@ -96,7 +99,7 @@ function activateSidebar(){
 
 <template>
     <admin-side-navbar
-    :is-open = isSidebarOpen
+    v-model="isSidebarOpen"
     @activate="activateSidebar"
     ></admin-side-navbar>
     <div class="py-14 min-h-screen">

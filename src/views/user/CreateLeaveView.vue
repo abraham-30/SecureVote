@@ -10,6 +10,7 @@ import moment from 'moment';
 import { addLeaveRequest } from '@/services/LeaveServices';
 import { userGroupListSupervisor } from '@/services/UserGroupServices';
 import { leaveRemainingsList } from '@/services/LeaveRemainingService';
+import { watch } from 'vue';
 
 const groupStore = useGroupStore()
 const { group } = storeToRefs(groupStore)
@@ -29,6 +30,9 @@ const form = reactive({
     reason: null,
 })
 const controller = new AbortController()
+const startDateRef = ref()
+const endDateRef = ref()
+const leaveTypeError = ref([])
 
 const compareDateTime = computed(() => {
         return form.startDate &&
@@ -93,6 +97,18 @@ onMounted(async() => {
 onUnmounted(() => {
     controller.abort()
 })
+
+watch([() => form.startDate, () => form.endDate, () => form.leaveType], () => {
+    startDateRef.value.validate()
+    endDateRef.value.validate()
+
+    if (!!form.leaveType && !!form.startDate && !!form.endDate 
+    && form.leaveType?.remaining_days < moment(form?.endDate).diff(moment(form?.startDate), 'days') + 1) {
+        leaveTypeError.value = ['Insufficient remaining days for the selected leave type']
+    } else {
+        leaveTypeError.value = []
+    }
+})
 </script>
 
 <template>
@@ -141,7 +157,9 @@ onUnmounted(() => {
                         item-value="attendance_type.id"
                         variant="outlined"
                         class="w-100 mt-2"
+                        return-object
                         :rules="[v => fieldRequired(v, 'Leave Type is required')]"
+                        :error-messages="leaveTypeError"
                         >
                             <template #item="{ item, props }">
                                 <v-list-item 
@@ -166,6 +184,7 @@ onUnmounted(() => {
                         <div class="w-100">
                             Start Date <br>
                             <v-date-input
+                            ref="startDateRef"
                             v-model="form.startDate"
                             :rules="dateRules"
                             hide-details="auto"
@@ -180,6 +199,7 @@ onUnmounted(() => {
                         <div class="w-100">
                             End Date <br>
                             <v-date-input
+                            ref="endDateRef"
                             v-model="form.endDate"
                             :rules="dateRules"
                             hide-details="auto"

@@ -12,14 +12,6 @@ const { group } = storeToRefs(groupStore)
 const { name } = storeToRefs(userStore)
 const isLoading = ref(false)
 
-const props = defineProps({
-    isOpen: {
-        type: Boolean,
-        required: true,
-        default: false
-    }
-})
-
 const emits = defineEmits([
     'activate'
 ])
@@ -39,7 +31,7 @@ const handleLogout = async() => {
         })
 
     } catch(error) {
-        console.log(error)
+        console.error(error)
     } finally {
         isLoading.value = false
     }
@@ -47,7 +39,7 @@ const handleLogout = async() => {
 </script>
 
 <template>
-    <v-navigation-drawer :width="300" class="pa-8" v-model="props.isOpen">
+    <v-navigation-drawer :width="300" class="pa-8">
         <v-btn icon="mdi-close" variant="text" @click="activateSidebar"></v-btn>
         <v-list-item class="text-title-large font-weight-bold">{{ group?.name }}</v-list-item>
         <v-divider></v-divider>

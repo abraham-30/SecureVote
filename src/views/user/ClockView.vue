@@ -8,7 +8,9 @@ import { storeToRefs } from 'pinia';
 import { userLogsList } from '@/services/UserLogServices';
 import { toTitleCase } from '@/utils/utils';
 import { useRouter } from 'vue-router';
+import { useDisplay } from 'vuetify';
 
+const { mdAndDown } = useDisplay()
 const router = useRouter()
 const userStore = useUserStore()
 const groupStore = useGroupStore()
@@ -21,7 +23,7 @@ const userLogs = ref()
 const controller = new AbortController()
 const timeInterval = ref()
 const currentDate = ref(getCurrentDateTime())
-const isSidebarOpen = ref(false)
+const isSidebarOpen = ref(!mdAndDown.value)
 
 const headers = [
     { title: "Date", value: "start_date_time", key: "date", width: "20%", sortable: false },
@@ -31,25 +33,7 @@ const headers = [
     { title: "Notes", value: "reason", key: "reason", width: "35%", sortable: false },
 ]
 
-const todayDate = computed(() => {
-    const log = userLogs.value?.results.find(log => {
-        const logDate = formatDate(log.start_date_time, "YYYY-MM-DD")
-        const currentDate = formatDate(getCurrentDateTime(), "YYYY-MM-DD")
-
-        if (logDate == currentDate){
-            // console.log(logDate) // DEBUG
-            return true
-        }
-        return false
-    })
-    
-    if (!!log){
-        return {
-            start_date_time: log.start_date_time,
-            end_date_time: log.end_date_time,
-        }
-    }
-})
+const todayDate = ref()
 
 function activateSidebar(){
     isSidebarOpen.value = !isSidebarOpen.value
@@ -67,6 +51,7 @@ const fetchUserLogs = async () => {
     await userLogsList(id.value, group.value?.id, size, page.value, controller.signal)
     .then((response) => {
         userLogs.value = response.data
+        todayDate.value = response.data.today_log
         isLoading.value = false
     })
 }
@@ -101,7 +86,7 @@ onUnmounted(() => {
 
 <template>
     <side-navbar
-    :is-open="isSidebarOpen"
+    v-model="isSidebarOpen"
     @activate="activateSidebar"
     />
     <div class="py-8 min-h-screen">
