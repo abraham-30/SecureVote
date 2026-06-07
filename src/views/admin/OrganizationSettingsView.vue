@@ -78,7 +78,6 @@ const allDays = [
 
 const passwordRules = [
     v => fieldRequired(v, 'Password is required'),
-    v => passwordFieldCheck(v)
 ]
 
 const passwordError = ref([])

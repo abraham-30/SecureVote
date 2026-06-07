@@ -1,7 +1,7 @@
 <script setup>
 import { faceRegister } from '@/services/auth'
 import { onMounted, onBeforeUnmount, computed, ref, reactive, watch } from 'vue'
-import { useRouter } from 'vuetify/lib/composables/router.mjs'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const isLoading = ref(false)
@@ -18,16 +18,23 @@ let intervalPhoto = null
 
 const startPhotoInterval = () => {
   clearInterval(intervalPhoto)
-  
-  setTimeout(() => {
-    if (!!videoEl.value && videoEl.value.readyState === 4) {
+
+  if (videoEl.value.readyState >= 4) {
+    setTimeout(() => {
+      intervalPhoto = setInterval(() => takePhoto(), 300)
+    }, 1000)
+    return
+  }
+
+  videoEl.value.addEventListener(
+    'canplay',
+    () => {
       setTimeout(() => {
-        intervalPhoto = setInterval(() => {
-            takePhoto()
-          }, 300)
+        intervalPhoto = setInterval(() => takePhoto(), 300)
       }, 1000)
-    }
-  }, 1000)
+    },
+    { once: true }
+  )
 }
 
 const stopPhotoInterval = () => {
@@ -80,7 +87,7 @@ const handleSubmit = async () => {
 }
 
 const handleRetry = () => {
-  form.photo = []
+  form.photo.length = 0
   isDialogOpen.value = false
   isLoading.value = false
   videoEl.value.play()

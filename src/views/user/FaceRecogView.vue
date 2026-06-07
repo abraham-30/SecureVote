@@ -21,15 +21,15 @@ let intervalPhoto = null
 const startPhotoInterval = () => {
   clearInterval(intervalPhoto)
 
-  setTimeout(() => {
-    if (!!videoEl.value && videoEl.value.readyState === 4) {
+  videoEl.value.addEventListener(
+    'canplay',
+    () => {
       setTimeout(() => {
-        intervalPhoto = setInterval(() => {
-            takePhoto()
-          }, 300)
-      }, 1000)
-    }
-  }, 1000)
+        intervalPhoto = setInterval(() => takePhoto(), 300)
+      }, 1500)
+    },
+    { once: true }
+  )
 }
 
 const stopPhotoInterval = () => {

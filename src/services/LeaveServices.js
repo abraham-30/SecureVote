@@ -28,7 +28,7 @@ const addLeaveRequest = async (user_id, group_id, request) => {
             user_id: user_id,
             group_id: group_id,
             supervisor_id: request.supervisor,
-            attendance_type_id: request.leaveType.id,
+            attendance_type_id: request.leaveType.attendance_type.id,
             start_date_time: startDate,
             end_date_time: endDate,
             status: "requested",
