@@ -106,8 +106,7 @@ onMounted(() => {
   const todayWorkingHour = workingHours.value[today === 0 ? 6 : today - 1]
 
   if (todayWorkingHour.day == moment().format('dddd')) {
-    if (todayWorkingHour.end_time > moment().format("HH:mm:ss")) {
-      console.log(workingHours.value[today === 0 ? 6 : today - 1].day, moment().format('dddd'))
+    if (todayWorkingHour.end_time != "00:00:00" && todayWorkingHour.end_time != "23:59:00" && todayWorkingHour.end_time > moment().format("HH:mm:ss")) {
       isErrorClockOut.value = true
       isDialogOpen.value = true
     } else {
