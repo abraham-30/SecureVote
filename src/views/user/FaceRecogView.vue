@@ -3,7 +3,12 @@ import { addUserLog } from '@/services/UserLogServices'
 import { onMounted, onBeforeUnmount, computed, ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoute } from 'vue-router'
+import moment from 'moment'
+import { useWorkingHoursStore } from '@/stores/WorkingHoursStore'
+import { storeToRefs } from 'pinia'
 
+const workingHoursStore = useWorkingHoursStore()
+const { workingHours } = storeToRefs(workingHoursStore)
 const route = useRoute()
 const router = useRouter()
 const isLoading = ref(false)
@@ -17,6 +22,8 @@ const form = reactive(
 const canvasRef = ref(null)
 const totalPhoto = computed(() => form.photo.length)
 let intervalPhoto = null
+const isErrorDiffDay = ref(false) 
+const isErrorClockOut = ref(false) 
 
 const startPhotoInterval = () => {
   clearInterval(intervalPhoto)
@@ -64,6 +71,8 @@ const takePhoto = () => {
 const handleSubmit = async () => {
   try {
     isLoading.value = true
+    isErrorDiffDay.value = false
+    isErrorClockOut.value = false
     videoEl.value.pause()
     
     await addUserLog(form.photo, route.query.type)
@@ -81,13 +90,35 @@ const handleSubmit = async () => {
 }
 
 const handleRetry = () => {
-    router.push({ name: 'clock' })
+  router.push({ name: 'clock' })
+}
+
+const handleConfirm = () => {
+  startCamera()
+    
+  startPhotoInterval()
+
+  isDialogOpen.value = false
 }
 
 onMounted(() => {
-  startCamera()
+  const today = moment().day()
+  const todayWorkingHour = workingHours.value[today === 0 ? 6 : today - 1]
 
-  startPhotoInterval()
+  if (todayWorkingHour.day == moment().format('dddd')) {
+    if (todayWorkingHour.end_time > moment().format("HH:mm:ss")) {
+      console.log(workingHours.value[today === 0 ? 6 : today - 1].day, moment().format('dddd'))
+      isErrorClockOut.value = true
+      isDialogOpen.value = true
+    } else {
+      startCamera()
+    
+      startPhotoInterval()
+    }
+  } else {
+    isErrorDiffDay.value = true
+    isDialogOpen.value = true
+  }
 })
 
 onBeforeUnmount(() => {
@@ -139,21 +170,51 @@ watch(totalPhoto, (newVal) => {
           size="72"
           color="warning"
           icon="mdi-alert"></v-icon>
-          Failed to Capture
+          {{ 
+            isErrorDiffDay || isErrorClockOut ?
+              "Are you Sure?"
+              :
+              "Failed to Capture"
+          }}
         </v-card-title>
         <v-card-text class="text-center text-body-medium text-sm-body-large text-grey-lighten-1">
-          Please try face verification again in a well-lit area and make sure your face is clearly visible to the camera.
+          {{ 
+            isErrorDiffDay ?
+              "You're trying to log attendance on a non-working day"
+            : isErrorClockOut ?
+              "You're trying to clock out before your scheduled work end time"
+            : "Please try face verification again in a well-lit area and make sure your face is clearly visible to the camera."
+          }}
         </v-card-text>
         <v-card-actions class="w-100">
           <div class="w-100 d-flex flex-wrap-reverse flex-sm-nowrap justify-center ga-2">
-            <v-btn
-            text="Retry" 
-            variant="flat" 
-            color="white" 
-            class="w-100 w-sm-33" 
-            @click="handleRetry()">
-              Understood
-            </v-btn>
+            <template v-if="isErrorDiffDay || isErrorClockOut">
+              <v-btn
+                text="Back" 
+                variant="flat" 
+                color="white" 
+                class="w-50 w-sm-33" 
+                @click="$router.push({ name: 'clock' })">
+              </v-btn>
+
+              <v-btn
+                text="Confirm"
+                variant="flat" 
+                color="white" 
+                class="w-50 w-sm-33" 
+                @click="handleConfirm()">
+              </v-btn>
+            </template>
+
+            <template v-else>
+              <v-btn
+              variant="flat" 
+              color="white" 
+              class="w-100 w-sm-33" 
+              @click="handleRetry()">
+                Understood
+              </v-btn>
+            </template>
           </div>
         </v-card-actions>
       </v-card>

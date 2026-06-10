@@ -1,6 +1,7 @@
 <script setup>
 import { useGroupStore } from '@/stores/GroupStore';
 import { useUserStore } from '@/stores/UserStore'; 
+import { useWorkingHoursStore } from '@/stores/WorkingHoursStore'; 
 import { formatDate, getCurrentDateTime } from '@/utils/date';
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
 import SideNavbar from '@/components/SideNavbar.vue';
@@ -9,8 +10,10 @@ import { userLogsList } from '@/services/UserLogServices';
 import { toTitleCase } from '@/utils/utils';
 import { useRouter } from 'vue-router';
 import { useDisplay } from 'vuetify';
+import { WorkingHoursList } from '@/services/WorkingHoursService';
 
 const { mdAndDown } = useDisplay()
+const workingHoursStore = useWorkingHoursStore()
 const router = useRouter()
 const userStore = useUserStore()
 const groupStore = useGroupStore()
@@ -24,6 +27,15 @@ const controller = new AbortController()
 const timeInterval = ref()
 const currentDate = ref(getCurrentDateTime())
 const isSidebarOpen = ref(!mdAndDown.value)
+const dayOrder = {
+    Monday: 0,
+    Tuesday: 1,
+    Wednesday: 2,
+    Thursday: 3,
+    Friday: 4,
+    Saturday: 5,
+    Sunday: 6
+};
 
 const headers = [
     { title: "Date", value: "start_date_time", key: "date", width: "20%", sortable: false },
@@ -62,6 +74,11 @@ const handleClockClick = (type) => {
 
 onMounted(async () => {
     try {
+        await WorkingHoursList(group.value?.id, controller.signal)
+        .then((response) => {
+            workingHoursStore.setWorkingHours(response.data.sort((a, b) => dayOrder[a.day] - dayOrder[b.day]))
+        })
+
         await fetchUserLogs()
     } catch (error) {
         console.error(error)
@@ -114,7 +131,7 @@ onUnmounted(() => {
             </div>
             <div class="d-flex flex-column ga-4">
                 <div class="d-flex flex-row flex-wrap flex-sm-nowrap w-100 ga-4">
-                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock in')">
+                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" :disabled="isLoading" @click="handleClockClick('clock in')">
                         <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-title-medium">Registered Clock In</v-card-title>
                             <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate?.start_date_time ? formatDate(todayDate?.start_date_time, "HH:mm") : "-- : --" }}</v-card-text>
@@ -123,7 +140,7 @@ onUnmounted(() => {
                             </v-card-actions>
                         </div>
                     </v-card>
-                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" @click="handleClockClick('clock out')">
+                    <v-card class="w-100 bg-blur text-white border-sm border-opacity-100 pa-4" :disabled="isLoading" @click="handleClockClick('clock out')">
                         <div class="d-flex flex-column ga-4 align-center">
                             <v-card-title class="text-title-medium">Registered Clock Out</v-card-title>
                             <v-card-text class="text-display-medium font-weight-bold">{{ !!todayDate?.end_date_time ? formatDate(todayDate?.end_date_time, "HH:mm") : "-- : --" }}</v-card-text>

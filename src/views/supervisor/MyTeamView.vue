@@ -1,6 +1,5 @@
 <script setup>
 import { useGroupStore } from '@/stores/GroupStore';
-import { useUserGroupStore } from '@/stores/UserGroupStore';
 import { userGroupListMember } from '@/services/UserGroupServices';
 import { storeToRefs } from 'pinia';
 import { onMounted, onUnmounted, ref, watch } from 'vue'
