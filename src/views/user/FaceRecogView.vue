@@ -105,18 +105,24 @@ onMounted(() => {
   const today = moment().day()
   const todayWorkingHour = workingHours.value[today === 0 ? 6 : today - 1]
 
-  if (todayWorkingHour.day == moment().format('dddd')) {
-    if (todayWorkingHour.end_time != "00:00:00" && todayWorkingHour.end_time != "23:59:00" && todayWorkingHour.end_time > moment().format("HH:mm:ss")) {
-      isErrorClockOut.value = true
-      isDialogOpen.value = true
+  if(route.query.type == 'clock out') {
+    if (todayWorkingHour.day == moment().format('dddd')) {
+      if (todayWorkingHour.end_time != "00:00:00" && todayWorkingHour.end_time != "23:59:00" && todayWorkingHour.end_time > moment().format("HH:mm:ss")) {
+        isErrorClockOut.value = true
+        isDialogOpen.value = true
+      } else {
+        startCamera()
+      
+        startPhotoInterval()
+      }
     } else {
-      startCamera()
-    
-      startPhotoInterval()
+      isErrorDiffDay.value = true
+      isDialogOpen.value = true
     }
-  } else {
-    isErrorDiffDay.value = true
-    isDialogOpen.value = true
+  } else if(route.query.type == 'clock in') {
+    startCamera()
+      
+    startPhotoInterval()
   }
 })
 
